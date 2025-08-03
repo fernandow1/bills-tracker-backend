@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
+import path from 'node:path';
 import { envs } from '@infrastructure/config/env';
 
 export const AppDataSource = new DataSource({
@@ -12,8 +13,8 @@ export const AppDataSource = new DataSource({
   database: envs.DB_NAME,
   synchronize: false,
   logging: false,
-  entities: [__dirname + '/entities/*.entity.js'],
+  entities: [__dirname + '/entities/*.entity.{js,ts}'],
   migrationsRun: false,
-  migrations: [__dirname + '/../../../migrations/*.ts'],
+  migrations: [path.resolve(__dirname, '../../../migrations/*.js')],
   subscribers: [],
 });
