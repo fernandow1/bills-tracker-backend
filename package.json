@@ -1,0 +1,51 @@
+{
+  "name": "bills-tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "dev": "concurrently \"npm run build:watch\" \"npm run serve\"",
+    "serve": "nodemon dist/app.js",
+    "start": "node dist/app.js",
+    "build:full": "tsc && tsc-alias",
+    "migration:generate": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate ./migrations/fer-migration -d ./src/infrastructure/database/connection.ts",
+    "migration:run": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d ./src/infrastructure/database/connection.ts",
+    "migration:revert": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d ./src/infrastructure/database/connection.ts",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.{ts,js,json}\""
+  },
+  "keywords": [],
+  "author": "Fernando Wabab",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "class-validator": "^0.14.2",
+    "compression": "^1.8.1",
+    "dotenv": "^17.2.0",
+    "env-var": "^7.5.0",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.1",
+    "reflect-metadata": "^0.2.2",
+    "ts-node": "^10.9.2",
+    "typeorm": "^0.3.25"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@types/compression": "^1.8.1",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.12",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "concurrently": "^9.2.0",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.3",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.38.0"
+  }
+}
