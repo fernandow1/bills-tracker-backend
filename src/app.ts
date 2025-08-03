@@ -1,7 +1,7 @@
-import { AppDataSource } from './infrastructure/database/connection';
-import { AppRoutes } from './presentation/routes';
-import { Server } from './presentation/server';
-import { envs } from './infrastructure/config/env';
+import { AppDataSource } from '@infrastructure/database/connection';
+import { AppRoutes } from '@presentation/routes';
+import { Server } from '@presentation/server';
+import { envs } from '@infrastructure/config/env';
 
 (async (): Promise<void> => {
   try {

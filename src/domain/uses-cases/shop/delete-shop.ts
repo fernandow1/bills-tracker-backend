@@ -1,4 +1,4 @@
-import { ShopRepository } from '@/domain/repository/shop.repository';
+import { ShopRepository } from '@domain/repository/shop.repository';
 
 export interface DeleteShopUseCase {
   execute(id: number): Promise<void>;

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Router } from 'express';
-import { ShopRouter } from './shop/router';
+import { ShopRouter } from '@presentation/shop/router';
 
 export const AppRoutes = {
   routes(): Router {

@@ -1,6 +1,6 @@
-import { ShopDataSource } from '@/domain/datasources/shop.datasource';
-import { AppDataSource } from '../database/connection';
-import { Shop } from '../database/entities/shop.entity';
+import { ShopDataSource } from '@domain/datasources/shop.datasource';
+import { AppDataSource } from '@infrastructure/database/connection';
+import { Shop } from '@infrastructure/database/entities/shop.entity';
 
 export class ShopDataSourceImpl implements ShopDataSource {
   async getShops(): Promise<Shop[]> {

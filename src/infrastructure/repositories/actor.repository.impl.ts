@@ -1,6 +1,6 @@
-import { ShopDataSource } from '@/domain/datasources/shop.datasource';
-import { Shop } from '@/domain/entities/shop.entity';
-import { ShopRepository } from '@/domain/repository/shop.repository';
+import { ShopDataSource } from '@domain/datasources/shop.datasource';
+import { Shop } from '@domain/entities/shop.entity';
+import { ShopRepository } from '@domain/repository/shop.repository';
 
 export class ShopRepositoryImpl implements ShopRepository {
   private shopDataSource: ShopDataSource;
@@ -21,7 +21,7 @@ export class ShopRepositoryImpl implements ShopRepository {
     return this.shopDataSource.updateShop(id, shop);
   }
 
-  deleteShop(id: number): Promise<boolean> {
+  deleteShop(id: number): Promise<void> {
     return this.shopDataSource.deleteShop(id);
   }
 }

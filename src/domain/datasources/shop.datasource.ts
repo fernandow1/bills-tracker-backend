@@ -1,4 +1,4 @@
-import { Shop } from '../entities/shop.entity';
+import { Shop } from '@domain/entities/shop.entity';
 
 export abstract class ShopDataSource {
   abstract getShops(): Promise<Shop[]>;

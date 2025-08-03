@@ -1,5 +1,5 @@
-import { Shop } from '@/domain/entities/shop.entity';
-import { ShopRepository } from '@/domain/repository/shop.repository';
+import { Shop } from '@domain/entities/shop.entity';
+import { ShopRepository } from '@domain/repository/shop.repository';
 
 export interface CreateShopUseCase {
   execute(shopData: Shop): Promise<Shop>;
