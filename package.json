@@ -23,6 +23,7 @@
     "dotenv": "^17.2.0",
     "env-var": "^7.5.0",
     "express": "^5.1.0",
+    "helmet": "^8.1.0",
     "mysql2": "^3.14.1",
     "reflect-metadata": "^0.2.2",
     "ts-node": "^10.9.2",
