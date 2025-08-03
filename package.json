@@ -11,7 +11,8 @@
     "migration:revert": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d src/infrastructure/database/connection.ts",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "format": "prettier --write \"src/**/*.{ts,js,json}\""
+    "format": "prettier --write \"src/**/*.{ts,js,json}\"",
+    "start": "node dist/app.js"
   },
   "keywords": [],
   "author": "Fernando Wabab",
