@@ -18,8 +18,8 @@ export class Currency {
   @Column({ name: 'name', type: 'varchar', length: 100, nullable: false })
   name: string;
 
-  @Column({ name: 'symbol', type: 'varchar', length: 10, nullable: true })
-  symbol?: string | null;
+  @Column({ name: 'symbol', type: 'varchar', length: 10, nullable: true, default: null })
+  symbol: string | null;
 
   @CreateDateColumn({
     name: 'created_at',

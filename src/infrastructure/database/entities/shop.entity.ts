@@ -20,10 +20,24 @@ export class Shop {
   @Column({ name: 'description', type: 'tinytext', nullable: false })
   description: string;
 
-  @Column({ name: 'latitude', type: 'double', precision: 9, scale: 6, nullable: true })
+  @Column({
+    name: 'latitude',
+    type: 'double',
+    precision: 9,
+    scale: 6,
+    nullable: true,
+    default: null,
+  })
   latitude: number;
 
-  @Column({ name: 'longitude', type: 'double', precision: 9, scale: 6, nullable: true })
+  @Column({
+    name: 'longitude',
+    type: 'double',
+    precision: 9,
+    scale: 6,
+    nullable: true,
+    default: null,
+  })
   longitude: number;
 
   @CreateDateColumn({
