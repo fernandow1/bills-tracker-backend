@@ -1,7 +1,7 @@
 export class User {
   id: number;
   name: string;
-  surname: string | undefined;
+  surname: string | null;
   email: string;
   username: string;
   password: string;
@@ -13,7 +13,7 @@ export class User {
     id: number,
     name: string,
     username: string,
-    surname: string | undefined,
+    surname: string | null,
     email: string,
     password: string,
     createdAt: Date,
@@ -29,9 +29,5 @@ export class User {
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.deletedAt = deletedAt || null;
-  }
-
-  get fullName(): string {
-    return `${this.name} ${this.surname || ''}`.trim();
   }
 }
