@@ -19,7 +19,7 @@ export class User {
   name: string;
 
   @Column({ name: 'surname', type: 'varchar', length: 100, nullable: true, default: null })
-  surname: string | undefined;
+  surname: string | null;
 
   @Column({ name: 'email', type: 'varchar', length: 100, nullable: false })
   email: string;
@@ -43,6 +43,7 @@ export class User {
     name: 'updated_at',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
     nullable: false,
     precision: 0,
   })

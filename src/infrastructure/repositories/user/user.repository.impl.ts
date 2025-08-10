@@ -1,0 +1,27 @@
+import { UserDataSource } from '@domain/datasources/user.datasource';
+import { User } from '@domain/entities/user.entity';
+import { UserRepository } from '@domain/repository/user.repository';
+
+export class UserRepositoryImpl implements UserRepository {
+  private userDataSource: UserDataSource;
+
+  constructor(userDataSource: UserDataSource) {
+    this.userDataSource = userDataSource;
+  }
+
+  findAll(): Promise<User[]> {
+    return this.userDataSource.getUsers();
+  }
+  findById(id: number): Promise<User | null> {
+    return this.userDataSource.getUserById(id);
+  }
+  create(user: Partial<User>): Promise<User> {
+    return this.userDataSource.createUser(user);
+  }
+  update(id: number, user: Partial<User>): Promise<User | null> {
+    return this.userDataSource.updateUser(id, user);
+  }
+  delete(id: number): Promise<void> {
+    return this.userDataSource.deleteUser(id);
+  }
+}
