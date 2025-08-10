@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Router } from 'express';
 import { ShopDataSourceImpl } from '@infrastructure/datasource/shop.datasource.impl';
-import { ShopRepositoryImpl } from '@infrastructure/repositories/actor.repository.impl';
+import { ShopRepositoryImpl } from '@infrastructure/repositories/shop.repository.impl';
 import { ShopController } from '@presentation/shop/controller';
 
 export const ShopRouter = {
