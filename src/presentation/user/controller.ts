@@ -1,11 +1,16 @@
 import { CreateUserDto } from '@domain/dtos/user/create-user.dto';
+import { PasswordHasher } from '@domain/ports/password-hasher';
 import { UserRepository } from '@domain/repository/user.repository';
+import { CreateUser } from '@domain/uses-cases/user/create-user';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { Request, Response } from 'express';
 
 export class UserController {
-  constructor(private readonly repository: UserRepository) {}
+  constructor(
+    private readonly repository: UserRepository,
+    private readonly passwordHasher: PasswordHasher,
+  ) {}
 
   createUser = async (req: Request, res: Response): Promise<void> => {
     const dto = plainToClass(CreateUserDto, req.body);
@@ -25,14 +30,15 @@ export class UserController {
       return;
     }
 
-    this.repository
-      .create(dto)
-      .then((user) => {
-        res.status(201).json(user);
-      })
-      .catch((error) => {
-        console.error('Error creating user:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+    try {
+      const createUser = new CreateUser(this.repository, this.passwordHasher);
+      const user = await createUser.execute(dto);
+      res.status(201).json(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        message: 'Internal server error',
       });
+    }
   };
 }
