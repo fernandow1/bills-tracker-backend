@@ -15,6 +15,11 @@ export class UserRepositoryImpl implements UserRepository {
   findById(id: number): Promise<User | null> {
     return this.userDataSource.getUserById(id);
   }
+
+  findByUsername(username: string): Promise<User | null> {
+    return this.userDataSource.getUserByUsername(username);
+  }
+
   create(user: Partial<User>): Promise<User> {
     return this.userDataSource.createUser(user);
   }

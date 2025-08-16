@@ -10,4 +10,5 @@ export const envs = {
   DB_PASSWORD: get('DB_PASSWORD').required().asString(),
   DB_NAME: get('DB_NAME').required().asString(),
   DB_ROOT_PASSWORD: get('DB_ROOT_PASSWORD').required().asString(),
+  JWT_SECRET: get('JWT_SECRET').required().asString(),
 };

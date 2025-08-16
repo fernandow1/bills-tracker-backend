@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ShopRepository } from '@domain/repository/shop.repository';
-import { GetShops } from '@domain/uses-cases/shop/get-shop';
+import { GetShops } from '@application/uses-cases/shop/get-shop';
 import { CreateShopDTO } from '@domain/dtos/shop/create-shop.dto';
 import { validate, ValidationError } from 'class-validator';
 

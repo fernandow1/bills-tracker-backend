@@ -20,6 +20,7 @@ export class CreateUser {
       userData.password = await this.passwordHasher.hash(userData.password);
     }
     const user = await this.userRepository.create(userData);
+
     return user;
   }
 }

@@ -14,6 +14,20 @@ export class UserDataSourceImpl implements UserDataSource {
     return AppDataSource.getRepository(User).findOneBy({ id });
   }
 
+  async getUserByUsername(username: string): Promise<User | null> {
+    const query = AppDataSource.getRepository(User).createQueryBuilder('user');
+    query.where('user.username = :username', { username });
+    query.select([
+      'user.id',
+      'user.username',
+      'user.password',
+      'user.email',
+      'user.name',
+      'user.surname',
+    ]);
+    return query.getOne();
+  }
+
   async updateUser(id: number, userData: Partial<User>): Promise<User> {
     const user = await AppDataSource.getRepository(User).findOneBy({ id });
     if (!user) throw new Error('User not found');

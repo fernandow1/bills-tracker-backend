@@ -19,6 +19,10 @@ export const UserRouter = {
       userController.createUser(req, res);
     });
 
+    router.post('/login', (req, res) => {
+      userController.loginUser(req, res);
+    });
+
     return router;
   },
 };
