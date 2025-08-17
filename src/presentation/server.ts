@@ -1,5 +1,6 @@
 import express, { Router } from 'express';
 import compression from 'compression';
+import { errorHandler } from '@infrastructure/http/middlewares/errorHandler.middleware';
 
 interface Options {
   port: number;
@@ -22,6 +23,9 @@ export class Server {
     this.app.use(this.routes);
     this.app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
     this.app.use(compression()); // Enable compression for responses
+
+    /* Middleware for errors */
+    this.app.use(errorHandler);
 
     // Start the server
     this.app.listen(this.port, () => {
