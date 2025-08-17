@@ -12,11 +12,11 @@ export const PaymentMethodRouter = {
     const paymentMethodRepository = new PaymentMethodRepositoryImpl(paymentMethodDataSource);
     const paymentMethodController = new PaymentMethodController(paymentMethodRepository);
 
-    router.post('/payment-methods', (req: Request, res: Response, next: NextFunction) => {
-      paymentMethodController.createPaymentMethod(req, res, next);
-    });
-    router.get('/payment-methods', (req: Request, res: Response, next: NextFunction) => {
+    router.get('/', (req: Request, res: Response, next: NextFunction) => {
       paymentMethodController.getAllPaymentMethods(req, res, next);
+    });
+    router.post('/', (req: Request, res: Response, next: NextFunction) => {
+      paymentMethodController.createPaymentMethod(req, res, next);
     });
 
     return router;
