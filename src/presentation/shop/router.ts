@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Router } from 'express';
+import { Request, Router, Response, NextFunction } from 'express';
 import { ShopDataSourceImpl } from '@infrastructure/datasource/shop.datasource.impl';
 import { ShopRepositoryImpl } from '@infrastructure/repositories/shop.repository.impl';
 import { ShopController } from '@presentation/shop/controller';
@@ -15,12 +15,12 @@ export const ShopRouter = {
     const shopController = new ShopController(shopRepository);
 
     // Define your routes here
-    router.get('/', (req, res) => {
-      shopController.getShops(req, res);
+    router.get('/', (req: Request, res: Response, next: NextFunction) => {
+      shopController.getShops(req, res, next);
     });
 
-    router.post('/', (req, res) => {
-      shopController.createShop(req, res);
+    router.post('/', (req: Request, res: Response, next: NextFunction) => {
+      shopController.createShop(req, res, next);
     });
 
     return router;
