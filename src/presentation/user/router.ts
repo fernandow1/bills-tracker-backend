@@ -3,7 +3,7 @@ import { BcryptPasswordHasher } from '@infrastructure/security/bcrypt-password-h
 import { UserDataSourceImpl } from '@infrastructure/datasource/user/user.datasource.impl';
 import { UserRepositoryImpl } from '@infrastructure/repositories/user/user.repository.impl';
 import { UserController } from '@presentation/user/controller';
-import { Router } from 'express';
+import { Request, Router, Response, NextFunction } from 'express';
 
 export const UserRouter = {
   routes(): Router {
@@ -15,12 +15,12 @@ export const UserRouter = {
 
     const userController = new UserController(userRepository, new BcryptPasswordHasher());
 
-    router.post('/', (req, res) => {
-      userController.createUser(req, res);
+    router.post('/', (req: Request, res: Response, next: NextFunction) => {
+      userController.createUser(req, res, next);
     });
 
-    router.post('/login', (req, res) => {
-      userController.loginUser(req, res);
+    router.post('/login', (req: Request, res: Response, next: NextFunction) => {
+      userController.loginUser(req, res, next);
     });
 
     return router;

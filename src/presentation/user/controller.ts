@@ -1,3 +1,4 @@
+import { NextFunction, Request, Response } from 'express';
 import { AuthUserDTO } from '@domain/dtos/user/auth-user.dto';
 import { CreateUserDto } from '@domain/dtos/user/create-user.dto';
 import { PasswordHasher } from '@domain/ports/password-hasher';
@@ -6,7 +7,7 @@ import { CreateUser } from '@application/uses-cases/user/create-user';
 import { LoginUser } from '@application/uses-cases/user/login-user';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
-import { Request, Response } from 'express';
+import { AppError } from '@application/errors/app-error';
 
 export class UserController {
   constructor(
@@ -14,7 +15,7 @@ export class UserController {
     private readonly passwordHasher: PasswordHasher,
   ) {}
 
-  createUser = async (req: Request, res: Response): Promise<void> => {
+  createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const dto = plainToClass(CreateUserDto, req.body);
     const validationErrors = await validate(dto, {
       whitelist: true,
@@ -23,13 +24,7 @@ export class UserController {
     });
 
     if (validationErrors.length) {
-      res.status(400).json({
-        errors: validationErrors.map((error) => ({
-          property: error.property,
-          constraints: error.constraints,
-        })),
-      });
-      return;
+      return next(AppError.badRequest('Validation failed', validationErrors));
     }
 
     try {
@@ -44,35 +39,26 @@ export class UserController {
     }
   };
 
-  loginUser = async (req: Request, res: Response): Promise<void> => {
+  loginUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const dto = plainToClass(AuthUserDTO, req.body);
 
     const validationErrors = await validate(dto);
 
     if (validationErrors.length) {
-      res.status(400).json({
-        errors: validationErrors.map((error) => ({
-          property: error.property,
-          constraints: error.constraints,
-        })),
-      });
-      return;
+      return next(AppError.badRequest('Validation failed', validationErrors));
     }
 
-    const { username, password } = req.body;
     try {
+      const { username, password } = req.body;
       const loginUser = new LoginUser(this.repository, this.passwordHasher);
       const authUser = await loginUser.execute(username, password);
       if (!authUser) {
-        res.status(401).json({ message: 'Invalid credentials' });
-        return;
+        return next(AppError.forbidden('Invalid credentials'));
       }
       res.status(200).json({ ...authUser });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
-        message: 'Internal server error',
-      });
+      return next(AppError.internalError('Internal server error'));
     }
   };
 }
