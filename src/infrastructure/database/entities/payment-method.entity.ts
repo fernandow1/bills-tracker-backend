@@ -12,7 +12,7 @@ export class PaymentMethod {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int', unsigned: true })
   id: number;
 
-  @Column({ name: 'name', type: 'varchar', length: 150, nullable: false })
+  @Column({ name: 'name', type: 'varchar', length: 150, nullable: false, unique: true })
   name: string;
 
   @Column({ name: 'description', type: 'tinytext', nullable: true })

@@ -11,17 +11,16 @@ export class PaymentMethodController {
   constructor(private readonly repository: PaymentMethodRepository) {}
 
   createPaymentMethod = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const dto = plainToClass(CreatePaymentMethodDTO, req.body);
-    const validationErrors = await validate(dto, {
-      whitelist: true,
-      validationError: { target: false, value: false },
-    });
-
-    if (validationErrors.length) {
-      return next(AppError.badRequest('Validation failed', validationErrors));
-    }
-
     try {
+      const dto = plainToClass(CreatePaymentMethodDTO, req.body);
+      const validationErrors = await validate(dto, {
+        whitelist: true,
+        validationError: { target: false, value: false },
+      });
+
+      if (validationErrors.length) {
+        return next(AppError.badRequest('Validation failed', validationErrors));
+      }
       const paymentMethod = await new CreatePaymentMethod(this.repository).execute(dto);
 
       res.status(201).json(paymentMethod);
