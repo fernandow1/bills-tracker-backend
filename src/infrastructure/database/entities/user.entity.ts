@@ -24,10 +24,23 @@ export class User {
   @Column({ name: 'email', type: 'varchar', length: 100, nullable: false })
   email: string;
 
-  @Column({ name: 'username', type: 'varchar', length: 100, nullable: false })
+  @Column({
+    name: 'username',
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+    collation: 'utf8mb4_bin',
+  })
   username: string;
 
-  @Column({ name: 'password', type: 'varchar', length: 255, nullable: false, select: false })
+  @Column({
+    name: 'password',
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    select: false,
+    collation: 'utf8mb4_bin',
+  })
   password: string;
 
   @CreateDateColumn({
