@@ -3,27 +3,25 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('payment_method')
-export class PaymentMethod {
+@Index('idx_brand_name', ['name'], { unique: true })
+@Entity('brand')
+export class Brand {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int', unsigned: true })
   id: number;
 
-  @Column({ name: 'name', type: 'varchar', length: 150, nullable: false, unique: true })
+  @Column({ name: 'name', type: 'varchar', length: 50, nullable: false, collation: 'utf8mb4_bin' })
   name: string;
-
-  @Column({ name: 'description', type: 'tinytext', nullable: true })
-  description: string | null;
 
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(0)',
     precision: 0,
-    nullable: false,
   })
   createdAt: Date;
 
@@ -33,7 +31,6 @@ export class PaymentMethod {
     default: () => 'CURRENT_TIMESTAMP(0)',
     onUpdate: 'CURRENT_TIMESTAMP(0)',
     precision: 0,
-    nullable: false,
   })
   updatedAt: Date;
 
@@ -42,6 +39,7 @@ export class PaymentMethod {
     type: 'timestamp',
     default: null,
     precision: 0,
+    nullable: true,
   })
   deletedAt: Date | null;
 }
