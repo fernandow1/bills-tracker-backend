@@ -1,0 +1,7 @@
+import { CreateBrandDTO } from '@domain/dtos/brand/create-brand.dto';
+import { Brand } from '@domain/entities/brand.entity';
+
+export abstract class BrandRepository {
+  abstract create(brand: CreateBrandDTO): Promise<Brand>;
+  abstract findAll(): Promise<Brand[]>;
+}
