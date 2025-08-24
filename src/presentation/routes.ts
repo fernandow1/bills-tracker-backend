@@ -5,6 +5,7 @@ import { CurrencyRouter } from '@presentation/currency/router';
 import { UserRouter } from '@presentation/user/router';
 import { PaymentMethodRouter } from '@presentation/payment-method/routes';
 import { BrandRouter } from '@presentation/brand/routes';
+import { CategoryRouter } from '@presentation/category/router';
 
 export const AppRoutes = {
   routes(): Router {
@@ -16,6 +17,7 @@ export const AppRoutes = {
     router.use('/api/users', UserRouter.routes());
     router.use('/api/payment-methods', PaymentMethodRouter.routes());
     router.use('/api/brands', BrandRouter.routes());
+    router.use('/api/categories', CategoryRouter.routes());
 
     return router;
   },
