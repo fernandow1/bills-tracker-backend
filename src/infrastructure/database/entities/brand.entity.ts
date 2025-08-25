@@ -4,9 +4,11 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { BrandCategory } from '@infrastructure/database/entities/brand-category.entity';
 
 @Index('idx_brand_name', ['name'], { unique: true })
 @Entity('brand')
@@ -42,4 +44,7 @@ export class Brand {
     nullable: true,
   })
   deletedAt: Date | null;
+
+  @OneToMany(() => BrandCategory, (brandCategory) => brandCategory.brand)
+  categories: BrandCategory[];
 }
