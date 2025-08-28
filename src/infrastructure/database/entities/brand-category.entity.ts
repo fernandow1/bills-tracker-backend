@@ -48,12 +48,16 @@ export class BrandCategory {
 
   @ManyToOne(() => Brand, (brand) => brand.categories, {
     nullable: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'id_brand', referencedColumnName: 'id' })
   brand: Brand;
 
   @ManyToOne(() => Category, (category) => category.brandCategories, {
     nullable: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'id_category', referencedColumnName: 'id' })
   category: Category;
