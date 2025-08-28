@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { BrandCategory } from '@infrastructure/database/entities/brand-category.entity';
+import { Product } from '@infrastructure/database/entities/product.entity';
 
 @Index('idx_brand_name', ['name'], { unique: true })
 @Entity('brand')
@@ -47,4 +48,6 @@ export class Brand {
 
   @OneToMany(() => BrandCategory, (brandCategory) => brandCategory.brand)
   categories: BrandCategory[];
+
+  products: Product[];
 }

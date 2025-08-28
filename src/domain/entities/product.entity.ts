@@ -6,9 +6,9 @@ export class Product {
   idCategory: number;
   name: string;
   description: string | null;
-  price: number;
   netPrice: number;
   netUnit: NetUnits;
+  quantity: number;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
@@ -18,9 +18,9 @@ export class Product {
     idBrand: number,
     idCategory: number,
     name: string,
-    price: number,
     netPrice: number,
     netUnit: NetUnits,
+    quantity: number,
     createdAt: Date,
     updatedAt: Date,
     description?: string | null,
@@ -30,9 +30,9 @@ export class Product {
     this.idBrand = idBrand;
     this.idCategory = idCategory;
     this.name = name;
-    this.price = price;
     this.netPrice = netPrice;
     this.netUnit = netUnit;
+    this.quantity = quantity;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.description = description || null;
