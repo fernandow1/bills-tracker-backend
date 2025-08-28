@@ -7,8 +7,8 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Brand } from './brand.entity';
-import { Category } from './category.entity';
+import { Brand } from '@infrastructure/database/entities/brand.entity';
+import { Category } from '@infrastructure/database/entities/category.entity';
 
 @Entity('brand_category')
 export class BrandCategory {
