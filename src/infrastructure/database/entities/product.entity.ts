@@ -1,5 +1,6 @@
 import { NetUnits } from '@domain/value-objects/net-units.enum';
 import {
+  Check,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -12,10 +13,12 @@ import {
 } from 'typeorm';
 import { Brand } from '@infrastructure/database/entities/brand.entity';
 import { Category } from '@infrastructure/database/entities/category.entity';
+import { BrandCategory } from '@infrastructure/database/entities/brand-category.entity';
 
 @Index('idx_product_name', ['name'], { unique: true })
 @Index('idx_product_id_brand', ['idBrand'])
 @Index('idx_product_id_category', ['idCategory'])
+@Check('`quantity` >= 0')
 @Entity('product')
 export class Product {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int', unsigned: true })
@@ -83,4 +86,22 @@ export class Product {
   })
   @JoinColumn({ name: 'id_category', referencedColumnName: 'id' })
   category: Category;
+
+  @ManyToOne(() => BrandCategory, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
+  @JoinColumn([
+    {
+      name: 'id_brand',
+      referencedColumnName: 'idBrand',
+      foreignKeyConstraintName: 'FK_3182397f713e52ec980960d34c7',
+    },
+    {
+      name: 'id_category',
+      referencedColumnName: 'idCategory',
+      foreignKeyConstraintName: 'FK_1e9aee9ce30ccc28da157f34b40',
+    },
+  ])
+  brandCategory: BrandCategory;
 }
