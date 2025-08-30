@@ -19,6 +19,7 @@ import { BrandCategory } from '@infrastructure/database/entities/brand-category.
 @Index('idx_product_id_brand', ['idBrand'])
 @Index('idx_product_id_category', ['idCategory'])
 @Check('`quantity` >= 0')
+@Check('`net_price` >= 0')
 @Entity('product')
 export class Product {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int', unsigned: true })
