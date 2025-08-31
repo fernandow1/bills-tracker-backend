@@ -96,12 +96,10 @@ export class Product {
     {
       name: 'id_brand',
       referencedColumnName: 'idBrand',
-      foreignKeyConstraintName: 'FK_3182397f713e52ec980960d34c7',
     },
     {
       name: 'id_category',
       referencedColumnName: 'idCategory',
-      foreignKeyConstraintName: 'FK_1e9aee9ce30ccc28da157f34b40',
     },
   ])
   brandCategory: BrandCategory;
