@@ -1,4 +1,3 @@
-import { NetUnits } from '@domain/value-objects/net-units.enum';
 import {
   Check,
   Column,
@@ -36,15 +35,6 @@ export class Product {
 
   @Column({ name: 'description', type: 'tinytext', nullable: true, default: null })
   description: string | null;
-
-  @Column({ name: 'net_price', type: 'decimal', precision: 10, scale: 2, nullable: false })
-  netPrice: number;
-
-  @Column({ name: 'net_unit', type: 'enum', enum: NetUnits, nullable: false })
-  netUnit: NetUnits;
-
-  @Column({ name: 'quantity', type: 'int', nullable: false, unsigned: true })
-  quantity: number;
 
   @CreateDateColumn({
     name: 'created_at',
