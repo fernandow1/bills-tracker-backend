@@ -1,4 +1,4 @@
-import { CreateBrandDTO } from '@domain/dtos/brand/create-brand.dto';
+import { CreateBrandDTO } from '@application/dtos/brand/create-brand.dto';
 import { Brand } from '@domain/entities/brand.entity';
 import { BrandRepository } from '@domain/repository/brand.repository';
 

@@ -1,5 +1,5 @@
-import { CreateProductDTO } from '@domain/dtos/product/create-product.dto';
-import { UpdateProductDTO } from '@domain/dtos/product/update-product.dto';
+import { CreateProductDTO } from '@application/dtos/product/create-product.dto';
+import { UpdateProductDTO } from '@application/dtos/product/update-product.dto';
 import { Product } from '@domain/entities/product.entity';
 
 export abstract class ProductRepository {

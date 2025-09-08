@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-import { AuthUserDTO } from '@domain/dtos/user/auth-user.dto';
-import { CreateUserDto } from '@domain/dtos/user/create-user.dto';
+import { AuthUserDTO } from '@application/dtos/user/auth-user.dto';
+import { CreateUserDto } from '@application/dtos/user/create-user.dto';
 import { PasswordHasher } from '@domain/ports/password-hasher';
 import { UserRepository } from '@domain/repository/user.repository';
 import { CreateUser } from '@application/uses-cases/user/create-user';

@@ -1,4 +1,4 @@
-import { CreateProductDTO } from '@domain/dtos/product/create-product.dto';
+import { CreateProductDTO } from '@application/dtos/product/create-product.dto';
 import { Product } from '@domain/entities/product.entity';
 import { ProductRepository } from '@domain/repository/product.repository';
 

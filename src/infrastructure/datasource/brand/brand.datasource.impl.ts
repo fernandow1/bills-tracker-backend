@@ -1,5 +1,5 @@
 import { BrandDatasource } from '@domain/datasources/brand.datasource';
-import { CreateBrandDTO } from '@domain/dtos/brand/create-brand.dto';
+import { CreateBrandDTO } from '@application/dtos/brand/create-brand.dto';
 import { AppDataSource } from '@infrastructure/database/connection';
 import { Brand } from '@infrastructure/database/entities/brand.entity';
 

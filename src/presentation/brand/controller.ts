@@ -1,7 +1,7 @@
 import { AppError } from '@application/errors/app-error';
 import { CreateBrand } from '@application/uses-cases/brand/create-brand';
 import { GetBrands } from '@application/uses-cases/brand/get-brands';
-import { CreateBrandDTO } from '@domain/dtos/brand/create-brand.dto';
+import { CreateBrandDTO } from '@application/dtos/brand/create-brand.dto';
 import { BrandRepository } from '@domain/repository/brand.repository';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';

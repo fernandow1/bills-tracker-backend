@@ -1,4 +1,4 @@
-import { UpdateProductDTO } from '@domain/dtos/product/update-product.dto';
+import { UpdateProductDTO } from '@application/dtos/product/update-product.dto';
 import { ProductRepository } from '@domain/repository/product.repository';
 
 export interface UpdateProductUseCase {

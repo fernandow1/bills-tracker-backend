@@ -1,6 +1,6 @@
 import { ProductDataSource } from '@domain/datasources/product.datasource';
-import { CreateProductDTO } from '@domain/dtos/product/create-product.dto';
-import { UpdateProductDTO } from '@domain/dtos/product/update-product.dto';
+import { CreateProductDTO } from '@application/dtos/product/create-product.dto';
+import { UpdateProductDTO } from '@application/dtos/product/update-product.dto';
 import { BrandCategory } from '@infrastructure/database/entities/brand-category.entity';
 import { AppDataSource } from '@infrastructure/database/connection';
 import { Product } from '@infrastructure/database/entities/product.entity';

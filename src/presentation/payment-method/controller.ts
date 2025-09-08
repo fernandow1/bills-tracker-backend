@@ -1,6 +1,6 @@
 import { plainToClass } from 'class-transformer';
 import { NextFunction, Request, Response } from 'express';
-import { CreatePaymentMethodDTO } from '@domain/dtos/payment-method/create-payment-method.dto';
+import { CreatePaymentMethodDTO } from '@application/dtos/payment-method/create-payment-method.dto';
 import { PaymentMethodRepository } from '@domain/repository/payment-method.repository';
 import { validate } from 'class-validator';
 import { AppError } from '@application/errors/app-error';

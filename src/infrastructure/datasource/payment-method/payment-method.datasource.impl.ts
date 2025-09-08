@@ -1,5 +1,5 @@
 import { PaymentMethodDataSource } from '@domain/datasources/payment-method.datasource';
-import { CreatePaymentMethodDTO } from '@domain/dtos/payment-method/create-payment-method.dto';
+import { CreatePaymentMethodDTO } from '@application/dtos/payment-method/create-payment-method.dto';
 import { AppDataSource } from '@infrastructure/database/connection';
 import { PaymentMethod } from '@infrastructure/database/entities/payment-method.entity';
 

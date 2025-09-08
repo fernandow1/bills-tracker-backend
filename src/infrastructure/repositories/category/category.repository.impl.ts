@@ -1,5 +1,5 @@
 import { CategoryDataSource } from '@domain/datasources/category.datasource';
-import { CreateCategoryDTO } from '@domain/dtos/category/create-category.dto';
+import { CreateCategoryDTO } from '@application/dtos/category/create-category.dto';
 import { Category } from '@domain/entities/category.entity';
 import { CategoryRepository } from '@domain/repository/category.repository';
 

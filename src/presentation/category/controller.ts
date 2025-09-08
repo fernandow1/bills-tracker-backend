@@ -1,7 +1,7 @@
 import { AppError } from '@application/errors/app-error';
 import { CreateCategory } from '@application/uses-cases/cateogry/create-category';
 import { GetCategories } from '@application/uses-cases/cateogry/get-categories';
-import { CreateCategoryDTO } from '@domain/dtos/category/create-category.dto';
+import { CreateCategoryDTO } from '@application/dtos/category/create-category.dto';
 import { CategoryRepository } from '@domain/repository/category.repository';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';

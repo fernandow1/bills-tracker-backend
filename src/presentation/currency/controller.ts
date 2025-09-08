@@ -1,4 +1,4 @@
-import { CreateCurrencyDto } from '@domain/dtos/currency/create-currency.dto';
+import { CreateCurrencyDto } from '@application/dtos/currency/create-currency.dto';
 import { CurrencyRepository } from '@domain/repository/currency.repository';
 import { validate } from 'class-validator';
 import { Request, Response } from 'express';
