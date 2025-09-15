@@ -13,8 +13,15 @@ export class Shop {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int', unsigned: true })
   id: number;
 
-  @Index('idx_shop_name')
-  @Column({ name: 'name', type: 'varchar', length: 255, nullable: false })
+  @Index('idx_shop_name', { unique: true })
+  @Column({
+    name: 'name',
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    charset: 'utf8mb4',
+    collation: 'utf8mb4_bin',
+  })
   name: string;
 
   @Column({ name: 'description', type: 'tinytext', nullable: false })
