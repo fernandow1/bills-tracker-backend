@@ -1,7 +1,14 @@
 import { NetUnits } from '@domain/value-objects/net-units.enum';
-import { IsEnum, IsNumber, IsOptional } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class UpdateBillItemDTO {
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
+    { message: 'id must be a number' },
+  )
+  @IsNotEmpty({ message: 'id is required' })
+  id: number;
+
   @IsOptional()
   @IsNumber(
     { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
