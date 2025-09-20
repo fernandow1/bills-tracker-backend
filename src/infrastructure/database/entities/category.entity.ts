@@ -51,5 +51,6 @@ export class Category {
   @OneToMany(() => BrandCategory, (brandCategory) => brandCategory.category)
   brandCategories: BrandCategory[];
 
+  @OneToMany(() => Product, (product) => product.category)
   products: Product[];
 }

@@ -7,12 +7,14 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Brand } from '@infrastructure/database/entities/brand.entity';
 import { Category } from '@infrastructure/database/entities/category.entity';
 import { BrandCategory } from '@infrastructure/database/entities/brand-category.entity';
+import { BillItem } from './bill-item.entity';
 
 @Index('idx_product_name', ['name'], { unique: true })
 @Index('idx_product_id_brand', ['idBrand'])
@@ -93,4 +95,7 @@ export class Product {
     },
   ])
   brandCategory: BrandCategory;
+
+  @OneToMany(() => BillItem, (billItem) => billItem.product)
+  billItems: BillItem[];
 }

@@ -4,10 +4,16 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Product } from './product.entity';
+import { Bill } from './bill.entity';
 
+@Index('uq_bill_item', ['idBill', 'idProduct'], { unique: true })
 @Entity('bill_item')
 export class BillItem {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int', unsigned: true })
@@ -55,4 +61,18 @@ export class BillItem {
     precision: 0,
   })
   deletedAt?: Date | null;
+
+  @ManyToOne(() => Product, (product) => product.billItems, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
+  @JoinColumn({ name: 'id_product', referencedColumnName: 'id' })
+  product: Product;
+
+  @ManyToOne(() => Bill, (bill) => bill.billItems, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'id_bill', referencedColumnName: 'id' })
+  bill: Bill;
 }

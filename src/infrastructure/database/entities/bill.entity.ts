@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { BillItem } from './bill-item.entity';
 
 @Entity('bill')
 export class Bill {
@@ -54,4 +56,9 @@ export class Bill {
     precision: 0,
   })
   deletedAt?: Date | null;
+
+  @OneToMany(() => BillItem, (billItem) => billItem.bill, {
+    cascade: ['soft-remove'],
+  })
+  billItems: BillItem[];
 }
