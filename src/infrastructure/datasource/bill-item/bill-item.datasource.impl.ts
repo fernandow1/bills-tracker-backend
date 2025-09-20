@@ -23,7 +23,6 @@ export class BillItemDatasourceImpl implements BillItemDataSource {
       ? transaction.manager.getRepository(BillItem)
       : AppDataSource.getRepository(BillItem);
     const billItemToUpdate = await repo.preload({
-      id,
       ...billItem,
     });
 
