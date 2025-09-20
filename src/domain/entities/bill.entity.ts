@@ -7,7 +7,7 @@ export class Bill {
   total: number;
   createdAt: Date;
   updatedAt: Date;
-  deletedAt: Date | null;
+  deletedAt?: Date | null;
 
   constructor(
     id: number,
@@ -18,7 +18,7 @@ export class Bill {
     total: number,
     createdAt: Date,
     updatedAt: Date,
-    deletedAt: Date | null,
+    deletedAt?: Date | null,
   ) {
     this.id = id;
     this.idShop = idShop;
