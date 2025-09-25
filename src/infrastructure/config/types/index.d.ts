@@ -1,4 +1,4 @@
-import { SafeUser } from '@application/uses-cases/user/types/auth-user.type';
+import type { SafeUser } from '@application/uses-cases/user/types/auth-user.type';
 
 declare module 'express-serve-static-core' {
   interface Request {

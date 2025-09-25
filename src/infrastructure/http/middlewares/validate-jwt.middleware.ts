@@ -4,7 +4,7 @@ import { JwtTokenValidate } from '@infrastructure/security/jwt-token-validate';
 import { UserDataSourceImpl } from '@infrastructure/datasource/user/user.datasource.impl';
 import { UserRepositoryImpl } from '@infrastructure/repositories/user/user.repository.impl';
 import { GetUser } from '@application/uses-cases/user/get-user';
-import { SafeUser } from '@application/uses-cases/user/types/auth-user.type';
+import type { SafeUser } from '@application/uses-cases/user/types/auth-user.type';
 
 export async function validateJwt(req: Request, res: Response, next: NextFunction): Promise<void> {
   const token = req.header('Authorization');
