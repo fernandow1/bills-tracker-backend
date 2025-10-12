@@ -21,5 +21,5 @@ export class QueryFilterDTO implements IQueryFilter {
   pageSize: number;
 
   @IsOptional()
-  filter: Record<string, unknown>;
+  filter: string;
 }
