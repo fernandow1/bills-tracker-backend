@@ -5,6 +5,8 @@ import { BillItem } from '@infrastructure/database/entities/bill-item.entity';
 import { Bill } from '@infrastructure/database/entities/bill.entity';
 import { AppDataSource } from '@infrastructure/database/connection';
 import { In, IsNull, Not } from 'typeorm';
+import { IQueryFilter } from '@application/models/query-filter.model';
+import { Pagination } from '@application/models/pagination.model';
 
 export class BillDataSourceImpl implements BillDataSource {
   async create(bill: CreateBillDto): Promise<Bill> {
@@ -36,6 +38,21 @@ export class BillDataSourceImpl implements BillDataSource {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async search(filter: IQueryFilter): Promise<Pagination<Bill>> {
+    const { page, pageSize, filter: where } = filter;
+
+    const [data, count] = await AppDataSource.getRepository(Bill).findAndCount({
+      where,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    return {
+      data,
+      count,
+    };
   }
 
   async findById(id: number): Promise<Bill | null> {
