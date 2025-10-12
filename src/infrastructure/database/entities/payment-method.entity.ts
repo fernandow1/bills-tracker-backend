@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Bill } from '@infrastructure/database/entities/bill.entity';
 
 @Entity('payment_method')
 export class PaymentMethod {
@@ -44,4 +46,7 @@ export class PaymentMethod {
     precision: 0,
   })
   deletedAt: Date | null;
+
+  @OneToMany(() => Bill, (bill) => bill.paymentMethod)
+  bills: Bill[];
 }

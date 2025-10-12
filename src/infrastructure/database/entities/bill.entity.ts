@@ -3,11 +3,16 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { BillItem } from './bill-item.entity';
+import { Shop } from '@infrastructure/database/entities/shop.entity';
+import { Currency } from '@infrastructure/database/entities/currency.entity';
+import { PaymentMethod } from '@infrastructure/database/entities/payment-method.entity';
 
 @Entity('bill')
 export class Bill {
@@ -56,6 +61,18 @@ export class Bill {
     precision: 0,
   })
   deletedAt?: Date | null;
+
+  @ManyToOne(() => Shop, (shop) => shop.bills)
+  @JoinColumn({ name: 'id_shop', referencedColumnName: 'id' })
+  shop: Shop;
+
+  @ManyToOne(() => Currency, (currency) => currency.bills)
+  @JoinColumn({ name: 'id_currency', referencedColumnName: 'id' })
+  currency: Currency;
+
+  @ManyToOne(() => PaymentMethod, (paymentMethod) => paymentMethod.bills)
+  @JoinColumn({ name: 'id_payment_method', referencedColumnName: 'id' })
+  paymentMethod: PaymentMethod;
 
   @OneToMany(() => BillItem, (billItem) => billItem.bill, {
     cascade: ['soft-remove'],
