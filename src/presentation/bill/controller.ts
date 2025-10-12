@@ -1,10 +1,13 @@
 import { CreateBillDto } from '@application/dtos/bill/create-bill.dto';
 import { UpdateBillDto } from '@application/dtos/bill/update-bill.dto';
 import { AppError } from '@application/errors/app-error';
+import { queryMapper } from '@application/mappers/query-filter.mapper';
 import { CreateBill } from '@application/uses-cases/bill/create-bill';
 import { GetBills } from '@application/uses-cases/bill/get-bills';
+import { SearchBill } from '@application/uses-cases/bill/search-bill';
 import { UpdateBill } from '@application/uses-cases/bill/update-bill';
 import { BillRepository } from '@domain/repository/bill.repository';
+import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
@@ -36,6 +39,32 @@ export class BillController {
   getAllBills = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const bills = await new GetBills(this.billRepository).execute();
+      res.status(200).json(bills);
+    } catch (error) {
+      console.log(error);
+      return next(AppError.internalError('Internal server error'));
+    }
+  };
+
+  searchBills = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const dto = plainToClass(QueryFilterDTO, req.query);
+
+      const validationErrors = await validate(dto, {
+        whitelist: true,
+        validationError: { target: false, value: false },
+      });
+
+      if (validationErrors.length) {
+        return next(AppError.badRequest('Validation failed', validationErrors));
+      }
+
+      const filter = queryMapper(dto);
+
+      console.log('Mapped filter:', filter);
+
+      const bills = await new SearchBill(this.billRepository).execute(filter);
+
       res.status(200).json(bills);
     } catch (error) {
       console.log(error);
