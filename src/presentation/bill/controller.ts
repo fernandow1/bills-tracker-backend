@@ -59,11 +59,7 @@ export class BillController {
         return next(AppError.badRequest('Validation failed', validationErrors));
       }
 
-      const filter = queryMapper(dto);
-
-      console.log('Mapped filter:', filter);
-
-      const bills = await new SearchBill(this.billRepository).execute(filter);
+      const bills = await new SearchBill(this.billRepository).execute(queryMapper(dto));
 
       res.status(200).json(bills);
     } catch (error) {
