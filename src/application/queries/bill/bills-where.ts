@@ -9,14 +9,12 @@ export interface BillsWhere {
   updatedAt?: Date; // Only Bill field
 }
 
-export const ALLOWED_FIELDS = new Set<string>([
-  'idProduct',
-  'idShop',
-  'idCurrency',
-  'idPaymentMethod',
-  'total',
-  'createdAt',
-  'updatedAt',
+export const ALLOWED_FIELDS = new Map<string, { relation?: string }>([
+  ['idProduct', { relation: 'billItems' }],
+  ['idShop', {}],
+  ['idCurrency', {}],
+  ['idPaymentMethod', {}],
+  ['total', {}],
 ]);
 
 /**
@@ -30,4 +28,13 @@ export const ALLOWED_FIELDS = new Set<string>([
  * - **lt**: Less than
  * - **between**: Value is within a range (inclusive)
  */
-export const ALLOWED_OPERATIONS = new Set(['eq', 'in', 'like', 'gt', 'lt', 'between']);
+export const ALLOWED_OPERATIONS = new Set([
+  'eq',
+  'in',
+  'like',
+  'gt',
+  'lt',
+  'gte',
+  'lte',
+  'between',
+]);
