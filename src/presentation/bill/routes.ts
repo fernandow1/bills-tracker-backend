@@ -16,7 +16,7 @@ export const BillRouter = {
     router.get('/', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       billController.getAllBills(req, res, next);
     });
-    router.get('/search', (req: Request, res: Response, next: NextFunction) => {
+    router.get('/search', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       billController.searchBills(req, res, next);
     });
     router.post('/', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
