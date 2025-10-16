@@ -45,6 +45,34 @@ export class BillDataSourceImpl implements BillDataSource {
 
     const [data, count] = await AppDataSource.getRepository(Bill).findAndCount({
       where,
+      relations: {
+        billItems: { product: { category: true, brand: true } },
+      },
+      select: {
+        id: true,
+        idCurrency: true,
+        idShop: true,
+        total: true,
+        billItems: {
+          id: true,
+          idBill: true,
+          idProduct: true,
+          quantity: true,
+          netPrice: true,
+          netUnit: true,
+          product: {
+            id: true,
+            name: true,
+            idBrand: true,
+            idCategory: true,
+            category: {
+              id: true,
+              name: true,
+            },
+            brand: { id: true, name: true },
+          },
+        },
+      },
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
