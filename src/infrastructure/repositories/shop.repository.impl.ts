@@ -10,7 +10,7 @@ export class ShopRepositoryImpl implements ShopRepository {
   }
 
   getAllShops(): Promise<Shop[]> {
-    return this.shopDataSource.getShops();
+    return this.shopDataSource.getAllShops();
   }
 
   createShop(shop: Shop): Promise<Shop> {

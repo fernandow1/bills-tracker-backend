@@ -3,7 +3,7 @@ import { AppDataSource } from '@infrastructure/database/connection';
 import { Shop } from '@infrastructure/database/entities/shop.entity';
 
 export class ShopDataSourceImpl implements ShopDataSource {
-  async getShops(): Promise<Shop[]> {
+  async getAllShops(): Promise<Shop[]> {
     const shops = await AppDataSource.getRepository(Shop).find();
     return shops;
   }
