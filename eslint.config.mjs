@@ -6,7 +6,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.strict, // o .recommended si preferís más permisivo
   {
-    ignores: ['dist', 'node_modules', 'migrations'],
+    ignores: ['dist', 'node_modules', 'migrations', '*.mock.ts', '*.spec.ts', '*.test.ts'],
   },
   {
     rules: {

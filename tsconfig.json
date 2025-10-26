@@ -9,7 +9,9 @@
     "lib",
     "tmp",
     "temp",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.mock.ts"
   ],
   "include": ["src/**/*.ts", "src/**/*.d.ts"],
   "files": ["src/infrastructure/config/types/index.d.ts"],
