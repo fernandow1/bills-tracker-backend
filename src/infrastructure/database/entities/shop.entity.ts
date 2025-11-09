@@ -37,7 +37,7 @@ export class Shop {
     nullable: true,
     default: null,
   })
-  latitude: number;
+  latitude?: number | null;
 
   @Column({
     name: 'longitude',
@@ -47,7 +47,7 @@ export class Shop {
     nullable: true,
     default: null,
   })
-  longitude: number;
+  longitude?: number | null;
 
   @CreateDateColumn({
     name: 'created_at',
