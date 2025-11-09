@@ -2,7 +2,7 @@
 import { Request, Router, Response, NextFunction } from 'express';
 import { AppDataSource } from '@infrastructure/database/connection';
 import { ShopDataSourceImpl } from '@infrastructure/datasource/shop/shop.datasource.impl';
-import { ShopRepositoryImpl } from '@infrastructure/repositories/shop.repository.impl';
+import { ShopRepositoryImpl } from '@infrastructure/repositories/shop/shop.repository.impl';
 import { ShopController } from '@presentation/shop/controller';
 
 export const ShopRouter = {
