@@ -12,7 +12,7 @@ export class ShopDataSourceImpl extends ShopDataSource {
     return shops;
   }
 
-  async createShop(shopData: Shop): Promise<Shop> {
+  async createShop(shopData: Partial<Shop>): Promise<Shop> {
     return this.dataSource.getRepository(Shop).save(shopData);
   }
 
