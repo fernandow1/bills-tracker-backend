@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateShopDTO {
   @IsString()
@@ -8,10 +8,18 @@ export class CreateShopDTO {
   @IsNotEmpty()
   name: string;
 
+  @IsOptional()
   @IsString()
   @MaxLength(255, {
     message: 'Description must be a string with a maximum length of $constraint1 characters.',
   })
-  @IsNotEmpty()
-  description: string;
+  description?: string;
+
+  @IsOptional()
+  @IsNumber()
+  latitude?: number;
+
+  @IsOptional()
+  @IsNumber()
+  longitude?: number;
 }
