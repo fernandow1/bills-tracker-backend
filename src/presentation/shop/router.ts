@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Request, Router, Response, NextFunction } from 'express';
 import { AppDataSource } from '@infrastructure/database/connection';
+import { TestDataSource } from '@infrastructure/database/connection-test';
 import { ShopDataSourceImpl } from '@infrastructure/datasource/shop/shop.datasource.impl';
 import { ShopRepositoryImpl } from '@infrastructure/repositories/shop/shop.repository.impl';
 import { ShopController } from '@presentation/shop/controller';
@@ -9,7 +10,8 @@ export const ShopRouter = {
   routes(): Router {
     const router = Router();
 
-    const dataSource = AppDataSource;
+    // Usar TestDataSource en entorno de testing, AppDataSource en producción
+    const dataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
 
     const shopDataSource = new ShopDataSourceImpl(dataSource);
 
@@ -24,6 +26,10 @@ export const ShopRouter = {
 
     router.post('/', (req: Request, res: Response, next: NextFunction) => {
       shopController.createShop(req, res, next);
+    });
+
+    router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
+      shopController.updateShop(req, res, next);
     });
 
     return router;
