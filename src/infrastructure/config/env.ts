@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { get } from 'env-var';
 
 export const envs = {
+  PORT_TEST: get('PORT_TEST').default('3001').asPortNumber(),
   PORT: get('PORT').required().asPortNumber(),
   DB_HOST: get('DB_HOST').required().asString(),
   DB_PORT: get('DB_PORT').default('3306').asPortNumber(),
