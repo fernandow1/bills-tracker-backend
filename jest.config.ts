@@ -104,6 +104,7 @@ const config: Config = {
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
+    '^@application/(.*)$': '<rootDir>/src/application/$1',
     '^@domain/(.*)$': '<rootDir>/src/domain/$1',
     '^@infrastructure/(.*)$': '<rootDir>/src/infrastructure/$1',
     '^@presentation/(.*)$': '<rootDir>/src/presentation/$1',
@@ -154,7 +155,7 @@ const config: Config = {
   // setupFiles: [],
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
-  // setupFilesAfterEnv: [],
+  // setupFilesAfterEnv: [], // ✅ Removido para evitar ejecución en unit tests
 
   // The number of seconds after which a test is considered as slow and reported as such in the results.
   // slowTestThreshold: 5,
@@ -175,7 +176,10 @@ const config: Config = {
   testMatch: ['**/__tests__/**/*.?([mc])[jt]s?(x)', '**/?(*.)+(spec|test).?([mc])[jt]s?(x)'],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  // testPathIgnorePatterns: ['\\\\node_modules\\\\'],
+  testPathIgnorePatterns: [
+    '\\\\node_modules\\\\',
+    '.*\\.integration\\.test\\.[jt]s$', // ✅ Excluir tests de integración de los unitarios
+  ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],
