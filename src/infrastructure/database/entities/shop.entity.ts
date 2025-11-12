@@ -26,8 +26,8 @@ export class Shop {
   })
   name: string;
 
-  @Column({ name: 'description', type: 'tinytext', nullable: false })
-  description: string;
+  @Column({ name: 'description', type: 'tinytext', nullable: true, default: null })
+  description?: string | null;
 
   @Column({
     name: 'latitude',
