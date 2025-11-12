@@ -5,6 +5,10 @@ import { CreateShopDTO } from '@application/dtos/shop/create-shop.dto';
 import { validate } from 'class-validator';
 import { CreateShop } from '@application/uses-cases/shop/create-shop';
 import { AppError } from '@application/errors/app-error';
+import { UpdateShopDTO } from '@application/dtos/shop/update-shop.dto';
+import { UpdateShop } from '@application/uses-cases/shop/update-shop';
+import { plainToClass } from 'class-transformer';
+import { EntityNotFoundError } from 'typeorm';
 
 export class ShopController {
   constructor(private readonly repository: ShopRepository) {}
@@ -40,6 +44,33 @@ export class ShopController {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: unknown) {
       return next(AppError.internalError('Error creating shop'));
+    }
+  };
+
+  updateShop = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const { id } = req.params;
+    const dto = plainToClass(UpdateShopDTO, req.body);
+    const validationErrors = await validate(dto);
+
+    if (validationErrors.length) {
+      res.status(400).json({
+        errors: validationErrors.map((error) => ({
+          property: error.property,
+          constraints: error.constraints,
+        })),
+      });
+      return;
+    }
+
+    try {
+      const shop = await new UpdateShop(this.repository).execute(Number(id), dto);
+      res.status(200).json(shop);
+    } catch (error: unknown) {
+      // Manejar EntityNotFoundError de TypeORM
+      if (error instanceof EntityNotFoundError) {
+        return next(AppError.notFound(`Shop with id ${id} not found`));
+      }
+      return next(AppError.internalError('Error updating shop'));
     }
   };
 }

@@ -17,8 +17,13 @@ export class ShopDataSourceImpl extends ShopDataSource {
   }
 
   async updateShop(id: number, shopData: Partial<Shop>): Promise<Shop> {
-    const shop = { id, ...shopData };
-    return this.dataSource.getRepository(Shop).save(shop);
+    const existingShop = await this.dataSource.getRepository(Shop).findOneOrFail({
+      where: { id },
+    });
+
+    // Actualizar con los nuevos datos
+    this.dataSource.getRepository(Shop).merge(existingShop, shopData);
+    return this.dataSource.getRepository(Shop).save(existingShop);
   }
 
   async deleteShop(id: number): Promise<void> {
