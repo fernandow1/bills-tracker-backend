@@ -28,6 +28,22 @@ export function shopRepositoryMock(): jest.Mocked<Repository<Shop>> {
         updatedAt: new Date(),
       } as Shop;
     }),
+    findOneOrFail: jest.fn().mockImplementation(async (options): Promise<Shop> => {
+      return {
+        id: options.where.id,
+        name: faker.company.name(),
+        description: faker.lorem.sentence(),
+        latitude: +faker.address.latitude() as number,
+        longitude: +faker.address.longitude() as number,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Shop;
+    }),
+    merge: jest.fn().mockImplementation((existingShop: Shop, shopData: Partial<Shop>) => {
+      // TypeORM merge() modifica el objeto existingShop in-place
+      Object.assign(existingShop, shopData);
+      return existingShop;
+    }),
     softDelete: jest.fn().mockResolvedValue(undefined),
   } as unknown as jest.Mocked<Repository<Shop>>;
 }

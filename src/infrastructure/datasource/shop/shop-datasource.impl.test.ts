@@ -85,8 +85,20 @@ describe('ShopDatasourceImpl', () => {
 
     expect(updatedShop).toBeDefined();
     expect(dataSourceMock.getRepository).toHaveBeenCalledWith(Shop);
+
+    // Verificar que findOneOrFail fue llamado correctamente
+    expect(repositoryMock.findOneOrFail).toHaveBeenCalledWith({ where: { id: 1 } });
+
+    // Verificar que merge fue llamado correctamente
+    expect(repositoryMock.merge).toHaveBeenCalledTimes(1);
+
+    // Verificar que save fue llamado con el objeto mergeado (que contiene los campos actualizados)
     expect(repositoryMock.save).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 1, name: 'Updated Shop', description: 'An updated shop' }),
+      expect.objectContaining({
+        id: 1,
+        name: 'Updated Shop',
+        description: 'An updated shop',
+      }),
     );
   });
 
