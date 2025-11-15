@@ -1,6 +1,7 @@
 import { DataSource, Repository } from 'typeorm';
 import { Shop } from '../../../domain/entities/shop.entity';
 import { ShopRepository } from '../../../domain/repository/shop.repository';
+import { ShopDataSource } from '../../../domain/datasources/shop.datasource';
 import { faker } from '@faker-js/faker';
 
 export function dataSourceShopMock(
@@ -77,6 +78,38 @@ export function shopRepositoryDomainMock(): jest.Mocked<ShopRepository> {
     }),
     deleteShop: jest.fn().mockResolvedValue(undefined),
   } as unknown as jest.Mocked<ShopRepository>;
+}
+
+// ✅ NUEVO: Mock para el DataSource del dominio (usado en Repository tests)
+export function shopDataSourceDomainMock(): jest.Mocked<ShopDataSource> {
+  return {
+    getAllShops: jest.fn().mockResolvedValue([SHOPMOCK, SHOPMOCK, SHOPMOCK]),
+    createShop: jest.fn().mockImplementation(async (shopData: Partial<Shop>): Promise<Shop> => {
+      return {
+        id: faker.datatype.number({ min: 1, max: 1000 }),
+        name: shopData.name || faker.company.name(),
+        description: shopData.description || faker.lorem.sentence(),
+        latitude: shopData.latitude || +faker.address.latitude(),
+        longitude: shopData.longitude || +faker.address.longitude(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Shop;
+    }),
+    updateShop: jest
+      .fn()
+      .mockImplementation(async (id: number, shopData: Partial<Shop>): Promise<Shop> => {
+        return {
+          id,
+          name: shopData.name || faker.company.name(),
+          description: shopData.description || faker.lorem.sentence(),
+          latitude: shopData.latitude || +faker.address.latitude(),
+          longitude: shopData.longitude || +faker.address.longitude(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as Shop;
+      }),
+    deleteShop: jest.fn().mockResolvedValue(undefined),
+  } as unknown as jest.Mocked<ShopDataSource>;
 }
 
 export const SHOPMOCK: Shop = {

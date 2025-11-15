@@ -1,22 +1,14 @@
 import { ShopRepositoryImpl } from './shop.repository.impl';
 import { ShopDataSource } from '../../../domain/datasources/shop.datasource';
 import { Shop } from '../../../domain/entities/shop.entity';
-import { SHOPMOCK } from '../../datasource/shop/shop.mock';
-
-// Mock del ShopDataSource
-const CREATE_MOCK_DATASOURCE = (): jest.Mocked<ShopDataSource> => ({
-  getAllShops: jest.fn(),
-  createShop: jest.fn(),
-  updateShop: jest.fn(),
-  deleteShop: jest.fn(),
-});
+import { SHOPMOCK, shopDataSourceDomainMock } from '../../datasource/shop/shop.mock';
 
 describe('ShopRepositoryImpl', () => {
   let mockDataSource: jest.Mocked<ShopDataSource>;
   let repository: ShopRepositoryImpl;
 
   beforeEach(() => {
-    mockDataSource = CREATE_MOCK_DATASOURCE();
+    mockDataSource = shopDataSourceDomainMock();
     repository = new ShopRepositoryImpl(mockDataSource);
   });
 

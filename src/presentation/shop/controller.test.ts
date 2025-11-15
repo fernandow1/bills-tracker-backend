@@ -1,57 +1,159 @@
-import { GetShops } from '../../application/uses-cases/shop/get-shop';
+import { Request, Response, NextFunction } from 'express';
+import { ShopController } from './controller';
+import { ShopRepository } from '../../domain/repository/shop.repository';
 import { SHOPMOCK, shopRepositoryDomainMock } from '../../infrastructure/datasource/shop/shop.mock';
+import { EntityNotFoundError } from 'typeorm';
 
-describe('Shop Controller', () => {
+describe('ShopController', () => {
+  let controller: ShopController;
+  let mockRepository: jest.Mocked<ShopRepository>;
+  let mockRequest: Partial<Request>;
+  let mockResponse: Partial<Response>;
+  let mockNext: jest.MockedFunction<NextFunction>;
+
+  beforeEach(() => {
+    mockRepository = shopRepositoryDomainMock();
+    controller = new ShopController(mockRepository);
+
+    mockRequest = {
+      body: {},
+      params: {},
+    };
+
+    mockResponse = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      send: jest.fn().mockReturnThis(),
+    };
+
+    mockNext = jest.fn();
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
-    jest.resetAllMocks();
   });
 
-  test('should be defined', () => {
-    // Placeholder test to ensure the controller is defined
-    expect(true).toBe(true);
+  describe('getShops', () => {
+    test('should return shops with 200 status', async () => {
+      const mockShops = [SHOPMOCK, SHOPMOCK];
+      mockRepository.getAllShops.mockResolvedValue(mockShops);
+
+      await controller.getShops(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockRepository.getAllShops).toHaveBeenCalledTimes(1);
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith(mockShops);
+      expect(mockNext).not.toHaveBeenCalled();
+    });
+
+    test('should handle repository error and call next with AppError', async () => {
+      const error = new Error('Database error');
+      mockRepository.getAllShops.mockRejectedValue(error);
+
+      await controller.getShops(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockRepository.getAllShops).toHaveBeenCalledTimes(1);
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockResponse.json).not.toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Error fetching shops',
+          statusCode: 500,
+        }),
+      );
+    });
   });
 
-  test('Should call execute method when getShops is invoked', async () => {
-    // Mock data que será retornado
-    const mockShops = [SHOPMOCK, SHOPMOCK, SHOPMOCK];
+  describe('createShop', () => {
+    beforeEach(() => {
+      mockRequest.body = {
+        name: 'New Shop',
+        description: 'A new shop',
+      };
+    });
 
-    // Spy en el método execute del prototype
-    const executeSpy = jest.spyOn(GetShops.prototype, 'execute').mockResolvedValue(mockShops);
+    test('should create shop and return 201 status', async () => {
+      const createdShop = { ...SHOPMOCK, ...mockRequest.body };
+      mockRepository.createShop.mockResolvedValue(createdShop);
 
-    // Crear instancia del use case
-    const useCase = new GetShops(shopRepositoryDomainMock());
+      await controller.createShop(mockRequest as Request, mockResponse as Response, mockNext);
 
-    // Ejecutar el método
-    const result = await useCase.execute();
+      expect(mockRepository.createShop).toHaveBeenCalledWith(
+        expect.objectContaining(mockRequest.body),
+      );
+      expect(mockResponse.status).toHaveBeenCalledWith(201);
+      expect(mockResponse.json).toHaveBeenCalledWith(createdShop);
+      expect(mockNext).not.toHaveBeenCalled();
+    });
 
-    // Verificaciones
-    expect(executeSpy).toHaveBeenCalledTimes(1);
-    expect(executeSpy).toHaveBeenCalledWith(); // Sin parámetros
-    expect(result).toEqual(mockShops);
-    expect(result).toBeInstanceOf(Array);
+    test('should handle repository error and call next with AppError', async () => {
+      const error = new Error('Database error');
+      mockRepository.createShop.mockRejectedValue(error);
 
-    // Limpiar el spy
-    executeSpy.mockRestore();
+      await controller.createShop(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockRepository.createShop).toHaveBeenCalledTimes(1);
+      expect(mockResponse.status).not.toHaveBeenCalledWith(201);
+      expect(mockNext).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Error creating shop',
+          statusCode: 500,
+        }),
+      );
+    });
   });
 
-  test('Should call execute method and propagate error when it fails', async () => {
-    const errorMessage = 'Database connection failed';
+  describe('updateShop', () => {
+    beforeEach(() => {
+      mockRequest.params = { id: '1' };
+      mockRequest.body = {
+        name: 'Updated Shop',
+        description: 'Updated description',
+      };
+    });
 
-    // Spy en el método execute que rechaza con error
-    const executeSpy = jest
-      .spyOn(GetShops.prototype, 'execute')
-      .mockRejectedValue(new Error(errorMessage));
+    test('should update shop and return 200 status', async () => {
+      const updatedShop = { ...SHOPMOCK, ...mockRequest.body, id: 1 };
+      mockRepository.updateShop.mockResolvedValue(updatedShop);
 
-    // Crear instancia del use case
-    const useCase = new GetShops(shopRepositoryDomainMock());
+      await controller.updateShop(mockRequest as Request, mockResponse as Response, mockNext);
 
-    // Verificar que el método es llamado y propaga el error
-    await expect(useCase.execute()).rejects.toThrow(errorMessage);
-    expect(executeSpy).toHaveBeenCalledTimes(1);
-    expect(executeSpy).toHaveBeenCalledWith(); // Sin parámetros
+      expect(mockRepository.updateShop).toHaveBeenCalledWith(1, mockRequest.body);
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith(updatedShop);
+      expect(mockNext).not.toHaveBeenCalled();
+    });
 
-    // Limpiar el spy
-    executeSpy.mockRestore();
+    test('should handle EntityNotFoundError and call next with 404 AppError', async () => {
+      const error = new EntityNotFoundError('Shop', {});
+      mockRepository.updateShop.mockRejectedValue(error);
+
+      await controller.updateShop(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockRepository.updateShop).toHaveBeenCalledWith(1, mockRequest.body);
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Shop with id 1 not found',
+          statusCode: 404,
+        }),
+      );
+    });
+
+    test('should handle general error and call next with 500 AppError', async () => {
+      const error = new Error('Database error');
+      mockRepository.updateShop.mockRejectedValue(error);
+
+      await controller.updateShop(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockRepository.updateShop).toHaveBeenCalledWith(1, mockRequest.body);
+      expect(mockResponse.status).not.toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Error updating shop',
+          statusCode: 500,
+        }),
+      );
+    });
   });
 });
