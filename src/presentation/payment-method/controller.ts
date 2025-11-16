@@ -6,6 +6,9 @@ import { validate } from 'class-validator';
 import { AppError } from '@application/errors/app-error';
 import { CreatePaymentMethod } from '@application/uses-cases/payment-method/create-payment-method';
 import { GetPaymentsMethod } from '@application/uses-cases/payment-method/get-payment-methods';
+import { DeletePaymentMethod } from '@application/uses-cases/payment-method/delete-payment-method';
+import { UpdatePaymentMethod } from '@application/uses-cases/payment-method/update-payment-method';
+import { EntityNotFoundError } from 'typeorm';
 
 export class PaymentMethodController {
   constructor(private readonly repository: PaymentMethodRepository) {}
@@ -26,6 +29,43 @@ export class PaymentMethodController {
       res.status(201).json(paymentMethod);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
+      return next(AppError.internalError('Internal server error'));
+    }
+  };
+
+  deletePaymentMethod = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = Number(req.params.id);
+      await new DeletePaymentMethod(this.repository).execute(id);
+      res.status(204).send();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return next(AppError.internalError('Internal server error'));
+    }
+  };
+
+  updatePaymentMethod = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = Number(req.params.id);
+      const dto = plainToClass(CreatePaymentMethodDTO, req.body);
+
+      const validationErrors = await validate(dto, {
+        whitelist: true,
+        validationError: { target: false, value: false },
+      });
+
+      if (validationErrors.length) {
+        return next(AppError.badRequest('Validation failed', validationErrors));
+      }
+
+      const updatedPaymentMethod = await new UpdatePaymentMethod(this.repository).execute(id, dto);
+
+      res.status(200).json(updatedPaymentMethod);
+    } catch (error: unknown) {
+      // Manejar EntityNotFoundError de TypeORM
+      if (error instanceof EntityNotFoundError) {
+        return next(AppError.notFound(`Payment method with id ${req.params.id} not found`));
+      }
       return next(AppError.internalError('Internal server error'));
     }
   };
