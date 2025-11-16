@@ -10,6 +10,14 @@ export class PaymentMethodRepositoryImpl implements PaymentMethodRepository {
     this.paymentMethodDataSource = paymentMethodDataSource;
   }
 
+  async updatePaymentMethod(id: number, data: Partial<PaymentMethod>): Promise<PaymentMethod> {
+    return this.paymentMethodDataSource.updatePaymentMethod(id, data);
+  }
+
+  async deletePaymentMethod(id: number): Promise<void> {
+    return this.paymentMethodDataSource.deletePaymentMethod(id);
+  }
+
   async createPaymentMethod(paymentMethod: CreatePaymentMethodDTO): Promise<PaymentMethod> {
     return this.paymentMethodDataSource.createPaymentMethod(paymentMethod);
   }
