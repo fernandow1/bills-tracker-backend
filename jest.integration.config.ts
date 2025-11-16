@@ -22,6 +22,8 @@ const INTEGRATION_CONFIG: Config = {
   },
   // Timeout más alto para tests de integración (BD puede ser lenta)
   testTimeout: 30000,
+  // ✅ Ejecutar tests secuencialmente para evitar conflictos de BD
+  maxWorkers: 1,
 };
 
 export default INTEGRATION_CONFIG;
