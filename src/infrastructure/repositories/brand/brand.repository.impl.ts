@@ -8,11 +8,19 @@ export class BrandRepositoryImpl implements BrandRepository {
   constructor(brandDataSource: BrandDatasource) {
     this.brandDataSource = brandDataSource;
   }
+  findAll(): Promise<Brand[]> {
+    return this.brandDataSource.findAll();
+  }
 
   create(brand: CreateBrandDTO): Promise<Brand> {
     return this.brandDataSource.create(brand);
   }
-  findAll(): Promise<Brand[]> {
-    return this.brandDataSource.findAll();
+
+  update(id: number, dto: Partial<Brand>): Promise<Brand> {
+    return this.brandDataSource.update(id, dto);
+  }
+
+  delete(id: number): Promise<void> {
+    return this.brandDataSource.delete(id);
   }
 }
