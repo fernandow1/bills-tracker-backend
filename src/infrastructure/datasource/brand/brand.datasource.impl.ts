@@ -2,6 +2,7 @@ import { BrandDatasource } from '@domain/datasources/brand.datasource';
 import { CreateBrandDTO } from '@application/dtos/brand/create-brand.dto';
 import { Brand } from '@infrastructure/database/entities/brand.entity';
 import { DataSource } from 'typeorm';
+import { UpdateBrandDTO } from '@application/dtos/brand/update-brand.dto';
 
 export class BrandDataSourceImpl implements BrandDatasource {
   constructor(private readonly datasource: DataSource) {}
@@ -11,7 +12,7 @@ export class BrandDataSourceImpl implements BrandDatasource {
     return this.datasource.getRepository(Brand).save(brandEntity);
   }
 
-  async update(id: number, brand: CreateBrandDTO): Promise<Brand> {
+  async update(id: number, brand: UpdateBrandDTO): Promise<Brand> {
     const brandRepository = this.datasource.getRepository(Brand);
     const brandToUpdate = await brandRepository.findOneOrFail({ where: { id } });
     brandRepository.merge(brandToUpdate, brand);
