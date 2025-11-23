@@ -2,13 +2,17 @@ import { ProductDataSourceImpl } from '@infrastructure/datasource/product/produc
 import { ProductRepositoryImpl } from '@infrastructure/repositories/product/product.repository.impl';
 import { NextFunction, Request, Response, Router } from 'express';
 import { ProductController } from '@presentation/product/controller';
+import { TestDataSource } from '@infrastructure/database/connection-test';
+import { AppDataSource } from '@infrastructure/database/connection';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const ProductRouter = {
   routes(): Router {
     const router = Router();
 
-    const productDataSource = new ProductDataSourceImpl();
+    const dataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
+
+    const productDataSource = new ProductDataSourceImpl(dataSource);
 
     const productRepository = new ProductRepositoryImpl(productDataSource);
 
