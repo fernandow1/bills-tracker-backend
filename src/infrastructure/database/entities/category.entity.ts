@@ -21,7 +21,7 @@ export class Category {
   name: string;
 
   @Column({ name: 'description', type: 'tinytext', nullable: true, default: null })
-  description: string | null;
+  description?: string | null;
 
   @CreateDateColumn({
     name: 'created_at',

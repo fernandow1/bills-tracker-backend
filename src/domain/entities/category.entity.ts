@@ -8,7 +8,6 @@ export class Category {
 
   constructor(
     id: number,
-    idBrand: number,
     name: string,
     createdAt: Date,
     updatedAt: Date,
