@@ -2,12 +2,16 @@ import { ProductDataSource } from '@domain/datasources/product.datasource';
 import { CreateProductDTO } from '@application/dtos/product/create-product.dto';
 import { UpdateProductDTO } from '@application/dtos/product/update-product.dto';
 import { BrandCategory } from '@infrastructure/database/entities/brand-category.entity';
-import { AppDataSource } from '@infrastructure/database/connection';
 import { Product } from '@infrastructure/database/entities/product.entity';
+import { DataSource } from 'typeorm';
 
 export class ProductDataSourceImpl extends ProductDataSource {
+  constructor(private readonly dataSource: DataSource) {
+    super();
+  }
+
   async createProduct(product: CreateProductDTO): Promise<Product> {
-    const queryRunner = AppDataSource.createQueryRunner();
+    const queryRunner = this.dataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
@@ -37,14 +41,14 @@ export class ProductDataSourceImpl extends ProductDataSource {
   }
 
   async getProductById(id: number): Promise<Product> {
-    const product = await AppDataSource.getRepository(Product).findOneByOrFail({
+    const product = await this.dataSource.getRepository(Product).findOneByOrFail({
       id,
     });
     return product;
   }
 
   async updateProduct(id: number, product: UpdateProductDTO): Promise<UpdateProductDTO> {
-    const queryRunner = AppDataSource.createQueryRunner();
+    const queryRunner = this.dataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
@@ -85,15 +89,15 @@ export class ProductDataSourceImpl extends ProductDataSource {
   }
 
   async deleteProduct(id: number): Promise<void> {
-    const existingProduct = await AppDataSource.getRepository(Product).findOneOrFail({
+    const existingProduct = await this.dataSource.getRepository(Product).findOneOrFail({
       where: { id },
     });
 
-    await AppDataSource.getRepository(Product).softDelete(existingProduct.id);
+    await this.dataSource.getRepository(Product).softDelete(existingProduct.id);
   }
 
   async getAllProducts(): Promise<Product[]> {
-    const products = await AppDataSource.getRepository(Product).find();
+    const products = await this.dataSource.getRepository(Product).find();
     return products;
   }
 }
