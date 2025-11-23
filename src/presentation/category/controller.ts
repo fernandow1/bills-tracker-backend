@@ -1,11 +1,13 @@
 import { AppError } from '@application/errors/app-error';
-import { CreateCategory } from '@application/uses-cases/cateogry/create-category';
-import { GetCategories } from '@application/uses-cases/cateogry/get-categories';
+import { CreateCategory } from '@application/uses-cases/category/create-category';
+import { GetCategories } from '@application/uses-cases/category/get-categories';
 import { CreateCategoryDTO } from '@application/dtos/category/create-category.dto';
 import { CategoryRepository } from '@domain/repository/category.repository';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
+import { UpdateCategory } from '@application/uses-cases/category/update-category';
+import { DeleteCategory } from '@application/uses-cases/category/delete-category';
 
 export class CategoryController {
   constructor(private readonly categoryRepository: CategoryRepository) {}
@@ -34,6 +36,38 @@ export class CategoryController {
     try {
       const categories = await new GetCategories(this.categoryRepository).execute();
       res.status(200).json(categories);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return next(AppError.internalError('Internal server error'));
+    }
+  };
+
+  updateCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = Number(req.params.id);
+      const dto = plainToClass(CreateCategoryDTO, req.body);
+      const validationErrors = await validate(dto, {
+        whitelist: true,
+        validationError: { target: false, value: false },
+      });
+
+      if (validationErrors.length) {
+        return next(AppError.badRequest('Validation failed', validationErrors));
+      }
+
+      const categoryUpdated = await new UpdateCategory(this.categoryRepository).execute(id, dto);
+      res.status(200).json(categoryUpdated);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return next(AppError.internalError('Internal server error'));
+    }
+  };
+
+  deleteCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = Number(req.params.id);
+      await new DeleteCategory(this.categoryRepository).execute(id);
+      res.status(204).send();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return next(AppError.internalError('Internal server error'));
