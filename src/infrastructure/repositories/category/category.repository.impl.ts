@@ -11,7 +11,16 @@ export class CategoryRepositoryImpl implements CategoryRepository {
   createCategory(category: CreateCategoryDTO): Promise<Category> {
     return this.categoryDataSource.createCategory(category);
   }
+
+  updateCategory(id: number, category: Partial<CreateCategoryDTO>): Promise<Category> {
+    return this.categoryDataSource.updateCategory(id, category);
+  }
+
   getAllCategories(): Promise<Category[]> {
     return this.categoryDataSource.getAllCategories();
+  }
+
+  deleteCategory(id: number): Promise<void> {
+    return this.categoryDataSource.deleteCategory(id);
   }
 }
