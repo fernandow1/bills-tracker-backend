@@ -5,12 +5,17 @@ import { IQueryFilter } from '@application/models/query-filter.model';
 import { BillDataSource } from '@domain/datasources/bill.datasource';
 import { Bill } from '@domain/entities/bill.entity';
 import { BillRepository } from '@domain/repository/bill.repository';
+import { QueryRunner } from 'typeorm';
 
 export class BillRepositoryImpl implements BillRepository {
-  constructor(private readonly billDataSource: BillDataSource) {}
+  constructor(
+    private readonly billDataSource: BillDataSource,
+    private readonly queryRunner?: QueryRunner,
+  ) {}
 
-  create(bill: CreateBillDto): Promise<Bill> {
-    return this.billDataSource.create(bill);
+  create(bill: CreateBillDto, transaction?: QueryRunner): Promise<Bill> {
+    const txn = transaction || this.queryRunner;
+    return this.billDataSource.create(bill, txn);
   }
 
   search(filter: IQueryFilter): Promise<Pagination<Bill>> {
@@ -25,11 +30,13 @@ export class BillRepositoryImpl implements BillRepository {
     return this.billDataSource.findAll();
   }
 
-  update(id: number, bill: UpdateBillDto): Promise<UpdateBillDto> {
-    return this.billDataSource.update(id, bill);
+  update(id: number, bill: UpdateBillDto, transaction?: QueryRunner): Promise<UpdateBillDto> {
+    const txn = transaction || this.queryRunner;
+    return this.billDataSource.update(id, bill, txn);
   }
 
-  delete(id: number): Promise<void> {
-    return this.billDataSource.delete(id);
+  delete(id: number, transaction?: QueryRunner): Promise<void> {
+    const txn = transaction || this.queryRunner;
+    return this.billDataSource.delete(id, txn);
   }
 }
