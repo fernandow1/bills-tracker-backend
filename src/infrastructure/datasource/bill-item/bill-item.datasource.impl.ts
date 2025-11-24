@@ -30,7 +30,7 @@ export class BillItemDatasourceImpl implements BillItemDataSource {
       throw new Error('BillItem not found');
     }
 
-    return await AppDataSource.getRepository(BillItem).save(billItemToUpdate);
+    return await repo.save(billItemToUpdate);
   }
 
   async delete(id: number, transaction?: QueryRunner): Promise<void> {
