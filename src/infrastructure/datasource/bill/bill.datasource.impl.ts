@@ -4,40 +4,51 @@ import { BillDataSource } from '@domain/datasources/bill.datasource';
 import { BillItem } from '@infrastructure/database/entities/bill-item.entity';
 import { Bill } from '@infrastructure/database/entities/bill.entity';
 import { AppDataSource } from '@infrastructure/database/connection';
-import { In, IsNull, Not } from 'typeorm';
+import { In, IsNull, Not, QueryRunner } from 'typeorm';
 import { IQueryFilter } from '@application/models/query-filter.model';
 import { Pagination } from '@application/models/pagination.model';
 
 export class BillDataSourceImpl implements BillDataSource {
-  async create(bill: CreateBillDto): Promise<Bill> {
+  async create(bill: CreateBillDto, transaction?: QueryRunner): Promise<Bill> {
+    // If transaction is provided, use it; otherwise create a new one
+    if (transaction) {
+      return this.createWithTransaction(bill, transaction);
+    }
+
+    // Original logic for backward compatibility
     const queryRunner = AppDataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-
-      const { billItems, ...billData } = bill;
-
-      const newBill = queryRunner.manager.create(Bill, billData);
-
-      const billCreated = await queryRunner.manager.getRepository(Bill).save(newBill);
-
-      if (billCreated && billItems.length) {
-        billItems.forEach((item) => (item.idBill = billCreated.id));
-      } else {
-        throw new Error('Bill was not created');
-      }
-
-      queryRunner.manager.getRepository(BillItem).create(billItems);
-      await queryRunner.manager.getRepository(BillItem).save(billItems);
-
+      const result = await this.createWithTransaction(bill, queryRunner);
       await queryRunner.commitTransaction();
-      return billCreated;
+      return result;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
       await queryRunner.release();
     }
+  }
+
+  private async createWithTransaction(
+    bill: CreateBillDto,
+    queryRunner: QueryRunner,
+  ): Promise<Bill> {
+    const { billItems, ...billData } = bill;
+
+    const newBill = queryRunner.manager.create(Bill, billData);
+    const billCreated = await queryRunner.manager.getRepository(Bill).save(newBill);
+
+    if (billCreated && billItems.length) {
+      billItems.forEach((item) => (item.idBill = billCreated.id));
+      queryRunner.manager.getRepository(BillItem).create(billItems);
+      await queryRunner.manager.getRepository(BillItem).save(billItems);
+    } else if (!billCreated) {
+      throw new Error('Bill was not created');
+    }
+
+    return billCreated;
   }
 
   async search(filter: IQueryFilter): Promise<Pagination<Bill>> {
@@ -94,39 +105,20 @@ export class BillDataSourceImpl implements BillDataSource {
     const bills = await query.getMany();
     return bills;
   }
-  async update(id: number, dto: UpdateBillDto): Promise<UpdateBillDto> {
+  async update(id: number, dto: UpdateBillDto, transaction?: QueryRunner): Promise<UpdateBillDto> {
+    // If transaction is provided, use it; otherwise create a new one
+    if (transaction) {
+      return this.updateWithTransaction(id, dto, transaction);
+    }
+
+    // Original logic for backward compatibility
     const queryRunner = AppDataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-
-      const existingBill = await queryRunner.manager.findOne(Bill, { where: { id } });
-      if (!existingBill) throw new Error('Bill not found');
-
-      const { billItems, ...bill } = dto;
-
-      const updatedBill = queryRunner.manager.merge(Bill, existingBill, bill);
-      const savedBill = await queryRunner.manager.save(updatedBill);
-
-      if (billItems && billItems.length) {
-        const billItemsUpdated = await queryRunner.manager
-          .getRepository(BillItem)
-          .upsert(billItems, {
-            conflictPaths: ['idBill', 'idProduct'],
-            skipUpdateIfNoValuesChanged: true,
-          });
-
-        const billItemsDeleted = await queryRunner.manager.getRepository(BillItem).softDelete({
-          idBill: id,
-          deletedAt: IsNull(),
-          id: Not(In(billItems.map((item) => item.id))),
-        });
-
-        if (!billItemsUpdated || !billItemsDeleted) throw new Error('BillItems update failed');
-      }
-
+      const result = await this.updateWithTransaction(id, dto, queryRunner);
       await queryRunner.commitTransaction();
-      return savedBill;
+      return result;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -134,18 +126,49 @@ export class BillDataSourceImpl implements BillDataSource {
       await queryRunner.release();
     }
   }
-  async delete(id: number): Promise<void> {
+
+  private async updateWithTransaction(
+    id: number,
+    dto: UpdateBillDto,
+    queryRunner: QueryRunner,
+  ): Promise<UpdateBillDto> {
+    const existingBill = await queryRunner.manager.findOne(Bill, { where: { id } });
+    if (!existingBill) throw new Error('Bill not found');
+
+    const { billItems, ...bill } = dto;
+
+    const updatedBill = queryRunner.manager.merge(Bill, existingBill, bill);
+    const savedBill = await queryRunner.manager.save(updatedBill);
+
+    if (billItems && billItems.length) {
+      const billItemsUpdated = await queryRunner.manager.getRepository(BillItem).upsert(billItems, {
+        conflictPaths: ['idBill', 'idProduct'],
+        skipUpdateIfNoValuesChanged: true,
+      });
+
+      const billItemsDeleted = await queryRunner.manager.getRepository(BillItem).softDelete({
+        idBill: id,
+        deletedAt: IsNull(),
+        id: Not(In(billItems.map((item) => item.id))),
+      });
+
+      if (!billItemsUpdated || !billItemsDeleted) throw new Error('BillItems update failed');
+    }
+
+    return savedBill;
+  }
+  async delete(id: number, transaction?: QueryRunner): Promise<void> {
+    // If transaction is provided, use it; otherwise create a new one
+    if (transaction) {
+      return this.deleteWithTransaction(id, transaction);
+    }
+
+    // Original logic for backward compatibility
     const queryRunner = AppDataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-
-      await queryRunner.manager.getRepository(Bill).findOneOrFail({ where: { id } });
-
-      await queryRunner.manager.getRepository(Bill).softDelete(id);
-
-      await queryRunner.manager.getRepository(BillItem).softDelete({ idBill: id });
-
+      await this.deleteWithTransaction(id, queryRunner);
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -153,5 +176,11 @@ export class BillDataSourceImpl implements BillDataSource {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  private async deleteWithTransaction(id: number, queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.manager.getRepository(Bill).findOneOrFail({ where: { id } });
+    await queryRunner.manager.getRepository(Bill).softDelete(id);
+    await queryRunner.manager.getRepository(BillItem).softDelete({ idBill: id });
   }
 }
