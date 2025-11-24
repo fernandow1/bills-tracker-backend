@@ -2,18 +2,22 @@ import { CreateBillDto } from '@application/dtos/bill/create-bill.dto';
 import { UpdateBillDto } from '@application/dtos/bill/update-bill.dto';
 import { AppError } from '@application/errors/app-error';
 import { queryMapper } from '@application/mappers/query-filter.mapper';
-import { CreateBill } from '@application/uses-cases/bill/create-bill';
+import { CreateBillWithUoW } from '@application/uses-cases/bill/create-bill-with-uow';
 import { GetBills } from '@application/uses-cases/bill/get-bills';
 import { SearchBill } from '@application/uses-cases/bill/search-bill';
 import { UpdateBill } from '@application/uses-cases/bill/update-bill';
 import { BillRepository } from '@domain/repository/bill.repository';
+import { IUnitOfWork } from '@domain/ports/unit-of-work.interface';
 import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
 
 export class BillController {
-  constructor(private readonly billRepository: BillRepository) {}
+  constructor(
+    private readonly billRepository: BillRepository,
+    private readonly unitOfWorkFactory: () => IUnitOfWork,
+  ) {}
 
   createBill = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -27,11 +31,23 @@ export class BillController {
         return next(AppError.badRequest('Validation failed', validationErrors));
       }
 
-      const bill = await new CreateBill(this.billRepository).execute(dto);
+      // Use Unit of Work for complex bill creation with items
+      const bill = await new CreateBillWithUoW(this.unitOfWorkFactory).execute(dto);
 
       res.status(201).json(bill);
     } catch (error) {
-      console.log(error);
+      console.log('Bill creation error:', error);
+
+      // Handle business rule errors with appropriate status codes
+      if (error instanceof Error) {
+        if (
+          error.message.includes('Total mismatch') ||
+          error.message.includes('Duplicate products')
+        ) {
+          return next(AppError.badRequest(error.message, []));
+        }
+      }
+
       return next(AppError.internalError('Internal server error'));
     }
   };

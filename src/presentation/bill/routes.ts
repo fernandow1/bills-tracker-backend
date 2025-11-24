@@ -4,6 +4,7 @@ import { BillDataSourceImpl } from '@infrastructure/datasource/bill/bill.datasou
 import { BillRepositoryImpl } from '@infrastructure/repositories/bill/bill.repository.impl';
 import { BillController } from '@presentation/bill/controller';
 import { validateJwt } from '@infrastructure/http/middlewares/validate-jwt.middleware';
+import { CREATE_UNIT_OF_WORK_FACTORY } from '@infrastructure/unit-of-work/unit-of-work.factory';
 
 export const BillRouter = {
   routes(): Router {
@@ -11,7 +12,8 @@ export const BillRouter = {
 
     const billDataSource = new BillDataSourceImpl();
     const billRepository = new BillRepositoryImpl(billDataSource);
-    const billController = new BillController(billRepository);
+    const unitOfWorkFactory = CREATE_UNIT_OF_WORK_FACTORY();
+    const billController = new BillController(billRepository, unitOfWorkFactory);
 
     router.get('/', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       billController.getAllBills(req, res, next);
