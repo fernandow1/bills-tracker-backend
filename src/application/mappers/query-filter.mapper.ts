@@ -21,23 +21,30 @@ export function queryMapper(dto: QueryFilterDTO): IQueryFilter {
     filter: {},
   };
 
-  const raw = dto.filter.trim() ?? '';
+  if (!dto.filter) return payload;
 
-  if (!raw) return payload;
+  let filters: string[] = [];
 
-  const filters = Array.isArray(dto.filter)
-    ? dto.filter
-        .filter(Boolean)
-        .map((s) => s.trim())
-        .filter(Boolean)
-    : typeof dto.filter === 'string' && dto.filter.trim()
-      ? dto.filter.includes('&')
-        ? dto.filter
-            .split('&')
-            .map((s) => s.trim())
-            .filter(Boolean) // por si vino todo en 1 param
-        : [dto.filter.trim()]
-      : [dto.filter.trim()];
+  if (Array.isArray(dto.filter)) {
+    filters = dto.filter
+      .filter(Boolean)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  } else if (typeof dto.filter === 'string') {
+    const raw = dto.filter.trim();
+    if (!raw) return payload;
+
+    filters = raw.includes('&')
+      ? raw
+          .split('&')
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [raw];
+  } else {
+    return payload; // Handle non-string, non-array cases
+  }
+
+  if (filters.length === 0) return payload;
 
   andBuilder(filters, payload);
 
