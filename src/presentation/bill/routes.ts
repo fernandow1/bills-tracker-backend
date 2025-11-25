@@ -5,12 +5,15 @@ import { BillRepositoryImpl } from '@infrastructure/repositories/bill/bill.repos
 import { BillController } from '@presentation/bill/controller';
 import { validateJwt } from '@infrastructure/http/middlewares/validate-jwt.middleware';
 import { CREATE_UNIT_OF_WORK_FACTORY } from '@infrastructure/unit-of-work/unit-of-work.factory';
+import { AppDataSource } from '@infrastructure/database/connection';
+import { TestDataSource } from '@infrastructure/database/connection-test';
 
 export const BillRouter = {
   routes(): Router {
     const router = Router();
 
-    const billDataSource = new BillDataSourceImpl();
+    const dataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
+    const billDataSource = new BillDataSourceImpl(dataSource);
     const billRepository = new BillRepositoryImpl(billDataSource);
     const unitOfWorkFactory = CREATE_UNIT_OF_WORK_FACTORY();
     const billController = new BillController(billRepository, unitOfWorkFactory);
