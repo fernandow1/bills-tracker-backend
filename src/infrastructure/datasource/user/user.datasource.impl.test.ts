@@ -1,40 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UserDataSourceImpl } from './user.datasource.impl';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { User } from '../../database/entities/user.entity';
+import { dataSourceUserMock, userRepositoryMock, USERMOCK } from './user.mock';
 
 describe('UserDataSourceImpl', () => {
   let userDataSource: UserDataSourceImpl;
   let mockDataSource: jest.Mocked<DataSource>;
-  let mockUserRepository: Record<string, unknown>;
-
-  const mockUser: User = {
-    id: 1,
-    username: 'testuser',
-    email: 'test@example.com',
-    name: 'Test',
-    surname: 'User',
-    password: 'hashedpassword',
-    createdAt: new Date('2023-01-01'),
-    updatedAt: new Date('2023-01-01'),
-    deletedAt: null,
-  };
+  let mockUserRepository: jest.Mocked<Repository<User>>;
 
   beforeEach(() => {
-    // Mock repository methods
-    mockUserRepository = {
-      find: jest.fn(),
-      save: jest.fn(),
-      findOneBy: jest.fn(),
-      createQueryBuilder: jest.fn(),
-      softDelete: jest.fn(),
-    };
-
-    // Mock DataSource
-    mockDataSource = {
-      getRepository: jest.fn().mockReturnValue(mockUserRepository),
-    } as any;
-
+    // Use centralized mocks
+    mockUserRepository = userRepositoryMock();
+    mockDataSource = dataSourceUserMock(mockUserRepository);
     userDataSource = new UserDataSourceImpl(mockDataSource);
   });
 
@@ -45,7 +22,7 @@ describe('UserDataSourceImpl', () => {
   describe('getUsers', () => {
     it('should return array of users', async () => {
       // Arrange
-      const expectedUsers = [mockUser];
+      const expectedUsers = [USERMOCK];
       (mockUserRepository.find as jest.Mock).mockResolvedValue(expectedUsers);
 
       // Act
@@ -78,13 +55,13 @@ describe('UserDataSourceImpl', () => {
         name: 'New',
         password: 'password',
       };
-      (mockUserRepository.save as jest.Mock).mockResolvedValue(mockUser);
+      (mockUserRepository.save as jest.Mock).mockResolvedValue(USERMOCK);
 
       // Act
       const result = await userDataSource.createUser(userData);
 
       // Assert
-      expect(result).toEqual(mockUser);
+      expect(result).toEqual(USERMOCK);
       expect(mockDataSource.getRepository).toHaveBeenCalledWith(User);
       expect(mockUserRepository.save).toHaveBeenCalledWith(userData);
     });
@@ -93,13 +70,13 @@ describe('UserDataSourceImpl', () => {
   describe('getUserById', () => {
     it('should return user when found', async () => {
       // Arrange
-      (mockUserRepository.findOneBy as jest.Mock).mockResolvedValue(mockUser);
+      (mockUserRepository.findOneBy as jest.Mock).mockResolvedValue(USERMOCK);
 
       // Act
       const result = await userDataSource.getUserById(1);
 
       // Assert
-      expect(result).toEqual(mockUser);
+      expect(result).toEqual(USERMOCK);
       expect(mockDataSource.getRepository).toHaveBeenCalledWith(User);
       expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
     });
@@ -123,7 +100,7 @@ describe('UserDataSourceImpl', () => {
       const mockQueryBuilder = {
         where: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
-        getOne: jest.fn().mockResolvedValue(mockUser),
+        getOne: jest.fn().mockResolvedValue(USERMOCK),
       };
       (mockUserRepository.createQueryBuilder as jest.Mock).mockReturnValue(mockQueryBuilder);
 
@@ -131,7 +108,7 @@ describe('UserDataSourceImpl', () => {
       const result = await userDataSource.getUserByUsername('testuser');
 
       // Assert
-      expect(result).toEqual(mockUser);
+      expect(result).toEqual(USERMOCK);
       expect(mockDataSource.getRepository).toHaveBeenCalledWith(User);
       expect(mockUserRepository.createQueryBuilder).toHaveBeenCalledWith('user');
       expect(mockQueryBuilder.where).toHaveBeenCalledWith('user.username = :username', {
@@ -169,9 +146,9 @@ describe('UserDataSourceImpl', () => {
     it('should update and return user when found', async () => {
       // Arrange
       const userData = { name: 'Updated Name' };
-      const updatedUser = { ...mockUser, ...userData };
+      const updatedUser = { ...USERMOCK, ...userData };
 
-      (mockUserRepository.findOneBy as jest.Mock).mockResolvedValue(mockUser);
+      (mockUserRepository.findOneBy as jest.Mock).mockResolvedValue(USERMOCK);
       (mockUserRepository.save as jest.Mock).mockResolvedValue(updatedUser);
 
       // Act
@@ -198,7 +175,7 @@ describe('UserDataSourceImpl', () => {
   describe('deleteUser', () => {
     it('should soft delete user when found', async () => {
       // Arrange
-      (mockUserRepository.findOneBy as jest.Mock).mockResolvedValue(mockUser);
+      (mockUserRepository.findOneBy as jest.Mock).mockResolvedValue(USERMOCK);
       (mockUserRepository.softDelete as jest.Mock).mockResolvedValue(undefined);
 
       // Act
