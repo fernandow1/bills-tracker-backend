@@ -1,16 +1,13 @@
 import { ProductDataSourceImpl } from '@infrastructure/datasource/product/product.datasource.impl';
 import { ProductRepositoryImpl } from '@infrastructure/repositories/product/product.repository.impl';
 import { NextFunction, Request, Response, Router } from 'express';
+import { DataSource } from 'typeorm';
 import { ProductController } from '@presentation/product/controller';
-import { TestDataSource } from '@infrastructure/database/connection-test';
-import { AppDataSource } from '@infrastructure/database/connection';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const ProductRouter = {
-  routes(): Router {
+  routes(dataSource: DataSource): Router {
     const router = Router();
-
-    const dataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
 
     const productDataSource = new ProductDataSourceImpl(dataSource);
 

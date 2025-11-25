@@ -2,15 +2,13 @@
 import { PaymentMethodDataSourceImpl } from '@infrastructure/datasource/payment-method/payment-method.datasource.impl';
 import { PaymentMethodRepositoryImpl } from '@infrastructure/repositories/payment-method/payment-method.repository.impl';
 import { NextFunction, Request, Response, Router } from 'express';
+import { DataSource } from 'typeorm';
 import { PaymentMethodController } from './controller';
-import { AppDataSource } from '@infrastructure/database/connection';
-import { TestDataSource } from '@infrastructure/database/connection-test';
 
 export const PaymentMethodRouter = {
-  routes(): Router {
+  routes(dataSource: DataSource): Router {
     const router = Router();
 
-    const dataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
     const paymentMethodDataSource = new PaymentMethodDataSourceImpl(dataSource);
     const paymentMethodRepository = new PaymentMethodRepositoryImpl(paymentMethodDataSource);
     const paymentMethodController = new PaymentMethodController(paymentMethodRepository);

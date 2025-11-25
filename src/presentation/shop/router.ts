@@ -1,17 +1,13 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Request, Router, Response, NextFunction } from 'express';
-import { AppDataSource } from '@infrastructure/database/connection';
-import { TestDataSource } from '@infrastructure/database/connection-test';
+import { DataSource } from 'typeorm';
 import { ShopDataSourceImpl } from '@infrastructure/datasource/shop/shop.datasource.impl';
 import { ShopRepositoryImpl } from '@infrastructure/repositories/shop/shop.repository.impl';
 import { ShopController } from '@presentation/shop/controller';
 
 export const ShopRouter = {
-  routes(): Router {
+  routes(dataSource: DataSource): Router {
     const router = Router();
-
-    // Usar TestDataSource en entorno de testing, AppDataSource en producción
-    const dataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
 
     const shopDataSource = new ShopDataSourceImpl(dataSource);
 

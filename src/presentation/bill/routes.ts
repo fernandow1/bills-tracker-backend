@@ -1,18 +1,16 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { NextFunction, Request, Response, Router } from 'express';
+import { DataSource } from 'typeorm';
 import { BillDataSourceImpl } from '@infrastructure/datasource/bill/bill.datasource.impl';
 import { BillRepositoryImpl } from '@infrastructure/repositories/bill/bill.repository.impl';
 import { BillController } from '@presentation/bill/controller';
 import { validateJwt } from '@infrastructure/http/middlewares/validate-jwt.middleware';
 import { CREATE_UNIT_OF_WORK_FACTORY } from '@infrastructure/unit-of-work/unit-of-work.factory';
-import { AppDataSource } from '@infrastructure/database/connection';
-import { TestDataSource } from '@infrastructure/database/connection-test';
 
 export const BillRouter = {
-  routes(): Router {
+  routes(dataSource: DataSource): Router {
     const router = Router();
 
-    const dataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
     const billDataSource = new BillDataSourceImpl(dataSource);
     const billRepository = new BillRepositoryImpl(billDataSource);
     const unitOfWorkFactory = CREATE_UNIT_OF_WORK_FACTORY();

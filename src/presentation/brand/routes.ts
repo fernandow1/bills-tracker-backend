@@ -1,16 +1,14 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { NextFunction, Request, Response, Router } from 'express';
+import { DataSource } from 'typeorm';
 import { BrandDataSourceImpl } from '@infrastructure/datasource/brand/brand.datasource.impl';
 import { BrandRepositoryImpl } from '@infrastructure/repositories/brand/brand.repository.impl';
 import { BrandController } from '@presentation/brand/controller';
-import { AppDataSource } from '@infrastructure/database/connection';
-import { TestDataSource } from '@infrastructure/database/connection-test';
 
 export const BrandRouter = {
-  routes(): Router {
+  routes(dataSource: DataSource): Router {
     const router = Router();
 
-    const dataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
     const brandDataSource = new BrandDataSourceImpl(dataSource);
     const brandRepository = new BrandRepositoryImpl(brandDataSource);
     const brandController = new BrandController(brandRepository);

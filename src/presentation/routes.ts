@@ -18,14 +18,14 @@ export const AppRoutes = {
     const dataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
 
     // Define your routes here
-    router.use('/api/shops', ShopRouter.routes());
-    router.use('/api/currencies', CurrencyRouter.routes());
+    router.use('/api/shops', ShopRouter.routes(dataSource));
+    router.use('/api/currencies', CurrencyRouter.routes(dataSource));
     router.use('/api/users', UserRouter.routes(dataSource));
-    router.use('/api/payment-methods', PaymentMethodRouter.routes());
-    router.use('/api/brands', BrandRouter.routes());
-    router.use('/api/categories', CategoryRouter.routes());
-    router.use('/api/products', ProductRouter.routes());
-    router.use('/api/bills', BillRouter.routes());
+    router.use('/api/payment-methods', PaymentMethodRouter.routes(dataSource));
+    router.use('/api/brands', BrandRouter.routes(dataSource));
+    router.use('/api/categories', CategoryRouter.routes(dataSource));
+    router.use('/api/products', ProductRouter.routes(dataSource));
+    router.use('/api/bills', BillRouter.routes(dataSource));
 
     return router;
   },

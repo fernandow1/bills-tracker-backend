@@ -1,16 +1,14 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Request, Router, Response, NextFunction } from 'express';
+import { DataSource } from 'typeorm';
 import { CurrencyController } from '@presentation/currency/controller';
 import { CurrencyDataSourceImpl } from '@infrastructure/datasource/currency/currency.datasource.impl';
 import { CurrencyRepositoryImpl } from '@infrastructure/repositories/currency/currency.repository.impl';
-import { TestDataSource } from '@infrastructure/database/connection-test';
-import { AppDataSource } from '@infrastructure/database/connection';
 
 export const CurrencyRouter = {
-  routes(): Router {
+  routes(dataSource: DataSource): Router {
     const router = Router();
 
-    const dataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
     const currencyDataSource = new CurrencyDataSourceImpl(dataSource);
     const currencyRepository = new CurrencyRepositoryImpl(currencyDataSource);
     const controller = new CurrencyController(currencyRepository);
