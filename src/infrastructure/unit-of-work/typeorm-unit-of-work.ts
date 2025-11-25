@@ -67,7 +67,7 @@ export class TypeOrmUnitOfWork implements IUnitOfWork {
     }
 
     if (!this._billRepository) {
-      const billDataSource = new BillDataSourceImpl();
+      const billDataSource = new BillDataSourceImpl(this.dataSource);
       this._billRepository = new BillRepositoryImpl(billDataSource, this.queryRunner);
     }
 
@@ -80,7 +80,7 @@ export class TypeOrmUnitOfWork implements IUnitOfWork {
     }
 
     if (!this._billItemRepository) {
-      const billItemDataSource = new BillItemDatasourceImpl();
+      const billItemDataSource = new BillItemDatasourceImpl(this.dataSource);
       this._billItemRepository = new BillItemRepositoryImpl(billItemDataSource, this.queryRunner);
     }
 
