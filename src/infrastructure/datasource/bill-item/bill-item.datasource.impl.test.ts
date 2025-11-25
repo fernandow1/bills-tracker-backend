@@ -49,7 +49,7 @@ describe('BillItemDatasourceImpl', () => {
   };
 
   beforeEach(() => {
-    billItemDatasource = new BillItemDatasourceImpl();
+    billItemDatasource = new BillItemDatasourceImpl(AppDataSource);
 
     // Mock repository methods
     mockRepository = {
