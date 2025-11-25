@@ -4,12 +4,13 @@ import { UserDataSourceImpl } from '@infrastructure/datasource/user/user.datasou
 import { UserRepositoryImpl } from '@infrastructure/repositories/user/user.repository.impl';
 import { UserController } from '@presentation/user/controller';
 import { Request, Router, Response, NextFunction } from 'express';
+import { DataSource } from 'typeorm';
 
 export const UserRouter = {
-  routes(): Router {
+  routes(dataSource: DataSource): Router {
     const router = Router();
 
-    const userDataSource = new UserDataSourceImpl();
+    const userDataSource = new UserDataSourceImpl(dataSource);
 
     const userRepository = new UserRepositoryImpl(userDataSource);
 

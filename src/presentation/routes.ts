@@ -8,15 +8,19 @@ import { BrandRouter } from '@presentation/brand/routes';
 import { CategoryRouter } from '@presentation/category/router';
 import { ProductRouter } from '@presentation/product/routes';
 import { BillRouter } from '@presentation/bill/routes';
+import { AppDataSource } from '@infrastructure/database/connection';
+import { TestDataSource } from '@infrastructure/database/connection-test';
 
 export const AppRoutes = {
   routes(): Router {
     const router = Router();
 
+    const dataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
+
     // Define your routes here
     router.use('/api/shops', ShopRouter.routes());
     router.use('/api/currencies', CurrencyRouter.routes());
-    router.use('/api/users', UserRouter.routes());
+    router.use('/api/users', UserRouter.routes(dataSource));
     router.use('/api/payment-methods', PaymentMethodRouter.routes());
     router.use('/api/brands', BrandRouter.routes());
     router.use('/api/categories', CategoryRouter.routes());
