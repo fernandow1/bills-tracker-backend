@@ -3,12 +3,12 @@ import { UpdateBillDto } from '@application/dtos/bill/update-bill.dto';
 import { BillDataSource } from '@domain/datasources/bill.datasource';
 import { BillItem } from '@infrastructure/database/entities/bill-item.entity';
 import { Bill } from '@infrastructure/database/entities/bill.entity';
-import { AppDataSource } from '@infrastructure/database/connection';
-import { In, IsNull, Not, QueryRunner } from 'typeorm';
+import { In, IsNull, Not, QueryRunner, DataSource } from 'typeorm';
 import { IQueryFilter } from '@application/models/query-filter.model';
 import { Pagination } from '@application/models/pagination.model';
 
 export class BillDataSourceImpl implements BillDataSource {
+  constructor(private readonly dataSource: DataSource) {}
   async create(bill: CreateBillDto, transaction?: QueryRunner): Promise<Bill> {
     // If transaction is provided, use it; otherwise create a new one
     if (transaction) {
@@ -16,7 +16,7 @@ export class BillDataSourceImpl implements BillDataSource {
     }
 
     // Original logic for backward compatibility
-    const queryRunner = AppDataSource.createQueryRunner();
+    const queryRunner = this.dataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
@@ -54,7 +54,7 @@ export class BillDataSourceImpl implements BillDataSource {
   async search(filter: IQueryFilter): Promise<Pagination<Bill>> {
     const { page, pageSize, filter: where } = filter;
 
-    const [data, count] = await AppDataSource.getRepository(Bill).findAndCount({
+    const [data, count] = await this.dataSource.getRepository(Bill).findAndCount({
       where,
       relations: {
         billItems: { product: { category: true, brand: true } },
@@ -95,10 +95,10 @@ export class BillDataSourceImpl implements BillDataSource {
   }
 
   async findById(id: number): Promise<Bill | null> {
-    return await AppDataSource.getRepository(Bill).findOne({ where: { id: Number(id) } });
+    return await this.dataSource.getRepository(Bill).findOne({ where: { id: Number(id) } });
   }
   async findAll(): Promise<Bill[]> {
-    const query = AppDataSource.getRepository(Bill).createQueryBuilder('bill');
+    const query = this.dataSource.getRepository(Bill).createQueryBuilder('bill');
     query.leftJoinAndSelect('bill.billItems', 'billItems');
     query.leftJoinAndSelect('billItems.product', 'product');
     query.orderBy('bill.createdAt', 'DESC');
@@ -112,7 +112,7 @@ export class BillDataSourceImpl implements BillDataSource {
     }
 
     // Original logic for backward compatibility
-    const queryRunner = AppDataSource.createQueryRunner();
+    const queryRunner = this.dataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
@@ -164,7 +164,7 @@ export class BillDataSourceImpl implements BillDataSource {
     }
 
     // Original logic for backward compatibility
-    const queryRunner = AppDataSource.createQueryRunner();
+    const queryRunner = this.dataSource.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();

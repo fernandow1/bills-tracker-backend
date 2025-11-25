@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { BillDataSourceImpl } from './bill.datasource.impl';
+import { AppDataSource } from '../../database/connection';
 import {
   CREATE_MOCK_BILL,
   CREATE_MOCK_CREATE_BILL_DTO,
@@ -26,7 +27,7 @@ describe('BillDataSourceImpl', () => {
   const createBillDto = CREATE_MOCK_CREATE_BILL_DTO();
 
   beforeEach(() => {
-    billDataSource = new BillDataSourceImpl();
+    billDataSource = new BillDataSourceImpl(AppDataSource);
 
     // Mock repositories
     mockBillRepository = {
