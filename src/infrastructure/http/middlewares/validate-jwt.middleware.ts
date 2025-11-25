@@ -4,6 +4,7 @@ import { JwtTokenValidate } from '@infrastructure/security/jwt-token-validate';
 import { UserDataSourceImpl } from '@infrastructure/datasource/user/user.datasource.impl';
 import { UserRepositoryImpl } from '@infrastructure/repositories/user/user.repository.impl';
 import { GetUser } from '@application/uses-cases/user/get-user';
+import { AppDataSource } from '@infrastructure/database/connection';
 import type { SafeUser } from '@application/uses-cases/user/types/auth-user.type';
 
 export async function validateJwt(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -27,9 +28,9 @@ export async function validateJwt(req: Request, res: Response, next: NextFunctio
         return;
       }
 
-      const user = await new GetUser(new UserRepositoryImpl(new UserDataSourceImpl())).execute(
-        Number(decoded.sub),
-      );
+      const user = await new GetUser(
+        new UserRepositoryImpl(new UserDataSourceImpl(AppDataSource)),
+      ).execute(Number(decoded.sub));
 
       if (!user) {
         res.status(401).json({ error: 'User not found' });
