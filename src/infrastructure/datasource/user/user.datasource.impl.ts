@@ -1,21 +1,23 @@
 import { UserDataSource } from '@domain/datasources/user.datasource';
-import { AppDataSource } from '@infrastructure/database/connection';
 import { User } from '@infrastructure/database/entities/user.entity';
+import { DataSource } from 'typeorm';
 
 export class UserDataSourceImpl implements UserDataSource {
+  constructor(private readonly dataSource: DataSource) {}
+
   async getUsers(): Promise<User[]> {
-    return AppDataSource.getRepository(User).find();
+    return this.dataSource.getRepository(User).find();
   }
   async createUser(userData: Partial<User>): Promise<User> {
-    return AppDataSource.getRepository(User).save(userData);
+    return this.dataSource.getRepository(User).save(userData);
   }
 
   async getUserById(id: number): Promise<User | null> {
-    return AppDataSource.getRepository(User).findOneBy({ id });
+    return this.dataSource.getRepository(User).findOneBy({ id });
   }
 
   async getUserByUsername(username: string): Promise<User | null> {
-    const query = AppDataSource.getRepository(User).createQueryBuilder('user');
+    const query = this.dataSource.getRepository(User).createQueryBuilder('user');
     query.where('user.username = :username', { username });
     query.select([
       'user.id',
@@ -29,14 +31,14 @@ export class UserDataSourceImpl implements UserDataSource {
   }
 
   async updateUser(id: number, userData: Partial<User>): Promise<User> {
-    const user = await AppDataSource.getRepository(User).findOneBy({ id });
+    const user = await this.dataSource.getRepository(User).findOneBy({ id });
     if (!user) throw new Error('User not found');
     const updatedUser = { id, ...userData };
-    return AppDataSource.getRepository(User).save(updatedUser);
+    return this.dataSource.getRepository(User).save(updatedUser);
   }
   async deleteUser(id: number): Promise<void> {
-    const user = await AppDataSource.getRepository(User).findOneBy({ id });
+    const user = await this.dataSource.getRepository(User).findOneBy({ id });
     if (!user) throw new Error('User not found');
-    await AppDataSource.getRepository(User).softDelete(id);
+    await this.dataSource.getRepository(User).softDelete(id);
   }
 }
