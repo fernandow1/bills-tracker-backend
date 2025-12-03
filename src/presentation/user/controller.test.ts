@@ -47,28 +47,6 @@ describe('UserController', () => {
     });
   });
 
-  describe('Request handling structure', () => {
-    it('should have createUser method that handles requests', async () => {
-      // Test that the method exists and can handle basic request structure
-      expect(typeof controller.createUser).toBe('function');
-
-      // Basic structure test - ensure it doesn't throw on valid input
-      await expect(
-        controller.createUser(mockRequest as Request, mockResponse as Response, mockNext),
-      ).resolves.not.toThrow();
-    });
-
-    it('should have loginUser method that handles requests', async () => {
-      // Test that the method exists and can handle basic request structure
-      expect(typeof controller.loginUser).toBe('function');
-
-      // Basic structure test - ensure it doesn't throw on valid input
-      await expect(
-        controller.loginUser(mockRequest as Request, mockResponse as Response, mockNext),
-      ).resolves.not.toThrow();
-    });
-  });
-
   describe('Response handling', () => {
     it('should call response methods appropriately', async () => {
       // Test that response.status and response.json are called

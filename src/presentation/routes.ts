@@ -8,6 +8,7 @@ import { BrandRouter } from '@presentation/brand/routes';
 import { CategoryRouter } from '@presentation/category/router';
 import { ProductRouter } from '@presentation/product/routes';
 import { BillRouter } from '@presentation/bill/routes';
+import { AuthRouter } from '@presentation/auth/router';
 import { AppDataSource } from '@infrastructure/database/connection';
 import { TestDataSource } from '@infrastructure/database/connection-test';
 
@@ -26,6 +27,7 @@ export const AppRoutes = {
     router.use('/api/categories', CategoryRouter.routes(dataSource));
     router.use('/api/products', ProductRouter.routes(dataSource));
     router.use('/api/bills', BillRouter.routes(dataSource));
+    router.use('/api/auth', AuthRouter.routes(dataSource));
 
     return router;
   },

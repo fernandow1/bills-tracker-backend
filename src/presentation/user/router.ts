@@ -20,10 +20,6 @@ export const UserRouter = {
       userController.createUser(req, res, next);
     });
 
-    router.post('/login', (req: Request, res: Response, next: NextFunction) => {
-      userController.loginUser(req, res, next);
-    });
-
     return router;
   },
 };

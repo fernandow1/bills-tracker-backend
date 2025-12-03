@@ -2,7 +2,7 @@ import { PasswordHasher } from '@domain/ports/password-hasher';
 import { UserRepository } from '@domain/repository/user.repository';
 import { JwtTokenGenerator } from '@infrastructure/security/jwt-token-generator';
 import { JwtRefreshToken } from '@infrastructure/security/jwt-refresh-token';
-import { AuthUser } from '@application/uses-cases/user/types/auth-user.type';
+import { AuthUser } from '@application/uses-cases/auth/types/auth-user.type';
 import { JwtPayload } from 'jsonwebtoken';
 
 export interface LoginUserUseCase {

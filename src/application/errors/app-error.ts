@@ -3,6 +3,7 @@ type ErrorCode =
   | 'VALIDATION_ERROR'
   | 'NOT_FOUND'
   | 'FORBIDDEN'
+  | 'UNAUTHORIZED'
   | 'CONFLICT'
   | 'RATE_LIMITED'
   | 'INTERNAL_ERROR';
@@ -40,6 +41,10 @@ export class AppError extends Error {
 
   public static forbidden(message: string, details?: unknown): AppError {
     return new AppError(message, 'FORBIDDEN', 403, details);
+  }
+
+  public static unauthorized(message: string, details?: unknown): AppError {
+    return new AppError(message, 'UNAUTHORIZED', 401, details);
   }
 
   public static conflict(message: string, details?: unknown): AppError {
