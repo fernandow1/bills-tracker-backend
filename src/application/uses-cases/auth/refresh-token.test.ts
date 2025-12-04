@@ -53,6 +53,7 @@ describe('RefreshTokenUseCase', () => {
       expect(result).toEqual({
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
+        expiresIn: 900,
       });
 
       expect(MOCK_REFRESH_TOKEN.validateRefreshToken).toHaveBeenCalledWith(refreshTokenStr);
@@ -121,6 +122,7 @@ describe('RefreshTokenUseCase', () => {
       expect(result).toEqual({
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
+        expiresIn: 900,
       });
     });
 
