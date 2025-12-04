@@ -1,6 +1,7 @@
 import { GenerateToken } from '@domain/ports/generate-token';
 import { RefreshToken } from '@domain/ports/refresh-token';
 import { AppError } from '@application/errors/app-error';
+import { RefreshTokenResponse } from '@application/uses-cases/auth/types/auth-user.type';
 
 export class RefreshTokenUseCase {
   constructor(
@@ -8,7 +9,7 @@ export class RefreshTokenUseCase {
     private readonly refreshToken: RefreshToken,
   ) {}
 
-  async execute(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+  async execute(refreshToken: string): Promise<RefreshTokenResponse> {
     try {
       // 1. Validar el refresh token
       const decoded = await this.refreshToken.validateRefreshToken(refreshToken);
@@ -49,6 +50,7 @@ export class RefreshTokenUseCase {
       return {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
+        expiresIn: 15 * 60, // 15 minutos en segundos
       };
     } catch (error) {
       if (error instanceof AppError) {
