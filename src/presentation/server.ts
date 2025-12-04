@@ -1,6 +1,7 @@
 import express, { Router } from 'express';
 import compression from 'compression';
 import { errorHandler } from '@infrastructure/http/middlewares/errorHandler.middleware';
+import cors from 'cors';
 
 interface Options {
   port: number;
@@ -19,10 +20,24 @@ export class Server {
 
   async start(): Promise<void> {
     /* Middleware can be added here if needed */
+
+    // Configuración más flexible para desarrollo
+    this.app.use(
+      cors({
+        origin:
+          process.env.NODE_ENV === 'production'
+            ? ['https://tu-dominio.com']
+            : ['http://localhost:4200', 'http://127.0.0.1:4200'],
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      }),
+    );
+
     this.app.use(express.json()); // For parsing application/json
-    this.app.use(this.routes);
     this.app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
     this.app.use(compression()); // Enable compression for responses
+    this.app.use(this.routes);
 
     /* Middleware for errors */
     this.app.use(errorHandler);
