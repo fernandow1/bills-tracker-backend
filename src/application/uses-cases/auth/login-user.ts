@@ -3,6 +3,7 @@ import { UserRepository } from '@domain/repository/user.repository';
 import { JwtTokenGenerator } from '@infrastructure/security/jwt-token-generator';
 import { JwtRefreshToken } from '@infrastructure/security/jwt-refresh-token';
 import { AuthUser } from '@application/uses-cases/auth/types/auth-user.type';
+import { AppError } from '@application/errors/app-error';
 import { JwtPayload } from 'jsonwebtoken';
 
 export interface LoginUserUseCase {
@@ -22,13 +23,13 @@ export class LoginUser {
     const user = await this.userRepository.findByUsername(username);
 
     if (!user) {
-      throw new Error('User not found');
+      throw AppError.unauthorized('Invalid username or password');
     }
 
     const isValid = await this.passwordHasher.compare(password, user.password);
 
     if (!isValid) {
-      throw new Error('Invalid credentials');
+      throw AppError.unauthorized('Invalid username or password');
     }
 
     const tokenPayload: JwtPayload = {
@@ -59,6 +60,7 @@ export class LoginUser {
       },
       token: accessToken,
       refreshToken,
+      expiresIn: 15 * 60, // 15 minutos en segundos
     } as AuthUser;
   }
 }

@@ -70,6 +70,7 @@ describe('LoginUser', () => {
         },
         token: 'mocked_jwt_token',
         refreshToken: 'mocked_refresh_token',
+        expiresIn: 900, // 15 minutos en segundos
       } as AuthUser);
     });
 
@@ -81,7 +82,9 @@ describe('LoginUser', () => {
       mockUserRepository.findByUsername.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(loginUserUseCase.execute(username, password)).rejects.toThrow('User not found');
+      await expect(loginUserUseCase.execute(username, password)).rejects.toThrow(
+        'Invalid username or password',
+      );
 
       expect(mockUserRepository.findByUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepository.findByUsername).toHaveBeenCalledWith(username);
@@ -100,7 +103,7 @@ describe('LoginUser', () => {
 
       // Act & Assert
       await expect(loginUserUseCase.execute(username, password)).rejects.toThrow(
-        'Invalid credentials',
+        'Invalid username or password',
       );
 
       expect(mockUserRepository.findByUsername).toHaveBeenCalledTimes(1);
@@ -151,7 +154,9 @@ describe('LoginUser', () => {
       mockUserRepository.findByUsername.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(loginUserUseCase.execute(username, password)).rejects.toThrow('User not found');
+      await expect(loginUserUseCase.execute(username, password)).rejects.toThrow(
+        'Invalid username or password',
+      );
 
       expect(mockUserRepository.findByUsername).toHaveBeenCalledWith('');
     });
@@ -168,7 +173,7 @@ describe('LoginUser', () => {
 
       // Act & Assert
       await expect(loginUserUseCase.execute(username, password)).rejects.toThrow(
-        'Invalid credentials',
+        'Invalid username or password',
       );
 
       expect(mockPasswordHasher.compare).toHaveBeenCalledWith('', hashedPassword);
