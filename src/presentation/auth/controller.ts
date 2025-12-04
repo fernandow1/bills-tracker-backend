@@ -38,6 +38,10 @@ export class AuthController {
       res.status(200).json({ ...authUser });
     } catch (error) {
       console.error(error);
+      // Si es un AppError (como unauthorized), pasarlo directamente
+      if (error instanceof AppError) {
+        return next(error);
+      }
       return next(AppError.internalError('Internal server error'));
     }
   };

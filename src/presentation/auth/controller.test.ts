@@ -57,6 +57,7 @@ describe('AuthController', () => {
         },
         token: 'access_token',
         refreshToken: 'refresh_token',
+        expiresIn: 900,
       });
       (LoginUser as jest.MockedClass<typeof LoginUser>).mockImplementation(
         () =>
@@ -78,6 +79,7 @@ describe('AuthController', () => {
         },
         token: 'access_token',
         refreshToken: 'refresh_token',
+        expiresIn: 900, // 15 minutos en segundos
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -99,7 +101,10 @@ describe('AuthController', () => {
     });
 
     it('should handle use case errors', async () => {
-      const mockExecute = jest.fn().mockRejectedValue(new Error('Invalid credentials'));
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      const { AppError } = await import('../../application/errors/app-error');
+      const authError = AppError.unauthorized('Invalid username or password');
+      const mockExecute = jest.fn().mockRejectedValue(authError);
       (LoginUser as jest.MockedClass<typeof LoginUser>).mockImplementation(
         () =>
           ({
@@ -111,7 +116,8 @@ describe('AuthController', () => {
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Internal server error',
+          message: 'Invalid username or password',
+          statusCode: 401,
         }),
       );
     });
@@ -140,6 +146,7 @@ describe('AuthController', () => {
       const mockExecute = jest.fn().mockResolvedValue({
         accessToken: 'new_access_token',
         refreshToken: 'new_refresh_token',
+        expiresIn: 900,
       });
       (RefreshTokenUseCase as jest.MockedClass<typeof RefreshTokenUseCase>).mockImplementation(
         () =>
@@ -155,6 +162,7 @@ describe('AuthController', () => {
         message: 'Token refreshed successfully',
         accessToken: 'new_access_token',
         refreshToken: 'new_refresh_token',
+        expiresIn: 900,
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
