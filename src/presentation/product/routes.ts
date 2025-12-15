@@ -3,6 +3,7 @@ import { ProductRepositoryImpl } from '@infrastructure/repositories/product/prod
 import { NextFunction, Request, Response, Router } from 'express';
 import { DataSource } from 'typeorm';
 import { ProductController } from '@presentation/product/controller';
+import { validateJwt } from '@infrastructure/http/middlewares/validate-jwt.middleware';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const ProductRouter = {
@@ -15,19 +16,19 @@ export const ProductRouter = {
 
     const controller = new ProductController(productRepository);
 
-    router.get('/', (req: Request, res: Response, next: NextFunction) => {
+    router.get('/', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       controller.getProducts(req, res, next);
     });
-    router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
+    router.get('/:id', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       controller.getProduct(req, res, next);
     });
-    router.post('/', (req: Request, res: Response, next: NextFunction) => {
+    router.post('/', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       controller.createProduct(req, res, next);
     });
-    router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
+    router.put('/:id', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       controller.updateProduct(req, res, next);
     });
-    router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
+    router.delete('/:id', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       controller.deleteProduct(req, res, next);
     });
 
