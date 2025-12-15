@@ -24,7 +24,7 @@ export async function validateJwt(req: Request, res: Response, next: NextFunctio
       const decoded: JwtPayload = await jwtValidator.validate(authorization);
 
       if (!decoded) {
-        res.status(401).json({ error: 'Invalid token' });
+        res.status(403).json({ error: 'Invalid token' });
         return;
       }
 
@@ -33,7 +33,7 @@ export async function validateJwt(req: Request, res: Response, next: NextFunctio
       ).execute(Number(decoded.sub));
 
       if (!user) {
-        res.status(401).json({ error: 'User not found' });
+        res.status(403).json({ error: 'User not found' });
         return;
       }
 
@@ -44,7 +44,16 @@ export async function validateJwt(req: Request, res: Response, next: NextFunctio
 
       next();
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      // Si el token ha expirado o es inválido, devolver 403 Forbidden
+      if (
+        error instanceof Error &&
+        (error.message.includes('expired') || error.message.includes('invalid'))
+      ) {
+        res.status(403).json({ error: 'Token expired or invalid' });
+        return;
+      }
+      // Para otros errores del servidor
       res.status(500).json({ error: 'Failed to validate token' });
       return;
     }

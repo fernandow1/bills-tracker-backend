@@ -3,6 +3,7 @@ import { CategoryRepositoryImpl } from '@infrastructure/repositories/category/ca
 import { NextFunction, Request, Response, Router } from 'express';
 import { DataSource } from 'typeorm';
 import { CategoryController } from '@presentation/category/controller';
+import { validateJwt } from '@infrastructure/http/middlewares/validate-jwt.middleware';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const CategoryRouter = {
@@ -14,16 +15,16 @@ export const CategoryRouter = {
 
     const categoryController = new CategoryController(categoryRepository);
 
-    router.post('/', (req: Request, res: Response, next: NextFunction) =>
+    router.post('/', [validateJwt], (req: Request, res: Response, next: NextFunction) =>
       categoryController.createCategory(req, res, next),
     );
-    router.get('/', (req: Request, res: Response, next: NextFunction) =>
+    router.get('/', [validateJwt], (req: Request, res: Response, next: NextFunction) =>
       categoryController.getAllCategories(req, res, next),
     );
-    router.put('/:id', (req: Request, res: Response, next: NextFunction) =>
+    router.put('/:id', [validateJwt], (req: Request, res: Response, next: NextFunction) =>
       categoryController.updateCategory(req, res, next),
     );
-    router.delete('/:id', (req: Request, res: Response, next: NextFunction) =>
+    router.delete('/:id', [validateJwt], (req: Request, res: Response, next: NextFunction) =>
       categoryController.deleteCategory(req, res, next),
     );
 

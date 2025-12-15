@@ -55,18 +55,18 @@ describe('validateJwt middleware', () => {
       expect(mockNext).not.toHaveBeenCalled();
     });
 
-    it('should return 401 when JWT validation returns falsy value', async () => {
+    it('should return 403 when JWT validation returns falsy value', async () => {
       mockRequest.header.mockReturnValue('Bearer invalid-token');
       mockJwtValidator.validate.mockResolvedValue(null as never);
 
       await validateJwt(mockRequest, mockResponse, mockNext);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(401);
+      expect(mockResponse.status).toHaveBeenCalledWith(403);
       expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Invalid token' });
       expect(mockNext).not.toHaveBeenCalled();
     });
 
-    it('should return 401 when user is not found', async () => {
+    it('should return 403 when user is not found', async () => {
       const mockPayload = { sub: '123' };
       mockRequest.header.mockReturnValue('Bearer valid-token');
       mockJwtValidator.validate.mockResolvedValue(mockPayload);
@@ -74,17 +74,51 @@ describe('validateJwt middleware', () => {
 
       await validateJwt(mockRequest, mockResponse, mockNext);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(401);
+      expect(mockResponse.status).toHaveBeenCalledWith(403);
       expect(mockResponse.json).toHaveBeenCalledWith({ error: 'User not found' });
       expect(mockNext).not.toHaveBeenCalled();
     });
 
-    it('should return 500 when JWT validation throws error', async () => {
-      const mockError = new Error('JWT validation failed');
+    it('should return 403 when JWT validation throws expired token error', async () => {
+      const mockError = new Error('Token expired');
       mockRequest.header.mockReturnValue('Bearer valid-token');
       mockJwtValidator.validate.mockRejectedValue(mockError);
 
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      await validateJwt(mockRequest, mockResponse, mockNext);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(403);
+      expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Token expired or invalid' });
+      expect(consoleSpy).toHaveBeenCalledWith(mockError);
+      expect(mockNext).not.toHaveBeenCalled();
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should return 403 when JWT validation throws invalid token error', async () => {
+      const mockError = new Error('Token invalid');
+      mockRequest.header.mockReturnValue('Bearer valid-token');
+      mockJwtValidator.validate.mockRejectedValue(mockError);
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      await validateJwt(mockRequest, mockResponse, mockNext);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(403);
+      expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Token expired or invalid' });
+      expect(consoleSpy).toHaveBeenCalledWith(mockError);
+      expect(mockNext).not.toHaveBeenCalled();
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should return 500 when JWT validation throws other errors', async () => {
+      const mockError = new Error('Database connection failed');
+      mockRequest.header.mockReturnValue('Bearer valid-token');
+      mockJwtValidator.validate.mockRejectedValue(mockError);
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
       await validateJwt(mockRequest, mockResponse, mockNext);
 
@@ -162,7 +196,7 @@ describe('validateJwt middleware', () => {
       mockJwtValidator.validate.mockResolvedValue(mockPayload);
       mockGetUser.execute.mockRejectedValue(mockError);
 
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
       await validateJwt(mockRequest, mockResponse, mockNext);
 

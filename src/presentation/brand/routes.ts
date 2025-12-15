@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import { BrandDataSourceImpl } from '@infrastructure/datasource/brand/brand.datasource.impl';
 import { BrandRepositoryImpl } from '@infrastructure/repositories/brand/brand.repository.impl';
 import { BrandController } from '@presentation/brand/controller';
+import { validateJwt } from '@infrastructure/http/middlewares/validate-jwt.middleware';
 
 export const BrandRouter = {
   routes(dataSource: DataSource): Router {
@@ -13,16 +14,16 @@ export const BrandRouter = {
     const brandRepository = new BrandRepositoryImpl(brandDataSource);
     const brandController = new BrandController(brandRepository);
 
-    router.post('/', (req: Request, res: Response, next: NextFunction) => {
+    router.post('/', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       brandController.createBrand(req, res, next);
     });
-    router.get('/', (req: Request, res: Response, next: NextFunction) => {
+    router.get('/', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       brandController.getBrands(req, res, next);
     });
-    router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
+    router.put('/:id', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       brandController.updateBrand(req, res, next);
     });
-    router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
+    router.delete('/:id', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       brandController.deleteBrand(req, res, next);
     });
 
