@@ -14,11 +14,14 @@ export const BrandRouter = {
     const brandRepository = new BrandRepositoryImpl(brandDataSource);
     const brandController = new BrandController(brandRepository);
 
-    router.post('/', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
-      brandController.createBrand(req, res, next);
-    });
     router.get('/', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       brandController.getBrands(req, res, next);
+    });
+    router.get('/search', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
+      brandController.searchBrands(req, res, next);
+    });
+    router.post('/', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
+      brandController.createBrand(req, res, next);
     });
     router.put('/:id', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       brandController.updateBrand(req, res, next);

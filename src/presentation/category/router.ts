@@ -15,11 +15,14 @@ export const CategoryRouter = {
 
     const categoryController = new CategoryController(categoryRepository);
 
-    router.post('/', [validateJwt], (req: Request, res: Response, next: NextFunction) =>
-      categoryController.createCategory(req, res, next),
-    );
     router.get('/', [validateJwt], (req: Request, res: Response, next: NextFunction) =>
       categoryController.getAllCategories(req, res, next),
+    );
+    router.get('/search', [validateJwt], (req: Request, res: Response, next: NextFunction) =>
+      categoryController.searchCategories(req, res, next),
+    );
+    router.post('/', [validateJwt], (req: Request, res: Response, next: NextFunction) =>
+      categoryController.createCategory(req, res, next),
     );
     router.put('/:id', [validateJwt], (req: Request, res: Response, next: NextFunction) =>
       categoryController.updateCategory(req, res, next),
