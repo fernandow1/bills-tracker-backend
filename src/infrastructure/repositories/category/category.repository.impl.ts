@@ -2,10 +2,16 @@ import { CategoryDataSource } from '@domain/datasources/category.datasource';
 import { CreateCategoryDTO } from '@application/dtos/category/create-category.dto';
 import { Category } from '@domain/entities/category.entity';
 import { CategoryRepository } from '@domain/repository/category.repository';
+import { Pagination } from '@application/models/pagination.model';
+import { IQueryFilter } from '@application/models/query-filter.model';
 
 export class CategoryRepositoryImpl implements CategoryRepository {
   constructor(private readonly categoryDataSource: CategoryDataSource) {
     this.categoryDataSource = categoryDataSource;
+  }
+
+  search(filter: IQueryFilter): Promise<Pagination<Category>> {
+    return this.categoryDataSource.search(filter);
   }
 
   createCategory(category: CreateCategoryDTO): Promise<Category> {
