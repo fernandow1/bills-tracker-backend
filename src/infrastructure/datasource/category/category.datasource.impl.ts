@@ -2,8 +2,30 @@ import { CategoryDataSource } from '@domain/datasources/category.datasource';
 import { CreateCategoryDTO } from '@application/dtos/category/create-category.dto';
 import { DataSource } from 'typeorm';
 import { Category } from '@infrastructure/database/entities/category.entity';
+import { Pagination } from '@application/models/pagination.model';
+import { IQueryFilter } from '@application/models/query-filter.model';
 export class CategoryDataSourceImpl implements CategoryDataSource {
   constructor(private readonly datasource: DataSource) {}
+
+  async search(filter: IQueryFilter): Promise<Pagination<Category>> {
+    const { page, pageSize, filter: where } = filter;
+
+    const [data, count] = await this.datasource.getRepository(Category).findAndCount({
+      where,
+      select: {
+        id: true,
+        name: true,
+        description: true,
+      },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    return {
+      data,
+      count,
+    };
+  }
 
   async updateCategory(id: number, category: Partial<CreateCategoryDTO>): Promise<Category> {
     const categoryToUpdate = await this.datasource
