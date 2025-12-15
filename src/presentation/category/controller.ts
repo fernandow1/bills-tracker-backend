@@ -8,6 +8,9 @@ import { validate } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
 import { UpdateCategory } from '@application/uses-cases/category/update-category';
 import { DeleteCategory } from '@application/uses-cases/category/delete-category';
+import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
+import { SearchCategory } from '@application/uses-cases/category/search-category';
+import { queryMapper } from '@application/mappers/query-filter.mapper';
 
 export class CategoryController {
   constructor(private readonly categoryRepository: CategoryRepository) {}
@@ -38,6 +41,29 @@ export class CategoryController {
       res.status(200).json(categories);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
+      return next(AppError.internalError('Internal server error'));
+    }
+  };
+
+  searchCategories = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const dto = plainToClass(QueryFilterDTO, req.query);
+
+      const validationErrors = await validate(dto, {
+        whitelist: true,
+        validationError: { target: false, value: false },
+      });
+
+      if (validationErrors.length) {
+        return next(AppError.badRequest('Validation failed', validationErrors));
+      }
+
+      const categories = await new SearchCategory(this.categoryRepository).execute(
+        queryMapper(dto),
+      );
+      res.status(200).json(categories);
+    } catch (error) {
+      console.log(error);
       return next(AppError.internalError('Internal server error'));
     }
   };
