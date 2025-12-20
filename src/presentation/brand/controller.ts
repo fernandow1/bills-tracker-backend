@@ -12,6 +12,10 @@ import { DeleteBrand } from '@application/uses-cases/brand/delete-brand';
 import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
 import { SearchBrand } from '@application/uses-cases/brand/search-brand';
 import { queryMapper } from '@application/mappers/query-filter.mapper';
+import {
+  BRAND_ALLOWED_FIELDS,
+  BRAND_ALLOWED_OPERATIONS,
+} from '@application/queries/brand/brand-where';
 
 export class BrandController {
   constructor(private readonly brandRepository: BrandRepository) {}
@@ -94,7 +98,12 @@ export class BrandController {
         return next(AppError.badRequest('Validation failed', validationErrors));
       }
 
-      const brands = await new SearchBrand(this.brandRepository).execute(queryMapper(dto));
+      const brands = await new SearchBrand(this.brandRepository).execute(
+        queryMapper(dto, {
+          allowedFields: BRAND_ALLOWED_FIELDS,
+          allowedOperations: BRAND_ALLOWED_OPERATIONS,
+        }),
+      );
 
       res.status(200).json(brands);
     } catch (error) {

@@ -2,6 +2,10 @@ import { CreateBillDto } from '@application/dtos/bill/create-bill.dto';
 import { UpdateBillDto } from '@application/dtos/bill/update-bill.dto';
 import { AppError } from '@application/errors/app-error';
 import { queryMapper } from '@application/mappers/query-filter.mapper';
+import {
+  BILL_ALLOWED_FIELDS,
+  BILL_ALLOWED_OPERATIONS,
+} from '@application/queries/bill/bills-where';
 import { CreateBillWithUoW } from '@application/uses-cases/bill/create-bill-with-uow';
 import { GetBills } from '@application/uses-cases/bill/get-bills';
 import { SearchBill } from '@application/uses-cases/bill/search-bill';
@@ -75,7 +79,12 @@ export class BillController {
         return next(AppError.badRequest('Validation failed', validationErrors));
       }
 
-      const bills = await new SearchBill(this.billRepository).execute(queryMapper(dto));
+      const bills = await new SearchBill(this.billRepository).execute(
+        queryMapper(dto, {
+          allowedFields: BILL_ALLOWED_FIELDS,
+          allowedOperations: BILL_ALLOWED_OPERATIONS,
+        }),
+      );
 
       res.status(200).json(bills);
     } catch (error) {

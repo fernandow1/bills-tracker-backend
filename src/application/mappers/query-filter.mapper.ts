@@ -1,6 +1,5 @@
 import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
 import { IQueryFilter } from '@application/models/query-filter.model';
-import { ALLOWED_FIELDS, ALLOWED_OPERATIONS } from '@application/queries/bill/bills-where';
 import {
   Between,
   Equal,
@@ -14,7 +13,15 @@ import {
   MoreThanOrEqual,
 } from 'typeorm';
 
-export function queryMapper(dto: QueryFilterDTO): IQueryFilter {
+export type AllowedFieldsMap = Map<string, { relation?: string }>;
+export type AllowedOperationsSet = Set<string>;
+
+export interface QueryMapperOptions {
+  allowedFields: AllowedFieldsMap;
+  allowedOperations: AllowedOperationsSet;
+}
+
+export function queryMapper(dto: QueryFilterDTO, options: QueryMapperOptions): IQueryFilter {
   const payload: IQueryFilter = {
     page: dto.page ?? 1,
     pageSize: dto.pageSize ?? 10,
@@ -46,12 +53,16 @@ export function queryMapper(dto: QueryFilterDTO): IQueryFilter {
 
   if (filters.length === 0) return payload;
 
-  andBuilder(filters, payload);
+  andBuilder(filters, payload, options);
 
   return payload;
 }
 
-function andBuilder(filters: string[], { filter }: IQueryFilter): void {
+function andBuilder(
+  filters: string[],
+  { filter }: IQueryFilter,
+  { allowedFields, allowedOperations }: QueryMapperOptions,
+): void {
   const conditionsMap = new Map<string, unknown>();
 
   let andConditions: string[] = [];
@@ -76,8 +87,8 @@ function andBuilder(filters: string[], { filter }: IQueryFilter): void {
       }
     }
 
-    if (ALLOWED_FIELDS.has(field) && ALLOWED_OPERATIONS.has(operation)) {
-      const { relation } = ALLOWED_FIELDS.get(field) || {};
+    if (allowedFields.has(field) && allowedOperations.has(operation)) {
+      const { relation } = allowedFields.get(field) || {};
 
       const condition = deciderOperation(field, operation, value);
 

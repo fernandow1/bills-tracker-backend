@@ -11,6 +11,10 @@ import { DeleteCategory } from '@application/uses-cases/category/delete-category
 import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
 import { SearchCategory } from '@application/uses-cases/category/search-category';
 import { queryMapper } from '@application/mappers/query-filter.mapper';
+import {
+  CATEGORY_ALLOWED_FIELDS,
+  CATEGORY_ALLOWED_OPERATIONS,
+} from '@application/queries/category/category-where';
 
 export class CategoryController {
   constructor(private readonly categoryRepository: CategoryRepository) {}
@@ -59,7 +63,10 @@ export class CategoryController {
       }
 
       const categories = await new SearchCategory(this.categoryRepository).execute(
-        queryMapper(dto),
+        queryMapper(dto, {
+          allowedFields: CATEGORY_ALLOWED_FIELDS,
+          allowedOperations: CATEGORY_ALLOWED_OPERATIONS,
+        }),
       );
       res.status(200).json(categories);
     } catch (error) {

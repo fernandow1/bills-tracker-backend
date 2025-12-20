@@ -24,6 +24,7 @@ export interface MockedCategoryDataSource extends CategoryDataSource {
   >;
   getAllCategories: jest.MockedFunction<() => Promise<Category[]>>;
   deleteCategory: jest.MockedFunction<(id: number) => Promise<void>>;
+  search: jest.MockedFunction<CategoryDataSource['search']>;
 }
 
 export interface MockedTypeOrmDataSource {
@@ -71,6 +72,7 @@ export const createCategoryRepositoryDomainMock = (): jest.Mocked<CategoryDataSo
   updateCategory: jest.fn<Promise<Category>, [number, Partial<CreateCategoryDTO>]>(),
   getAllCategories: jest.fn<Promise<Category[]>, []>(),
   deleteCategory: jest.fn<Promise<void>, [number]>(),
+  search: jest.fn(),
 });
 
 // DataSource mocks con tipos específicos
@@ -79,6 +81,7 @@ export const createCategoryDataSourceDomainMock = (): MockedCategoryDataSource =
   updateCategory: jest.fn<Promise<Category>, [number, Partial<CreateCategoryDTO>]>(),
   getAllCategories: jest.fn<Promise<Category[]>, []>(),
   deleteCategory: jest.fn<Promise<void>, [number]>(),
+  search: jest.fn(),
 });
 
 export const createCategoryTypeOrmRepositoryMock = (): MockedCategoryRepository => ({
@@ -100,6 +103,7 @@ export const categoryRepositoryDomainMock = (): jest.Mocked<CategoryRepository> 
   updateCategory: jest.fn<Promise<Category>, [number, Partial<CreateCategoryDTO>]>(),
   getAllCategories: jest.fn<Promise<Category[]>, []>(),
   deleteCategory: jest.fn<Promise<void>, [number]>(),
+  search: jest.fn(),
 });
 
 // Helper para crear mocks con valores por defecto

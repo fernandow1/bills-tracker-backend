@@ -1,8 +1,14 @@
 import { QueryFilterDTO } from '../../infrastructure/http/dto/query-filter.dto';
 import { queryMapper } from './query-filter.mapper';
 import { Equal, In, Like, MoreThan, LessThan, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
+import { BILL_ALLOWED_FIELDS, BILL_ALLOWED_OPERATIONS } from '../queries/bill/bills-where';
 
 describe('Query Filter Mapper', () => {
+  const defaultOptions = {
+    allowedFields: BILL_ALLOWED_FIELDS,
+    allowedOperations: BILL_ALLOWED_OPERATIONS,
+  };
+
   describe('queryMapper', () => {
     it('should return default pagination when no filter provided', () => {
       const dto = {
@@ -11,7 +17,7 @@ describe('Query Filter Mapper', () => {
         filter: '',
       } as unknown as QueryFilterDTO;
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result).toEqual({
         page: 1,
@@ -27,7 +33,7 @@ describe('Query Filter Mapper', () => {
         filter: '',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result).toEqual({
         page: 2,
@@ -43,7 +49,7 @@ describe('Query Filter Mapper', () => {
         filter: '',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({});
     });
@@ -55,7 +61,7 @@ describe('Query Filter Mapper', () => {
         filter: '   ',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({});
     });
@@ -67,7 +73,7 @@ describe('Query Filter Mapper', () => {
         filter: 'idShop.eq.1',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         idShop: Equal('1'),
@@ -81,7 +87,7 @@ describe('Query Filter Mapper', () => {
         filter: 'idShop.in.1,2,3',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         idShop: In([1, 2, 3]),
@@ -95,7 +101,7 @@ describe('Query Filter Mapper', () => {
         filter: 'total.like.100',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         total: Like('100'),
@@ -109,7 +115,7 @@ describe('Query Filter Mapper', () => {
         filter: 'total.gt.100',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         total: MoreThan('100'),
@@ -123,7 +129,7 @@ describe('Query Filter Mapper', () => {
         filter: 'total.lt.100',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         total: LessThan('100'),
@@ -137,7 +143,7 @@ describe('Query Filter Mapper', () => {
         filter: 'total.gte.100',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         total: MoreThanOrEqual('100'),
@@ -151,7 +157,7 @@ describe('Query Filter Mapper', () => {
         filter: 'total.lte.100',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         total: LessThanOrEqual('100'),
@@ -166,7 +172,7 @@ describe('Query Filter Mapper', () => {
         filter: 'total.between.100,200',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       // Between operation with comma-separated values doesn't work as expected
       // The mapper treats it as a single string value, not an array
@@ -180,7 +186,7 @@ describe('Query Filter Mapper', () => {
         filter: 'idShop.eq.1&total.gt.100',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         idShop: Equal('1'),
@@ -195,7 +201,7 @@ describe('Query Filter Mapper', () => {
         filter: 'idProduct.eq.5',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         billItems: {
@@ -211,7 +217,7 @@ describe('Query Filter Mapper', () => {
         filter: 'idProduct.eq.5&idProduct.gt.1',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         billItems: {
@@ -227,7 +233,7 @@ describe('Query Filter Mapper', () => {
         filter: 'invalidField.eq.1&idShop.eq.2',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         idShop: Equal('2'),
@@ -241,7 +247,7 @@ describe('Query Filter Mapper', () => {
         filter: 'idShop.invalid.1&total.eq.100',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         total: Equal('100'),
@@ -255,7 +261,7 @@ describe('Query Filter Mapper', () => {
         filter: 'idShop.eq.1.and.total.gt.100',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         idShop: Equal('1'),
@@ -270,7 +276,7 @@ describe('Query Filter Mapper', () => {
         filter: ['idShop.eq.1', 'total.gt.100'],
       } as unknown as QueryFilterDTO;
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         idShop: Equal('1'),
@@ -285,7 +291,7 @@ describe('Query Filter Mapper', () => {
         filter: ['idShop.eq.1', '', '   ', 'total.gt.100'],
       } as unknown as QueryFilterDTO;
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         idShop: Equal('1'),
@@ -300,7 +306,7 @@ describe('Query Filter Mapper', () => {
         filter: 'idShop.in.1',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         idShop: In([1]),
@@ -314,7 +320,7 @@ describe('Query Filter Mapper', () => {
         filter: 'idShop.in.abc,def,123',
       };
 
-      const result = queryMapper(dto);
+      const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
         idShop: In([123]), // Should filter out NaN values
@@ -330,7 +336,7 @@ describe('Query Filter Mapper', () => {
           filter: undefined,
         } as unknown as QueryFilterDTO;
 
-        expect(() => queryMapper(dto)).not.toThrow();
+        expect(() => queryMapper(dto, defaultOptions)).not.toThrow();
       });
 
       it('should handle null filter gracefully', () => {
@@ -340,7 +346,7 @@ describe('Query Filter Mapper', () => {
           filter: null,
         } as unknown as QueryFilterDTO;
 
-        expect(() => queryMapper(dto)).not.toThrow();
+        expect(() => queryMapper(dto, defaultOptions)).not.toThrow();
       });
 
       it('should handle non-string filter gracefully', () => {
@@ -350,7 +356,7 @@ describe('Query Filter Mapper', () => {
           filter: 123,
         } as unknown as QueryFilterDTO;
 
-        expect(() => queryMapper(dto)).not.toThrow();
+        expect(() => queryMapper(dto, defaultOptions)).not.toThrow();
       });
     });
   });

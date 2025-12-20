@@ -36,6 +36,7 @@ export const brandRepositoryDomainMock = (): jest.Mocked<BrandRepository> => ({
   update: jest.fn(),
   findAll: jest.fn(),
   delete: jest.fn(),
+  search: jest.fn(),
 });
 
 // DataSource mocks
@@ -47,6 +48,7 @@ export const brandDataSourceDomainMock = (): jest.Mocked<BrandDatasource> => ({
   update: jest.fn(),
   findAll: jest.fn(),
   delete: jest.fn(),
+  search: jest.fn(),
 });
 
 export const brandTypeOrmRepositoryMock = () => ({

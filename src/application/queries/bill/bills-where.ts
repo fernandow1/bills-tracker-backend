@@ -9,7 +9,7 @@ export interface BillsWhere {
   updatedAt?: Date; // Only Bill field
 }
 
-export const ALLOWED_FIELDS = new Map<string, { relation?: string }>([
+export const BILL_ALLOWED_FIELDS = new Map<string, { relation?: string }>([
   ['idProduct', { relation: 'billItems' }],
   ['idShop', {}],
   ['idCurrency', {}],
@@ -28,7 +28,7 @@ export const ALLOWED_FIELDS = new Map<string, { relation?: string }>([
  * - **lt**: Less than
  * - **between**: Value is within a range (inclusive)
  */
-export const ALLOWED_OPERATIONS = new Set([
+export const BILL_ALLOWED_OPERATIONS = new Set([
   'eq',
   'in',
   'like',
@@ -38,3 +38,7 @@ export const ALLOWED_OPERATIONS = new Set([
   'lte',
   'between',
 ]);
+
+// Mantener compatibilidad hacia atrás
+export const ALLOWED_FIELDS = BILL_ALLOWED_FIELDS;
+export const ALLOWED_OPERATIONS = BILL_ALLOWED_OPERATIONS;
