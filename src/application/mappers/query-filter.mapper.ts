@@ -13,7 +13,7 @@ import {
   MoreThanOrEqual,
 } from 'typeorm';
 
-export type AllowedFieldsMap = Map<string, { relation?: string }>;
+export type AllowedFieldsMap = Map<string, { relation?: string; relationField?: string }>;
 export type AllowedOperationsSet = Set<string>;
 
 export interface QueryMapperOptions {
@@ -88,9 +88,11 @@ function andBuilder(
     }
 
     if (allowedFields.has(field) && allowedOperations.has(operation)) {
-      const { relation } = allowedFields.get(field) || {};
+      const { relation, relationField } = allowedFields.get(field) || {};
 
-      const condition = deciderOperation(field, operation, value);
+      // Use relationField if provided, otherwise use the original field
+      const targetField = relation && relationField ? relationField : field;
+      const condition = deciderOperation(targetField, operation, value);
 
       if (relation && typeof relation === 'string') {
         if (!conditionsMap.has(relation)) {
@@ -121,7 +123,7 @@ function deciderOperation(
     case 'in':
       return { [key]: In(Array.isArray(value) ? value : [value]) };
     case 'like':
-      return { [key]: Like(value) };
+      return { [key]: Like(`%${value}%`) };
     case 'gt':
       return { [key]: MoreThan(value) };
     case 'lt':
