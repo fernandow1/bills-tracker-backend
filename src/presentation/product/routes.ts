@@ -19,6 +19,9 @@ export const ProductRouter = {
     router.get('/', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       controller.getProducts(req, res, next);
     });
+    router.get('/search', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
+      controller.searchProducts(req, res, next);
+    });
     router.get('/:id', [validateJwt], (req: Request, res: Response, next: NextFunction) => {
       controller.getProduct(req, res, next);
     });
