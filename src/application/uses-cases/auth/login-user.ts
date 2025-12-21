@@ -34,7 +34,6 @@ export class LoginUser {
 
     const tokenPayload: JwtPayload = {
       sub: String(user.id),
-      iss: 'bills-tracker-api',
       username: user.username,
       email: user.email,
     };

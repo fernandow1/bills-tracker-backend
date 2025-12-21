@@ -13,13 +13,22 @@ export class JwtTokenGenerator implements GenerateToken {
         typeof duration === 'string' &&
         /^\d+[smhd]$/.test(duration)
       ) {
-        jwt.sign(payload, jwtSecret, { expiresIn: duration } as jwt.SignOptions, (err, token) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(token);
-          }
-        });
+        jwt.sign(
+          payload,
+          jwtSecret,
+          {
+            expiresIn: duration,
+            issuer: 'bills-tracker-api',
+            audience: 'bills-tracker-client',
+          } as jwt.SignOptions,
+          (err, token) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(token);
+            }
+          },
+        );
       } else {
         reject(new Error('Invalid payload type'));
       }

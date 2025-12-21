@@ -13,9 +13,12 @@ export class JwtRefreshToken implements RefreshToken {
         return;
       }
 
+      // Filtrar iss y aud del payload si existen (se pasarán como opciones)
+      const { iss, aud, ...cleanPayload } = payload as Record<string, unknown>;
+
       // Añadir un jti (JWT ID) único para poder revocar tokens específicos
       const tokenPayload = {
-        ...payload,
+        ...cleanPayload,
         type: 'refresh',
         jti: randomBytes(16).toString('hex'), // JSON Token Identifier único
       };
@@ -25,6 +28,7 @@ export class JwtRefreshToken implements RefreshToken {
         envs.JWT_SECRET,
         {
           expiresIn: '7d', // Refresh tokens duran más tiempo
+          issuer: 'bills-tracker-api',
           audience: 'bills-tracker-client',
         },
         (err, token) => {
