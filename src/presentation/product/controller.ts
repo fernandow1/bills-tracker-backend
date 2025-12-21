@@ -10,6 +10,13 @@ import { ProductRepository } from '@domain/repository/product.repository';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
+import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
+import { SearchProduct } from '@application/uses-cases/product/search-product';
+import { queryMapper } from '@application/mappers/query-filter.mapper';
+import {
+  PRODUCT_ALLOWED_FIELDS,
+  PRODUCT_ALLOWED_OPERATIONS,
+} from '@application/queries/product/product-where';
 
 export class ProductController {
   constructor(private readonly productRepository: ProductRepository) {}
@@ -20,6 +27,32 @@ export class ProductController {
       res.status(200).json(products);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
+      return next(AppError.internalError('Internal server error'));
+    }
+  };
+
+  searchProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const dto = plainToClass(QueryFilterDTO, req.query);
+
+      const validationErrors = await validate(dto, {
+        whitelist: true,
+        validationError: { target: false, value: false },
+      });
+
+      if (validationErrors.length) {
+        return next(AppError.badRequest('Validation failed', validationErrors));
+      }
+
+      const products = await new SearchProduct(this.productRepository).execute(
+        queryMapper(dto, {
+          allowedFields: PRODUCT_ALLOWED_FIELDS,
+          allowedOperations: PRODUCT_ALLOWED_OPERATIONS,
+        }),
+      );
+      res.status(200).json(products);
+    } catch (error) {
+      console.log(error);
       return next(AppError.internalError('Internal server error'));
     }
   };
