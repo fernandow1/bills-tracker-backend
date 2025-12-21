@@ -4,10 +4,47 @@ import { UpdateProductDTO } from '@application/dtos/product/update-product.dto';
 import { BrandCategory } from '@infrastructure/database/entities/brand-category.entity';
 import { Product } from '@infrastructure/database/entities/product.entity';
 import { DataSource } from 'typeorm';
+import { Pagination } from '@application/models/pagination.model';
+import { IQueryFilter } from '@application/models/query-filter.model';
 
 export class ProductDataSourceImpl extends ProductDataSource {
   constructor(private readonly dataSource: DataSource) {
     super();
+  }
+
+  async search(filter: IQueryFilter): Promise<Pagination<Product>> {
+    const { page, pageSize, filter: where } = filter;
+
+    const [data, count] = await this.dataSource.getRepository(Product).findAndCount({
+      where,
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        idBrand: true,
+        idCategory: true,
+        createdAt: true,
+        category: {
+          id: true,
+          name: true,
+        },
+        brand: {
+          id: true,
+          name: true,
+        },
+      },
+      relations: {
+        brand: true,
+        category: true,
+      },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    return {
+      data,
+      count,
+    };
   }
 
   async createProduct(product: CreateProductDTO): Promise<Product> {
@@ -97,7 +134,9 @@ export class ProductDataSourceImpl extends ProductDataSource {
   }
 
   async getAllProducts(): Promise<Product[]> {
-    const products = await this.dataSource.getRepository(Product).find();
+    const products = await this.dataSource.getRepository(Product).find({
+      relations: { brand: true, category: true },
+    });
     return products;
   }
 }
