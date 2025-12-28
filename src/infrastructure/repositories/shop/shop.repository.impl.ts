@@ -1,3 +1,5 @@
+import { Pagination } from '@application/models/pagination.model';
+import { IQueryFilter } from '@application/models/query-filter.model';
 import { ShopDataSource } from '@domain/datasources/shop.datasource';
 import { Shop } from '@domain/entities/shop.entity';
 import { ShopRepository } from '@domain/repository/shop.repository';
@@ -7,6 +9,10 @@ export class ShopRepositoryImpl implements ShopRepository {
 
   constructor(shopDataSource: ShopDataSource) {
     this.shopDataSource = shopDataSource;
+  }
+
+  serach(filter: IQueryFilter): Promise<Pagination<Shop>> {
+    return this.shopDataSource.serach(filter);
   }
 
   getAllShops(): Promise<Shop[]> {

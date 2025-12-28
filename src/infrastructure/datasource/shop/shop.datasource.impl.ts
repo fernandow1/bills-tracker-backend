@@ -1,3 +1,5 @@
+import { Pagination } from '@application/models/pagination.model';
+import { IQueryFilter } from '@application/models/query-filter.model';
 import { ShopDataSource } from '@domain/datasources/shop.datasource';
 import { Shop } from '@infrastructure/database/entities/shop.entity';
 import { DataSource } from 'typeorm';
@@ -5,6 +7,21 @@ import { DataSource } from 'typeorm';
 export class ShopDataSourceImpl extends ShopDataSource {
   constructor(private readonly dataSource: DataSource) {
     super();
+  }
+
+  async serach(filter: IQueryFilter): Promise<Pagination<Shop>> {
+    const { page, pageSize, filter: where } = filter;
+
+    const [data, count] = await this.dataSource.getRepository(Shop).findAndCount({
+      where,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    return {
+      data,
+      count,
+    };
   }
 
   async getAllShops(): Promise<Shop[]> {
