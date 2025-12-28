@@ -10,6 +10,7 @@ export class RefreshTokenUseCase {
   ) {}
 
   async execute(refreshToken: string): Promise<RefreshTokenResponse> {
+    console.log('🔄 Refreshing access token...');
     try {
       // 1. Validar el refresh token
       const decoded = await this.refreshToken.validateRefreshToken(refreshToken);
@@ -36,16 +37,13 @@ export class RefreshTokenUseCase {
         throw AppError.internalError('Failed to generate access token');
       }
 
-      // 5. Generar nuevo refresh token (opcional: rotar refresh tokens para mayor seguridad)
+      // 5. Generar nuevo refresh token
       const newRefreshToken = await this.refreshToken.generateRefreshToken(accessTokenPayload);
 
-      // 6. Opcional: Revocar el refresh token anterior (rotation)
-      try {
-        await this.refreshToken.revokeRefreshToken(refreshToken);
-      } catch (error) {
-        // Log del error pero no fallar el proceso
-        console.warn('Failed to revoke old refresh token:', error);
-      }
+      // TODO: Implementar rotación de refresh tokens con Redis
+      // Por ahora, el refresh token original sigue siendo válido hasta su expiración natural
+
+      console.log('✅ Token refreshed successfully for user:', sub);
 
       return {
         accessToken: newAccessToken,

@@ -35,7 +35,20 @@ export class AuthController {
       const loginUseCase = new LoginUser(userRepository, passwordHasher);
       const authUser = await loginUseCase.execute(loginDto.username, loginDto.password);
 
-      res.status(200).json({ ...authUser });
+      console.log('✅ Login successful for user:', authUser.user.username);
+      console.log('📦 Tokens generated:', {
+        accessToken: authUser.token.substring(0, 20) + '...',
+        refreshToken: authUser.refreshToken.substring(0, 20) + '...',
+        expiresIn: authUser.expiresIn,
+      });
+
+      res.status(200).json({
+        message: 'Login successful',
+        user: authUser.user,
+        accessToken: authUser.token, // Renombrado para mayor claridad
+        refreshToken: authUser.refreshToken, // Este es el token para renovar
+        expiresIn: authUser.expiresIn,
+      });
     } catch (error) {
       console.error(error);
       // Si es un AppError (como unauthorized), pasarlo directamente
@@ -47,6 +60,7 @@ export class AuthController {
   };
 
   refreshToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    console.log('📥 Refresh token request received');
     try {
       // Validar DTO
       const refreshTokenDto = plainToClass(RefreshTokenDto, req.body);
@@ -69,12 +83,23 @@ export class AuthController {
         ...result,
       });
     } catch (error) {
-      console.error(error);
+      console.error('❌ Refresh token error:', error);
       if (error instanceof Error && error.message.includes('expired')) {
         return next(AppError.badRequest('Refresh token has expired', error));
       }
       if (error instanceof Error && error.message.includes('revoked')) {
         return next(AppError.badRequest('Refresh token has been revoked', error));
+      }
+      if (
+        error instanceof Error &&
+        error.message.includes('expected refresh token but received access token')
+      ) {
+        return next(
+          AppError.badRequest(
+            'Invalid token: You must send the REFRESH TOKEN, not the access token. The refresh token was provided during login.',
+            error,
+          ),
+        );
       }
       if (error instanceof Error && error.message.includes('Invalid refresh token')) {
         return next(AppError.forbidden('Invalid refresh token', error));

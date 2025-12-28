@@ -118,15 +118,4 @@ describe('JwtRefreshToken', () => {
       await expect(refreshTokenService.revokeRefreshToken('invalid.token.here')).rejects.toThrow();
     });
   });
-
-  describe('cleanupRevokedTokens', () => {
-    it('should clean up expired tokens from revoked list', async () => {
-      // Este test es más complejo porque requiere tokens expirados
-      // Para propósitos de demo, verificamos que el método existe
-      expect(typeof refreshTokenService.cleanupRevokedTokens).toBe('function');
-
-      // Ejecutar cleanup sin errores
-      expect(() => refreshTokenService.cleanupRevokedTokens()).not.toThrow();
-    });
-  });
 });

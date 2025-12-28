@@ -4,7 +4,7 @@ import { envs } from '@infrastructure/config/env';
 import { randomBytes } from 'crypto';
 
 export class JwtRefreshToken implements RefreshToken {
-  private revokedTokens: Set<string> = new Set(); // En producción esto debería estar en Redis o DB
+  // TODO: Implementar revocación de tokens con Redis
 
   async generateRefreshToken(payload: unknown): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -44,15 +44,22 @@ export class JwtRefreshToken implements RefreshToken {
 
   async validateRefreshToken(token: string): Promise<JwtPayload> {
     return new Promise((resolve, reject) => {
-      // Verificar si el token está revocado
-      if (this.revokedTokens.has(token)) {
-        reject(new Error('Token has been revoked'));
-        return;
-      }
+      // TODO: Verificar revocación con Redis
+      // if (this.revokedTokens.has(token)) {
+      //   reject(new Error('Token has been revoked'));
+      //   return;
+      // }
 
       jwt.verify(token, envs.JWT_SECRET, (err, decoded) => {
         if (err) {
-          reject(err);
+          // Proporcionar mensaje más claro sobre el tipo de error
+          if (err.message.includes('expired')) {
+            reject(new Error('Refresh token has expired'));
+          } else if (err.message.includes('invalid')) {
+            reject(new Error('Invalid refresh token format'));
+          } else {
+            reject(err);
+          }
           return;
         }
 
@@ -60,7 +67,11 @@ export class JwtRefreshToken implements RefreshToken {
 
         // Verificar que es un refresh token
         if (payload.type !== 'refresh') {
-          reject(new Error('Invalid token type'));
+          reject(
+            new Error(
+              'Invalid token type: expected refresh token but received access token. Use the refresh token provided during login.',
+            ),
+          );
           return;
         }
 
@@ -76,31 +87,12 @@ export class JwtRefreshToken implements RefreshToken {
   }
 
   async revokeRefreshToken(token: string): Promise<void> {
-    try {
-      // Validar que el token es válido antes de revocarlo
-      await this.validateRefreshToken(token);
-      this.revokedTokens.add(token);
-    } catch {
-      // Si el token ya es inválido, no hay nada que revocar
-      throw new Error('Cannot revoke invalid token');
-    }
+    // TODO: Implementar revocación con Redis
+    // Por ahora, los tokens solo se invalidan por expiración natural
+    console.log('⚠️  Token revocation not implemented (requires Redis)');
+    return Promise.resolve();
   }
 
-  // Método auxiliar para limpiar tokens expirados de la lista de revocados
-  cleanupRevokedTokens(): void {
-    const tokensToRemove: string[] = [];
-
-    tokensToRemove.forEach((token) => {
-      try {
-        jwt.verify(token, envs.JWT_SECRET);
-      } catch {
-        // Si el token ya expiró, lo removemos de la lista
-        tokensToRemove.push(token);
-      }
-    });
-
-    tokensToRemove.forEach((token) => {
-      this.revokedTokens.delete(token);
-    });
-  }
+  // TODO: Método auxiliar para limpiar tokens expirados (con Redis)
+  // cleanupRevokedTokens(): void { ... }
 }
