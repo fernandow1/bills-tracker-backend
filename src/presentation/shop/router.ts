@@ -15,7 +15,10 @@ export const ShopRouter = {
 
     const shopController = new ShopController(shopRepository);
 
-    // Define your routes here
+    router.get('/search', (req: Request, res: Response, next: NextFunction) => {
+      shopController.searchShops(req, res, next);
+    });
+
     router.get('/', (req: Request, res: Response, next: NextFunction) => {
       shopController.getShops(req, res, next);
     });

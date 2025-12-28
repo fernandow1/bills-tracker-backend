@@ -9,9 +9,39 @@ import { UpdateShopDTO } from '@application/dtos/shop/update-shop.dto';
 import { UpdateShop } from '@application/uses-cases/shop/update-shop';
 import { plainToClass } from 'class-transformer';
 import { EntityNotFoundError } from 'typeorm';
+import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
+import { SearchShop } from '@application/uses-cases/shop/search-shop';
+import { queryMapper } from '@application/mappers/query-filter.mapper';
+import { SHOP_ALLOWED_FIELDS, SHOP_ALLOWED_OPERATIONS } from '@application/queries/shop/shop-where';
 
 export class ShopController {
   constructor(private readonly repository: ShopRepository) {}
+
+  searchShops = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const dto = plainToClass(QueryFilterDTO, req.query);
+
+      const validationErrors = await validate(dto, {
+        whitelist: true,
+        validationError: { target: false, value: false },
+      });
+
+      if (validationErrors.length) {
+        return next(AppError.badRequest('Validation failed', validationErrors));
+      }
+
+      const shops = await new SearchShop(this.repository).execute(
+        queryMapper(dto, {
+          allowedFields: SHOP_ALLOWED_FIELDS,
+          allowedOperations: SHOP_ALLOWED_OPERATIONS,
+        }),
+      );
+      res.status(200).json(shops);
+    } catch (error) {
+      console.log(error);
+      return next(AppError.internalError('Internal server error'));
+    }
+  };
 
   getShops = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const getShops = new GetShops(this.repository);
