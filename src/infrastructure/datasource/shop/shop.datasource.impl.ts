@@ -9,7 +9,7 @@ export class ShopDataSourceImpl extends ShopDataSource {
     super();
   }
 
-  async serach(filter: IQueryFilter): Promise<Pagination<Shop>> {
+  async search(filter: IQueryFilter): Promise<Pagination<Shop>> {
     const { page, pageSize, filter: where } = filter;
 
     const [data, count] = await this.dataSource.getRepository(Shop).findAndCount({

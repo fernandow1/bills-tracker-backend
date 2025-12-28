@@ -11,8 +11,8 @@ export class ShopRepositoryImpl implements ShopRepository {
     this.shopDataSource = shopDataSource;
   }
 
-  serach(filter: IQueryFilter): Promise<Pagination<Shop>> {
-    return this.shopDataSource.serach(filter);
+  search(filter: IQueryFilter): Promise<Pagination<Shop>> {
+    return this.shopDataSource.search(filter);
   }
 
   getAllShops(): Promise<Shop[]> {
