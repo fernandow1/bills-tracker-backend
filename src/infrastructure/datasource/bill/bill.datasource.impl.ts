@@ -58,12 +58,22 @@ export class BillDataSourceImpl implements BillDataSource {
       where,
       relations: {
         billItems: { product: { category: true, brand: true } },
+        currency: true,
+        paymentMethod: true,
+        shop: true,
       },
       select: {
         id: true,
         idCurrency: true,
         idShop: true,
         total: true,
+        createdAt: true,
+        currency: {
+          id: true,
+          name: true,
+          symbol: true,
+          code: true,
+        },
         billItems: {
           id: true,
           idBill: true,
