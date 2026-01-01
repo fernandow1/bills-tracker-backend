@@ -1,6 +1,7 @@
 import { CreateBillDto } from '@application/dtos/bill/create-bill.dto';
 import { Bill } from '@domain/entities/bill.entity';
 import { IUnitOfWork } from '@domain/ports/unit-of-work.interface';
+import { NetUnits } from '@domain/value-objects/net-units.enum';
 
 export interface CreateBillWithUoWUseCase {
   execute(billData: CreateBillDto): Promise<Bill>;
@@ -105,5 +106,30 @@ export class CreateBillWithUoW implements CreateBillWithUoWUseCase {
         throw new Error('Duplicate products are not allowed in the same bill');
       }
     }
+
+    // Validate contentValue consistency with netUnit
+    // Rule: If netUnit is 'u' (unit), contentValue must be null
+    //       If netUnit is NOT 'u', contentValue must have a value
+    billData.billItems.forEach((item, index) => {
+      if (item.netUnit === NetUnits.UNIT) {
+        // For units, contentValue must be null or undefined
+        if (item.contentValue !== null && item.contentValue !== undefined) {
+          throw new Error(
+            `Item ${index + 1}: When netUnit is 'u' (unit), contentValue must be null or empty`,
+          );
+        }
+      } else {
+        // For other units (g, kg, l, ml), contentValue must be provided
+        if (item.contentValue === null || item.contentValue === undefined) {
+          throw new Error(
+            `Item ${index + 1}: When netUnit is '${item.netUnit}', contentValue must be provided`,
+          );
+        }
+        // Additionally, contentValue must be positive
+        if (item.contentValue <= 0) {
+          throw new Error(`Item ${index + 1}: contentValue must be greater than 0`);
+        }
+      }
+    });
   }
 }

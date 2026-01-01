@@ -5,6 +5,7 @@ export class BillItem {
   idBill: number;
   idProduct: number;
   quantity: number;
+  contentValue: number | null;
   netPrice: number;
   netUnit: NetUnits;
   createdAt: Date;
@@ -16,6 +17,7 @@ export class BillItem {
     idBill: number,
     idProduct: number,
     quantity: number,
+    contentValue: number | null,
     netPrice: number,
     netUnit: NetUnits,
     createdAt: Date,
@@ -26,6 +28,7 @@ export class BillItem {
     this.idBill = idBill;
     this.idProduct = idProduct;
     this.quantity = quantity;
+    this.contentValue = contentValue;
     this.netPrice = netPrice;
     this.netUnit = netUnit;
     this.createdAt = createdAt;

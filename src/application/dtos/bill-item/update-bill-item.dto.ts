@@ -32,6 +32,13 @@ export class UpdateBillItemDTO {
 
   @IsOptional()
   @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 3 },
+    { message: 'contentValue must be a number' },
+  )
+  contentValue?: number;
+
+  @IsOptional()
+  @IsNumber(
     { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 2 },
     { message: 'netPrice must be a number' },
   )

@@ -1,5 +1,6 @@
 import { NetUnits } from '@domain/value-objects/net-units.enum';
 import {
+  Check,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -14,6 +15,11 @@ import { Product } from './product.entity';
 import { Bill } from './bill.entity';
 
 @Index('uq_bill_item', ['idBill', 'idProduct'], { unique: true })
+@Check('chk_bill_item_quantity_positive', '"quantity" > 0')
+@Check(
+  'chk_net_unit_content_value_consistency',
+  "(net_unit = 'u' AND content_value IS NULL) OR (net_unit != 'u' AND content_value IS NOT NULL)",
+)
 @Entity('bill_item')
 export class BillItem {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int', unsigned: true })
@@ -27,6 +33,16 @@ export class BillItem {
 
   @Column({ name: 'quantity', type: 'int', unsigned: true })
   quantity: number;
+
+  @Column({
+    name: 'content_value',
+    type: 'decimal',
+    precision: 10,
+    scale: 3,
+    unsigned: true,
+    nullable: true,
+  })
+  contentValue: number;
 
   @Column({ name: 'net_price', type: 'decimal', precision: 10, scale: 2, unsigned: true })
   netPrice: number;

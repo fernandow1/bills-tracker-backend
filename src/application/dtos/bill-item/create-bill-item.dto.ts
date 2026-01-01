@@ -1,5 +1,5 @@
 import { NetUnits } from '@domain/value-objects/net-units.enum';
-import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateBillItemDTO {
   @IsNotEmpty({ message: 'idBill should not be empty' })
@@ -22,6 +22,13 @@ export class CreateBillItemDTO {
     { message: 'quantity must be a number' },
   )
   quantity: number;
+
+  @IsOptional()
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 3 },
+    { message: 'contentValue must be a number' },
+  )
+  contentValue?: number;
 
   @IsNotEmpty({ message: 'netPrice should not be empty' })
   @IsNumber(
