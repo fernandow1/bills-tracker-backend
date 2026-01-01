@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsArray, IsDateString, IsInt, IsNotEmpty, IsNumber } from 'class-validator';
 import { CreateBillItemDTO } from '../bill-item/create-bill-item.dto';
 import { Type } from 'class-transformer';
 
@@ -39,6 +39,14 @@ export class CreateBillDto {
     { message: 'The total must be a valid number' },
   )
   total: number;
+
+  @IsNotEmpty()
+  @IsInt({ message: 'The idUserOwner must be an integer number' })
+  idUserOwner: number;
+
+  @IsNotEmpty()
+  @IsDateString({}, { message: 'The purchasedAt must be a valid date string' })
+  purchasedAt: Date;
 
   @IsArray({ message: 'billItems must be an array' })
   @Type(() => CreateBillItemDTO)

@@ -17,6 +17,10 @@ export class UpdateBillDto {
   discount?: number;
   @IsOptional()
   total?: number;
+  @IsOptional()
+  idUserOwner?: number;
+  @IsOptional()
+  purchasedAt?: Date;
 
   @IsOptional()
   @Type(() => UpdateBillItemDTO)

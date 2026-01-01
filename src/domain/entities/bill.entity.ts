@@ -7,6 +7,8 @@ export class Bill {
   subTotal: number;
   discount: number;
   total: number;
+  idUserOwner: number;
+  purchasedAt: Date;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
@@ -20,6 +22,8 @@ export class Bill {
     subTotal: number,
     discount: number,
     total: number,
+    idUserOwner: number,
+    purchasedAt: Date,
     createdAt: Date,
     updatedAt: Date,
     deletedAt?: Date | null,
@@ -32,6 +36,8 @@ export class Bill {
     this.subTotal = subTotal;
     this.discount = discount;
     this.total = total;
+    this.idUserOwner = idUserOwner;
+    this.purchasedAt = purchasedAt;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.deletedAt = deletedAt;

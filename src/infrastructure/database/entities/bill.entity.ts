@@ -48,6 +48,17 @@ export class Bill {
   @Column({ name: 'total', type: 'decimal', precision: 10, scale: 2, unsigned: true })
   total: number;
 
+  @Column({ name: 'id_user_owner', type: 'int', unsigned: true })
+  idUserOwner: number;
+
+  @Column({
+    name: 'purchased_at',
+    type: 'timestamp',
+    nullable: false,
+    default: () => 'CURRENT_TIMESTAMP(0)',
+  })
+  purchasedAt: Date;
+
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamp',
