@@ -45,8 +45,13 @@ export class CreateBillDto {
   idUserOwner: number;
 
   @IsNotEmpty()
-  @IsDateString({}, { message: 'The purchasedAt must be a valid date string' })
-  purchasedAt: Date;
+  @IsDateString(
+    {},
+    {
+      message: 'The purchasedAt must be a valid ISO 8601 date (YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss)',
+    },
+  )
+  purchasedAt: string;
 
   @IsArray({ message: 'billItems must be an array' })
   @Type(() => CreateBillItemDTO)
