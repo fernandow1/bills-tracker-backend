@@ -53,24 +53,51 @@ export class CreateBillWithUoW implements CreateBillWithUoWUseCase {
   }
 
   private async validateBusinessRules(billData: CreateBillDto): Promise<void> {
-    // Validate that total matches sum of items
-    if (billData.billItems && billData.billItems.length > 0) {
-      const calculatedTotal = billData.billItems.reduce(
-        (sum, item) => sum + item.netPrice * item.quantity,
-        0,
-      );
+    const tolerance = 0.01;
 
-      // Allow small floating point differences
-      const tolerance = 0.01;
-      if (Math.abs(calculatedTotal - billData.total) > tolerance) {
-        throw new Error(
-          `Total mismatch: expected ${billData.total}, calculated ${calculatedTotal}`,
-        );
-      }
+    // Validate that billItems exist
+    if (!billData.billItems || billData.billItems.length === 0) {
+      throw new Error('Bill must have at least one item');
+    }
+
+    // Calculate subTotal from billItems (netPrice * quantity for each item)
+    const calculatedSubTotal = billData.billItems.reduce(
+      (sum, item) => sum + item.netPrice * item.quantity,
+      0,
+    );
+
+    // Validate that subTotal matches sum of items (netPrice * quantity)
+    if (Math.abs(calculatedSubTotal - billData.subTotal) > tolerance) {
+      throw new Error(
+        `SubTotal mismatch: expected ${billData.subTotal}, calculated ${calculatedSubTotal}. SubTotal must equal the sum of all items netPrice`,
+      );
+    }
+
+    // Validate that total = subTotal - discount
+    const calculatedTotal = billData.subTotal - billData.discount;
+    if (Math.abs(calculatedTotal - billData.total) > tolerance) {
+      throw new Error(
+        `Total mismatch: expected ${billData.total}, calculated ${calculatedTotal}. Total must equal subTotal - discount`,
+      );
+    }
+
+    // Validate discount is not negative
+    if (billData.discount < 0) {
+      throw new Error('Discount cannot be negative');
+    }
+
+    // Validate discount is not greater than subTotal
+    if (billData.discount > billData.subTotal) {
+      throw new Error('Discount cannot be greater than subTotal');
+    }
+
+    // Validate total is not negative
+    if (billData.total < 0) {
+      throw new Error('Total cannot be negative');
     }
 
     // Validate no duplicate products in the same bill
-    if (billData.billItems && billData.billItems.length > 1) {
+    if (billData.billItems.length > 1) {
       const productIds = billData.billItems.map((item) => item.idProduct);
       const uniqueProductIds = new Set(productIds);
 

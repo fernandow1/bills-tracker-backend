@@ -31,6 +31,20 @@ export class Bill {
   @Column({ name: 'id_user', type: 'int', unsigned: true })
   idUser: number;
 
+  @Column({ name: 'sub_total', type: 'decimal', precision: 10, scale: 2, unsigned: true })
+  subTotal: number;
+
+  @Column({
+    name: 'discount',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    unsigned: true,
+    nullable: true,
+    default: 0,
+  })
+  discount: number;
+
   @Column({ name: 'total', type: 'decimal', precision: 10, scale: 2, unsigned: true })
   total: number;
 

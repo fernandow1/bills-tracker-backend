@@ -22,6 +22,20 @@ export class CreateBillDto {
   @IsNotEmpty()
   @IsNumber(
     { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 2 },
+    { message: 'The subTotal must be a valid number' },
+  )
+  subTotal: number;
+
+  @IsNotEmpty()
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 2 },
+    { message: 'The discount must be a valid number' },
+  )
+  discount: number;
+
+  @IsNotEmpty()
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 2 },
     { message: 'The total must be a valid number' },
   )
   total: number;

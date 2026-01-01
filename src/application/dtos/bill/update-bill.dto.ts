@@ -12,6 +12,10 @@ export class UpdateBillDto {
   @IsOptional()
   idUser?: number;
   @IsOptional()
+  subTotal?: number;
+  @IsOptional()
+  discount?: number;
+  @IsOptional()
   total?: number;
 
   @IsOptional()

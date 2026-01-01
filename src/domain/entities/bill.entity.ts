@@ -4,6 +4,8 @@ export class Bill {
   idCurrency: number;
   idPaymentMethod: number;
   idUser: number;
+  subTotal: number;
+  discount: number;
   total: number;
   createdAt: Date;
   updatedAt: Date;
@@ -15,6 +17,8 @@ export class Bill {
     idCurrency: number,
     idPaymentMethod: number,
     idUser: number,
+    subTotal: number,
+    discount: number,
     total: number,
     createdAt: Date,
     updatedAt: Date,
@@ -25,6 +29,8 @@ export class Bill {
     this.idCurrency = idCurrency;
     this.idPaymentMethod = idPaymentMethod;
     this.idUser = idUser;
+    this.subTotal = subTotal;
+    this.discount = discount;
     this.total = total;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
