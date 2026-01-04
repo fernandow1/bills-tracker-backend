@@ -81,6 +81,7 @@ export class BillDataSourceImpl implements BillDataSource {
           quantity: true,
           netPrice: true,
           netUnit: true,
+          contentValue: true,
           product: {
             id: true,
             name: true,
@@ -151,18 +152,38 @@ export class BillDataSourceImpl implements BillDataSource {
     const savedBill = await queryRunner.manager.save(updatedBill);
 
     if (billItems && billItems.length) {
-      const billItemsUpdated = await queryRunner.manager.getRepository(BillItem).upsert(billItems, {
-        conflictPaths: ['idBill', 'idProduct'],
-        skipUpdateIfNoValuesChanged: true,
-      });
-
-      const billItemsDeleted = await queryRunner.manager.getRepository(BillItem).softDelete({
+      // Automatically assign idBill to each item to avoid requiring it from the frontend
+      const billItemsWithIdBill = billItems.map((item) => ({
+        ...item,
         idBill: id,
-        deletedAt: IsNull(),
-        id: Not(In(billItems.map((item) => item.id))),
-      });
+      }));
 
-      if (!billItemsUpdated || !billItemsDeleted) throw new Error('BillItems update failed');
+      const billItemsUpdated = await queryRunner.manager
+        .getRepository(BillItem)
+        .upsert(billItemsWithIdBill, {
+          conflictPaths: ['idBill', 'idProduct'],
+          skipUpdateIfNoValuesChanged: true,
+        });
+
+      // Soft delete items that are not in the updated list
+      // Filter out items without id (new items) to get only existing item ids
+      const existingItemIds = billItems
+        .filter((item) => item.id !== undefined && item.id !== null)
+        .map((item) => item.id);
+
+      // If there are existing items, delete those not in the list
+      // If existingItemIds is empty, it means all items are new, so don't delete anything
+      if (existingItemIds.length > 0) {
+        const billItemsDeleted = await queryRunner.manager.getRepository(BillItem).softDelete({
+          idBill: id,
+          deletedAt: IsNull(),
+          id: Not(In(existingItemIds)),
+        });
+
+        if (!billItemsDeleted) throw new Error('BillItems delete failed');
+      }
+
+      if (!billItemsUpdated) throw new Error('BillItems update failed');
     }
 
     return savedBill;

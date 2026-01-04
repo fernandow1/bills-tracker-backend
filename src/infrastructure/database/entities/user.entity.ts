@@ -4,9 +4,11 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Bill } from './bill.entity';
 
 @Index('idx_user_email', ['email'], { unique: true })
 @Index('idx_user_username', ['username'], { unique: true })
@@ -71,4 +73,10 @@ export class User {
     precision: 0,
   })
   deletedAt: Date | null;
+
+  @OneToMany(() => Bill, (bill) => bill.userOwner)
+  ownedBills: Bill[];
+
+  @OneToMany(() => Bill, (bill) => bill.userCreator)
+  createdBills: Bill[];
 }

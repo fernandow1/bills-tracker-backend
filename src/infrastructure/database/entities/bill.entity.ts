@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -13,8 +14,10 @@ import { BillItem } from './bill-item.entity';
 import { Shop } from '@infrastructure/database/entities/shop.entity';
 import { Currency } from '@infrastructure/database/entities/currency.entity';
 import { PaymentMethod } from '@infrastructure/database/entities/payment-method.entity';
+import { User } from './user.entity';
 
 @Entity('bill')
+@Index('idx_bill_user_owner', ['idUserOwner'])
 export class Bill {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int', unsigned: true })
   id: number;
@@ -103,4 +106,12 @@ export class Bill {
     cascade: ['soft-remove'],
   })
   billItems: BillItem[];
+
+  @ManyToOne(() => User, (user) => user.ownedBills, { onDelete: 'RESTRICT', onUpdate: 'CASCADE' })
+  @JoinColumn({ name: 'id_user_owner', referencedColumnName: 'id' })
+  userOwner: User;
+
+  @ManyToOne(() => User, (user) => user.createdBills, { onDelete: 'RESTRICT', onUpdate: 'CASCADE' })
+  @JoinColumn({ name: 'id_user', referencedColumnName: 'id' })
+  userCreator: User;
 }
