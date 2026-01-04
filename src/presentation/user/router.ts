@@ -20,6 +20,10 @@ export const UserRouter = {
       userController.createUser(req, res, next);
     });
 
+    router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
+      userController.updateUser(req, res, next);
+    });
+
     return router;
   },
 };
