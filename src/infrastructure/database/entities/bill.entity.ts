@@ -3,7 +3,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -17,7 +16,6 @@ import { PaymentMethod } from '@infrastructure/database/entities/payment-method.
 import { User } from './user.entity';
 
 @Entity('bill')
-@Index('idx_bill_user_owner', ['idUserOwner'])
 export class Bill {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int', unsigned: true })
   id: number;
