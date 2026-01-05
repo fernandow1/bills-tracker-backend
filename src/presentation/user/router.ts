@@ -16,6 +16,11 @@ export const UserRouter = {
 
     const userController = new UserController(userRepository, new BcryptPasswordHasher());
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    router.get('/', (req: Request, res: Response, _next: NextFunction) => {
+      userController.searchUsers(req, res);
+    });
+
     router.post('/', (req: Request, res: Response, next: NextFunction) => {
       userController.createUser(req, res, next);
     });

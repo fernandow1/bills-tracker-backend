@@ -1,3 +1,5 @@
+import { Pagination } from '@application/models/pagination.model';
+import { IQueryFilter } from '@application/models/query-filter.model';
 import { UserDataSource } from '@domain/datasources/user.datasource';
 import { User } from '@domain/entities/user.entity';
 import { UserRepository } from '@domain/repository/user.repository';
@@ -7,6 +9,10 @@ export class UserRepositoryImpl implements UserRepository {
 
   constructor(userDataSource: UserDataSource) {
     this.userDataSource = userDataSource;
+  }
+
+  search(filter: IQueryFilter): Promise<Pagination<User>> {
+    return this.userDataSource.search(filter);
   }
 
   findAll(): Promise<User[]> {

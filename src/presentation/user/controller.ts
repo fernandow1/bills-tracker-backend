@@ -5,9 +5,13 @@ import { PasswordHasher } from '@domain/ports/password-hasher';
 import { UserRepository } from '@domain/repository/user.repository';
 import { CreateUser } from '@application/uses-cases/user/create-user';
 import { UpdateUser } from '@application/uses-cases/user/update-user';
+import { SearchUser } from '@application/uses-cases/user/search-user';
+import { queryMapper } from '@application/mappers/query-filter.mapper';
+import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { AppError } from '@application/errors/app-error';
+import { SafeUser } from '@application/uses-cases/user/types/auth-user.type';
 
 export class UserController {
   constructor(
@@ -69,6 +73,36 @@ export class UserController {
           return next(AppError.badRequest(error.message, []));
         }
       }
+      res.status(500).json({
+        message: 'Internal server error',
+      });
+    }
+  };
+
+  searchUsers = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const dto = plainToClass(QueryFilterDTO, req.query);
+
+      // Use SafeUser keys to generate allowed fields
+      const safeUserFields: (keyof SafeUser)[] = [
+        'id',
+        'name',
+        'email',
+        'username',
+        'createdAt',
+        'updatedAt',
+        'deletedAt',
+      ];
+
+      const allowedFields = new Map(safeUserFields.map((field) => [field, {}]));
+      const allowedOperations = new Set(['eq', 'like']);
+
+      const filter = queryMapper(dto, { allowedFields, allowedOperations });
+      const searchUser = new SearchUser(this.repository);
+      const result = await searchUser.execute(filter);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error(error);
       res.status(500).json({
         message: 'Internal server error',
       });
