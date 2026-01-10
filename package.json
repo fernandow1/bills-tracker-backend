@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "build:full": "tsc && tsc-alias",
+    "build": "npm run build:full",
     "serve": "nodemon",
     "migration:generate": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -o -p ./migrations -d src/infrastructure/database/connection.ts",
     "migration:run": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d src/infrastructure/database/connection.ts",

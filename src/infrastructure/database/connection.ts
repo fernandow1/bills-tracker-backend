@@ -13,8 +13,8 @@ export const AppDataSource = new DataSource({
   database: envs.DB_NAME,
   synchronize: false,
   logging: false,
-  entities: [path.resolve(__dirname, '../database/entities/*.ts')],
+  entities: [path.join(process.cwd(), 'dist', 'infrastructure', 'database', 'entities', '*.js')],
   migrationsRun: false,
-  migrations: [path.resolve(__dirname, '../../../migrations/*.js')],
+  migrations: [path.join(process.cwd(), 'migrations', '*.js')],
   subscribers: [],
 });
