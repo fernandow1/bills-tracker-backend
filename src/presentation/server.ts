@@ -26,7 +26,7 @@ export class Server {
       cors({
         origin:
           process.env.NODE_ENV === 'production'
-            ? ['https://tu-dominio.com']
+            ? ['https://bills-tracker-frontend-delta.vercel.app']
             : ['http://localhost:4200', 'http://127.0.0.1:4200'],
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
