@@ -156,34 +156,31 @@ export class BillDataSourceImpl implements BillDataSource {
       const billItemsWithIdBill = billItems.map((item) => ({
         ...item,
         idBill: id,
+        deletedAt: null, // Ensure restored items have deletedAt cleared
       }));
 
+      // Use upsert with deletedAt included to handle restoration automatically
+      // This way, if an item exists (even if deleted), it will be updated including deletedAt = null
       const billItemsUpdated = await queryRunner.manager
         .getRepository(BillItem)
         .upsert(billItemsWithIdBill, {
           conflictPaths: ['idBill', 'idProduct'],
-          skipUpdateIfNoValuesChanged: true,
         });
 
       // Soft delete items that are not in the updated list
-      // Filter out items without id (new items) to get only existing item ids
-      const existingItemIds = billItems
-        .filter((item) => item.id !== undefined && item.id !== null)
-        .map((item) => item.id);
+      // Get all product IDs that should remain active
+      const activeProductIds = billItemsWithIdBill.map((item) => item.idProduct);
 
-      // If there are existing items, delete those not in the list
-      // If existingItemIds is empty, it means all items are new, so don't delete anything
-      if (existingItemIds.length > 0) {
-        const billItemsDeleted = await queryRunner.manager.getRepository(BillItem).softDelete({
-          idBill: id,
-          deletedAt: IsNull(),
-          id: Not(In(existingItemIds)),
-        });
-
-        if (!billItemsDeleted) throw new Error('BillItems delete failed');
-      }
+      // Delete items that belong to this bill but are not in the active products list
+      // Only affects currently active items (deletedAt IS NULL)
+      const billItemsDeleted = await queryRunner.manager.getRepository(BillItem).softDelete({
+        idBill: id,
+        deletedAt: IsNull(),
+        idProduct: Not(In(activeProductIds)),
+      });
 
       if (!billItemsUpdated) throw new Error('BillItems update failed');
+      if (!billItemsDeleted) throw new Error('BillItems delete failed');
     }
 
     return savedBill;
