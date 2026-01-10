@@ -9,6 +9,7 @@ import { CategoryRouter } from '@presentation/category/router';
 import { ProductRouter } from '@presentation/product/routes';
 import { BillRouter } from '@presentation/bill/routes';
 import { AuthRouter } from '@presentation/auth/router';
+import { healthRouter } from '@presentation/health/routes';
 import { AppDataSource } from '@infrastructure/database/connection';
 import { TestDataSource } from '@infrastructure/database/connection-test';
 
@@ -17,6 +18,9 @@ export const AppRoutes = {
     const router = Router();
 
     const dataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
+
+    // Health check endpoint
+    router.use('/health', healthRouter());
 
     // Define your routes here
     router.use('/api/shops', ShopRouter.routes(dataSource));
