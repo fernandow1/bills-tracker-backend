@@ -68,6 +68,7 @@ export class BillDataSourceImpl implements BillDataSource {
         idShop: true,
         total: true,
         createdAt: true,
+        purchasedAt: true,
         currency: {
           id: true,
           name: true,
