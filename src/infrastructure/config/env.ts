@@ -11,5 +11,10 @@ export const envs = {
   DB_PASSWORD: get('MYSQLPASSWORD').required().asString(),
   DB_NAME: get('MYSQLDATABASE').required().asString(),
   DB_ROOT_PASSWORD: get('DB_ROOT_PASSWORD').asString(),
+  REMOTE_DB_HOST: get('REMOTE_MYSQLHOST').required().asString(),
+  REMOTE_DB_PORT: get('REMOTE_MYSQLPORT').default('3306').asPortNumber(),
+  REMOTE_DB_USER: get('REMOTE_MYSQLUSER').required().asString(),
+  REMOTE_DB_PASSWORD: get('REMOTE_MYSQLPASSWORD').required().asString(),
+  REMOTE_DB_NAME: get('REMOTE_MYSQLDATABASE').required().asString(),
   JWT_SECRET: get('JWT_SECRET').required().asString(),
 };
