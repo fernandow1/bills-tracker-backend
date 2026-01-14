@@ -31,7 +31,7 @@ export class RefreshTokenUseCase {
       };
 
       // 4. Generar nuevo access token (corta duración)
-      const newAccessToken = await this.generateToken.generate(accessTokenPayload, '15m');
+      const newAccessToken = await this.generateToken.generate(accessTokenPayload, '1h');
 
       if (!newAccessToken) {
         throw AppError.internalError('Failed to generate access token');
@@ -48,7 +48,7 @@ export class RefreshTokenUseCase {
       return {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
-        expiresIn: 15 * 60, // 15 minutos en segundos
+        expiresIn: 60 * 60, // 1 hora en segundos
       };
     } catch (error) {
       if (error instanceof AppError) {
