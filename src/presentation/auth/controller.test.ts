@@ -57,7 +57,7 @@ describe('AuthController', () => {
         },
         token: 'access_token',
         refreshToken: 'refresh_token',
-        expiresIn: 900,
+        expiresIn: 3600,
       });
       (LoginUser as jest.MockedClass<typeof LoginUser>).mockImplementation(
         () =>
@@ -70,6 +70,7 @@ describe('AuthController', () => {
 
       expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith({
+        message: 'Login successful',
         user: {
           id: 1,
           name: 'Test',
@@ -77,9 +78,9 @@ describe('AuthController', () => {
           username: 'testuser',
           email: 'test@example.com',
         },
-        token: 'access_token',
+        accessToken: 'access_token',
         refreshToken: 'refresh_token',
-        expiresIn: 900, // 15 minutos en segundos
+        expiresIn: 3600, // 1 hora en segundos
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
