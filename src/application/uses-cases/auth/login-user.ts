@@ -39,7 +39,7 @@ export class LoginUser {
     };
 
     // Generar access token (corta duración)
-    const accessToken = await new JwtTokenGenerator().generate(tokenPayload, '15m');
+    const accessToken = await new JwtTokenGenerator().generate(tokenPayload, '1h');
 
     // Generar refresh token (larga duración)
     const refreshTokenGenerator = new JwtRefreshToken();
@@ -59,7 +59,7 @@ export class LoginUser {
       },
       token: accessToken,
       refreshToken,
-      expiresIn: 15 * 60, // 15 minutos en segundos
+      expiresIn: 60 * 60, // 1 hora en segundos
     } as AuthUser;
   }
 }

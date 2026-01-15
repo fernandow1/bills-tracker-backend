@@ -12,4 +12,5 @@ export const envs = {
   DB_NAME: get('MYSQLDATABASE').required().asString(),
   DB_ROOT_PASSWORD: get('DB_ROOT_PASSWORD').asString(),
   JWT_SECRET: get('JWT_SECRET').required().asString(),
+  NODE_ENV: get('NODE_ENV').default('development').asString(),
 };
