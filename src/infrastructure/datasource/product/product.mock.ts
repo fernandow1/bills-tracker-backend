@@ -9,6 +9,8 @@ import { ProductRepository } from '../../../domain/repository/product.repository
 import { BrandCategory } from '../../database/entities/brand-category.entity';
 import { Brand } from '../../database/entities/brand.entity';
 import { Category } from '../../database/entities/category.entity';
+import { IQueryFilter } from '../../../application/models/query-filter.model';
+import { Pagination } from '../../../application/models/pagination.model';
 
 // Tipos específicos para mocks
 export interface MockedProductRepository {
@@ -58,6 +60,7 @@ export interface MockedQueryRunner {
 }
 
 export interface MockedProductDataSource extends ProductDataSource {
+  search: jest.MockedFunction<(filter: IQueryFilter) => Promise<Pagination<Product>>>;
   createProduct: jest.MockedFunction<(createProductDTO: CreateProductDTO) => Promise<Product>>;
   updateProduct: jest.MockedFunction<
     (id: number, updateProductDTO: UpdateProductDTO) => Promise<UpdateProductDTO>
@@ -68,6 +71,7 @@ export interface MockedProductDataSource extends ProductDataSource {
 }
 
 export interface MockedProductRepositoryInterface extends ProductRepository {
+  search: jest.MockedFunction<(filter: IQueryFilter) => Promise<Pagination<Product>>>;
   createProduct: jest.MockedFunction<(createProductDTO: CreateProductDTO) => Promise<Product>>;
   updateProduct: jest.MockedFunction<
     (id: number, updateProductDTO: UpdateProductDTO) => Promise<UpdateProductDTO>
@@ -196,6 +200,7 @@ export const createMockedProductRepository = (): MockedProductRepository => ({
 
 // Factory para crear mock del ProductRepository (domain)
 export const createMockedProductRepositoryInterface = (): MockedProductRepositoryInterface => ({
+  search: jest.fn(),
   createProduct: jest.fn(),
   getProductById: jest.fn(),
   updateProduct: jest.fn(),
@@ -205,6 +210,7 @@ export const createMockedProductRepositoryInterface = (): MockedProductRepositor
 
 // Factory para crear mock del ProductDataSource
 export const createMockedProductDataSource = (): MockedProductDataSource => ({
+  search: jest.fn(),
   createProduct: jest.fn(),
   getProductById: jest.fn(),
   updateProduct: jest.fn(),

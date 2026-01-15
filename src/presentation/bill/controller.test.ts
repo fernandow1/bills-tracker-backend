@@ -123,11 +123,15 @@ describe('BillController', () => {
 
     test('should use UnitOfWork for bill creation', async () => {
       const createBillDto = {
-        total: 100,
         idShop: 1,
-        idPaymentMethod: 1,
         idCurrency: 1,
+        idPaymentMethod: 1,
         idUser: 1,
+        subTotal: 100,
+        discount: 0,
+        total: 100,
+        idUserOwner: 1,
+        purchasedAt: '2024-01-01',
         billItems: [],
       };
       const createdBill = CREATE_MOCK_BILL();

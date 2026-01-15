@@ -157,12 +157,23 @@ describe('BillDataSourceImpl', () => {
         where: filter.filter,
         relations: {
           billItems: { product: { category: true, brand: true } },
+          currency: true,
+          paymentMethod: true,
+          shop: true,
         },
         select: {
           id: true,
           idCurrency: true,
           idShop: true,
           total: true,
+          createdAt: true,
+          purchasedAt: true,
+          currency: {
+            id: true,
+            name: true,
+            symbol: true,
+            code: true,
+          },
           billItems: {
             id: true,
             idBill: true,
@@ -170,6 +181,7 @@ describe('BillDataSourceImpl', () => {
             quantity: true,
             netPrice: true,
             netUnit: true,
+            contentValue: true,
             product: {
               id: true,
               name: true,

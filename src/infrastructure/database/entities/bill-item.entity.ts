@@ -42,7 +42,7 @@ export class BillItem {
     unsigned: true,
     nullable: true,
   })
-  contentValue: number;
+  contentValue: number | null;
 
   @Column({ name: 'net_price', type: 'decimal', precision: 10, scale: 2, unsigned: true })
   netPrice: number;

@@ -70,7 +70,7 @@ describe('LoginUser', () => {
         },
         token: 'mocked_jwt_token',
         refreshToken: 'mocked_refresh_token',
-        expiresIn: 900, // 15 minutos en segundos
+        expiresIn: 3600, // 1 hora en segundos
       } as AuthUser);
     });
 
