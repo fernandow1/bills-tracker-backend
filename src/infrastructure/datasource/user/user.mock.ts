@@ -1,5 +1,5 @@
 import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
-import { User } from '../../../domain/entities/user.entity';
+import { User } from '../../database/entities/user.entity';
 import { UserDataSource } from '../../../domain/datasources/user.datasource';
 import { UserRepository } from '../../../domain/repository/user.repository';
 import { PasswordHasher } from '../../../domain/ports/password-hasher';
@@ -39,6 +39,8 @@ export function userRepositoryMock(): jest.Mocked<Repository<User>> {
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
+        ownedBills: [],
+        createdBills: [],
       } as User;
     }),
     findOneBy: jest.fn().mockImplementation(async (criteria): Promise<User | null> => {
@@ -59,6 +61,8 @@ export function userRepositoryMock(): jest.Mocked<Repository<User>> {
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
+        ownedBills: [],
+        createdBills: [],
       } as User;
     }),
     createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
@@ -73,6 +77,7 @@ export function userRepositoryMock(): jest.Mocked<Repository<User>> {
       Object.assign(existingUser, userData);
       return existingUser;
     }),
+    findAndCount: jest.fn().mockResolvedValue([[USERMOCK, USERMOCK], 2]),
   } as unknown as jest.Mocked<Repository<User>>;
 }
 
@@ -86,6 +91,8 @@ export const USERMOCK: User = {
   createdAt: new Date('2023-01-01'),
   updatedAt: new Date('2023-01-01'),
   deletedAt: null,
+  ownedBills: [],
+  createdBills: [],
 };
 
 export const USERUPDATEMOCK: Partial<User> = {
@@ -94,7 +101,10 @@ export const USERUPDATEMOCK: Partial<User> = {
   email: 'updated@example.com',
 };
 
-export const USERCREATEMOCK: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'> = {
+export const USERCREATEMOCK: Omit<
+  User,
+  'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'ownedBills' | 'createdBills'
+> = {
   username: 'newuser',
   email: 'newuser@example.com',
   name: 'New',
@@ -104,6 +114,12 @@ export const USERCREATEMOCK: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'dele
 
 export function userDataSourceDomainMock(): jest.Mocked<UserDataSource> {
   return {
+    search: jest.fn().mockResolvedValue({
+      data: [USERMOCK, USERMOCK],
+      total: 2,
+      page: 1,
+      limit: 10,
+    }),
     getUsers: jest.fn().mockResolvedValue([USERMOCK, USERMOCK]),
     createUser: jest.fn().mockResolvedValue(USERMOCK),
     getUserById: jest.fn().mockImplementation(async (id: number) => {
@@ -129,6 +145,12 @@ export function userDataSourceDomainMock(): jest.Mocked<UserDataSource> {
 
 export function userRepositoryDomainMock(): jest.Mocked<UserRepository> {
   return {
+    search: jest.fn().mockResolvedValue({
+      data: [USERMOCK, USERMOCK],
+      total: 2,
+      page: 1,
+      limit: 10,
+    }),
     findAll: jest.fn().mockResolvedValue([USERMOCK, USERMOCK]),
     findById: jest.fn().mockImplementation(async (id: number) => {
       return id === 999 ? null : USERMOCK;

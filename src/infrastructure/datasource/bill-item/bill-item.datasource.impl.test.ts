@@ -27,6 +27,7 @@ describe('BillItemDatasourceImpl', () => {
     quantity: 2,
     netPrice: 10.5,
     netUnit: NetUnits.KILOGRAM,
+    contentValue: null,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
     deletedAt: null,

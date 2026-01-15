@@ -104,7 +104,7 @@ describe('Query Filter Mapper', () => {
       const result = queryMapper(dto, defaultOptions);
 
       expect(result.filter).toEqual({
-        total: Like('100'),
+        total: Like('%100%'),
       });
     });
 

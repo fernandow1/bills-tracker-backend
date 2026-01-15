@@ -37,6 +37,7 @@ export class UserDataSourceImpl implements UserDataSource {
   async getUsers(): Promise<User[]> {
     return this.dataSource.getRepository(User).find();
   }
+
   async createUser(userData: Partial<User>): Promise<User> {
     return this.dataSource.getRepository(User).save(userData);
   }
@@ -65,6 +66,7 @@ export class UserDataSourceImpl implements UserDataSource {
     const updatedUser = { id, ...userData };
     return this.dataSource.getRepository(User).save(updatedUser);
   }
+
   async deleteUser(id: number): Promise<void> {
     const user = await this.dataSource.getRepository(User).findOneBy({ id });
     if (!user) throw new Error('User not found');

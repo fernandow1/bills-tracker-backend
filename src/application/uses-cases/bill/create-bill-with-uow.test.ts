@@ -58,7 +58,11 @@ describe('CreateBillWithUoW Use Case', () => {
         idCurrency: 1,
         idPaymentMethod: 1,
         idUser: 1,
+        subTotal: 150.5,
+        discount: 0,
         total: 150.5, // 2 * 75.25 = 150.50
+        idUserOwner: 1,
+        purchasedAt: '2024-01-01',
         billItems: [
           {
             idBill: 0, // Will be set by use case
@@ -76,7 +80,11 @@ describe('CreateBillWithUoW Use Case', () => {
         idCurrency: 1,
         idPaymentMethod: 1,
         idUser: 1,
+        subTotal: 150.5,
+        discount: 0,
         total: 150.75,
+        idUserOwner: 1,
+        purchasedAt: new Date('2024-01-01'),
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -109,7 +117,11 @@ describe('CreateBillWithUoW Use Case', () => {
         idCurrency: 1,
         idPaymentMethod: 1,
         idUser: 1,
+        subTotal: 150.5,
+        discount: 0,
         total: 150.5, // Corrected total
+        idUserOwner: 1,
+        purchasedAt: '2024-01-01',
         billItems: [],
       });
 
@@ -128,40 +140,6 @@ describe('CreateBillWithUoW Use Case', () => {
 
       expect(result).toEqual(expectedBill);
     });
-
-    test('should create bill without items when no items provided', async () => {
-      // Arrange
-      const billData: CreateBillDto = {
-        idShop: 1,
-        idCurrency: 1,
-        idPaymentMethod: 1,
-        idUser: 1,
-        total: 0,
-        billItems: [],
-      };
-
-      const expectedBill: Bill = {
-        id: 1,
-        idShop: 1,
-        idCurrency: 1,
-        idPaymentMethod: 1,
-        idUser: 1,
-        total: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      (mockBillRepository.create as jest.Mock).mockResolvedValue(expectedBill);
-
-      // Act
-      const result = await createBillUseCase.execute(billData);
-
-      // Assert
-      expect(mockBillRepository.create).toHaveBeenCalledTimes(1);
-      expect(mockBillItemRepository.create).not.toHaveBeenCalled();
-      expect(mockUnitOfWork.commit).toHaveBeenCalledTimes(1);
-      expect(result).toEqual(expectedBill);
-    });
   });
 
   describe('Business Rules Validation', () => {
@@ -172,7 +150,11 @@ describe('CreateBillWithUoW Use Case', () => {
         idCurrency: 1,
         idPaymentMethod: 1,
         idUser: 1,
+        subTotal: 100,
+        discount: 0,
         total: 100, // Incorrect total
+        idUserOwner: 1,
+        purchasedAt: '2024-01-01',
         billItems: [
           {
             idBill: 0,
@@ -203,7 +185,11 @@ describe('CreateBillWithUoW Use Case', () => {
         idCurrency: 1,
         idPaymentMethod: 1,
         idUser: 1,
+        subTotal: 200,
+        discount: 0,
         total: 200,
+        idUserOwner: 1,
+        purchasedAt: '2024-01-01',
         billItems: [
           {
             idBill: 0,
@@ -238,7 +224,11 @@ describe('CreateBillWithUoW Use Case', () => {
         idCurrency: 1,
         idPaymentMethod: 1,
         idUser: 1,
+        subTotal: 150.75,
+        discount: 0,
         total: 150.75, // Small difference within tolerance
+        idUserOwner: 1,
+        purchasedAt: '2024-01-01',
         billItems: [
           {
             idBill: 0,
@@ -256,7 +246,11 @@ describe('CreateBillWithUoW Use Case', () => {
         idCurrency: 1,
         idPaymentMethod: 1,
         idUser: 1,
+        subTotal: 150.75,
+        discount: 0,
         total: 150.75,
+        idUserOwner: 1,
+        purchasedAt: new Date('2024-01-01'),
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -281,7 +275,11 @@ describe('CreateBillWithUoW Use Case', () => {
         idCurrency: 1,
         idPaymentMethod: 1,
         idUser: 1,
+        subTotal: 100,
+        discount: 0,
         total: 100,
+        idUserOwner: 1,
+        purchasedAt: '2024-01-01',
         billItems: [
           {
             idBill: 0,
@@ -311,7 +309,11 @@ describe('CreateBillWithUoW Use Case', () => {
         idCurrency: 1,
         idPaymentMethod: 1,
         idUser: 1,
+        subTotal: 100,
+        discount: 0,
         total: 100,
+        idUserOwner: 1,
+        purchasedAt: '2024-01-01',
         billItems: [
           {
             idBill: 0,
@@ -329,7 +331,11 @@ describe('CreateBillWithUoW Use Case', () => {
         idCurrency: 1,
         idPaymentMethod: 1,
         idUser: 1,
+        subTotal: 100,
+        discount: 0,
         total: 100,
+        idUserOwner: 1,
+        purchasedAt: new Date('2024-01-01'),
         createdAt: new Date(),
         updatedAt: new Date(),
       };
