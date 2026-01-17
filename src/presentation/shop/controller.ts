@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import { ShopRepository } from '@domain/repository/shop.repository';
-import { GetShops } from '@application/uses-cases/shop/get-shop';
 import { CreateShopDTO } from '@application/dtos/shop/create-shop.dto';
 import { validate } from 'class-validator';
 import { CreateShop } from '@application/uses-cases/shop/create-shop';
@@ -40,17 +39,6 @@ export class ShopController {
     } catch (error) {
       console.log(error);
       return next(AppError.internalError('Internal server error'));
-    }
-  };
-
-  getShops = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const getShops = new GetShops(this.repository);
-    try {
-      const shops = await getShops.execute();
-      res.status(200).json(shops);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error: unknown) {
-      return next(AppError.internalError('Error fetching shops'));
     }
   };
 

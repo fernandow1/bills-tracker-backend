@@ -15,10 +15,6 @@ export class ShopRepositoryImpl implements ShopRepository {
     return this.shopDataSource.search(filter);
   }
 
-  getAllShops(): Promise<Shop[]> {
-    return this.shopDataSource.getAllShops();
-  }
-
   createShop(shop: Partial<Shop>): Promise<Shop> {
     return this.shopDataSource.createShop(shop);
   }

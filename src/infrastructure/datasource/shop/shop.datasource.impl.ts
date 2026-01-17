@@ -24,11 +24,6 @@ export class ShopDataSourceImpl extends ShopDataSource {
     };
   }
 
-  async getAllShops(): Promise<Shop[]> {
-    const shops = await this.dataSource.getRepository(Shop).find();
-    return shops;
-  }
-
   async createShop(shopData: Partial<Shop>): Promise<Shop> {
     return this.dataSource.getRepository(Shop).save(shopData);
   }

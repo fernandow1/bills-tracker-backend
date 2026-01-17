@@ -51,9 +51,6 @@ export function shopRepositoryMock(): jest.Mocked<Repository<Shop>> {
 
 export function shopRepositoryDomainMock(): jest.Mocked<ShopRepository> {
   return {
-    getAllShops: jest.fn().mockImplementation(async (): Promise<Shop[]> => {
-      return [SHOPMOCK, SHOPMOCK, SHOPMOCK] as Shop[];
-    }),
     createShop: jest.fn().mockImplementation(async (shopData: Shop): Promise<Shop> => {
       return {
         id: faker.datatype.number({ min: 1, max: 1000 }),
@@ -83,7 +80,6 @@ export function shopRepositoryDomainMock(): jest.Mocked<ShopRepository> {
 // ✅ NUEVO: Mock para el DataSource del dominio (usado en Repository tests)
 export function shopDataSourceDomainMock(): jest.Mocked<ShopDataSource> {
   return {
-    getAllShops: jest.fn().mockResolvedValue([SHOPMOCK, SHOPMOCK, SHOPMOCK]),
     createShop: jest.fn().mockImplementation(async (shopData: Partial<Shop>): Promise<Shop> => {
       return {
         id: faker.datatype.number({ min: 1, max: 1000 }),
