@@ -33,37 +33,6 @@ describe('ShopController', () => {
     jest.clearAllMocks();
   });
 
-  describe('getShops', () => {
-    test('should return shops with 200 status', async () => {
-      const mockShops = [SHOPMOCK, SHOPMOCK];
-      mockRepository.getAllShops.mockResolvedValue(mockShops);
-
-      await controller.getShops(mockRequest as Request, mockResponse as Response, mockNext);
-
-      expect(mockRepository.getAllShops).toHaveBeenCalledTimes(1);
-      expect(mockResponse.status).toHaveBeenCalledWith(200);
-      expect(mockResponse.json).toHaveBeenCalledWith(mockShops);
-      expect(mockNext).not.toHaveBeenCalled();
-    });
-
-    test('should handle repository error and call next with AppError', async () => {
-      const error = new Error('Database error');
-      mockRepository.getAllShops.mockRejectedValue(error);
-
-      await controller.getShops(mockRequest as Request, mockResponse as Response, mockNext);
-
-      expect(mockRepository.getAllShops).toHaveBeenCalledTimes(1);
-      expect(mockResponse.status).not.toHaveBeenCalled();
-      expect(mockResponse.json).not.toHaveBeenCalled();
-      expect(mockNext).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: 'Error fetching shops',
-          statusCode: 500,
-        }),
-      );
-    });
-  });
-
   describe('createShop', () => {
     beforeEach(() => {
       mockRequest.body = {

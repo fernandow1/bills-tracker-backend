@@ -16,28 +16,6 @@ describe('ShopRepositoryImpl', () => {
     jest.clearAllMocks();
   });
 
-  describe('getAllShops', () => {
-    test('should delegate to datasource and return shops', async () => {
-      const mockShops: Shop[] = [SHOPMOCK, SHOPMOCK];
-
-      mockDataSource.getAllShops.mockResolvedValue(mockShops);
-
-      const result = await repository.getAllShops();
-
-      expect(mockDataSource.getAllShops).toHaveBeenCalledTimes(1);
-      expect(mockDataSource.getAllShops).toHaveBeenCalledWith();
-      expect(result).toEqual(mockShops);
-    });
-
-    test('should propagate error from datasource', async () => {
-      const error = new Error('Database error');
-      mockDataSource.getAllShops.mockRejectedValue(error);
-
-      await expect(repository.getAllShops()).rejects.toThrow('Database error');
-      expect(mockDataSource.getAllShops).toHaveBeenCalledTimes(1);
-    });
-  });
-
   describe('createShop', () => {
     test('should delegate to datasource with correct parameters', async () => {
       const shopData = { name: 'New Shop', description: 'Test' };

@@ -8,39 +8,6 @@ describe('ShopDatasourceImpl', () => {
     jest.resetAllMocks();
   });
 
-  test('Should be retrieve shops from database successfully', async () => {
-    const repositoryMock = shopRepositoryMock();
-    const dataSourceMock = dataSourceShopMock(repositoryMock);
-    const dataSourceImpl = new ShopDataSourceImpl(dataSourceMock);
-
-    const shops = await dataSourceImpl.getAllShops();
-
-    expect(shops).toBeInstanceOf(Array);
-    expect(shops.length).toBeGreaterThan(0);
-    shops.forEach((shop) => {
-      expect(shop).toHaveProperty('id');
-      expect(shop).toHaveProperty('name');
-      expect(shop).toHaveProperty('description');
-      expect(shop).toHaveProperty('latitude');
-      expect(shop).toHaveProperty('longitude');
-    });
-    expect(dataSourceMock.getRepository).toHaveBeenCalledTimes(1);
-    expect(dataSourceMock.getRepository).toHaveBeenCalledWith(Shop);
-    expect(repositoryMock.find).toHaveBeenCalled();
-  });
-
-  test('Should propagate error when retrieving shops fails', async () => {
-    const repositoryMock = shopRepositoryMock();
-    repositoryMock.find.mockRejectedValueOnce(new Error('Database error'));
-    const dataSourceMock = dataSourceShopMock(repositoryMock);
-    const dataSourceImpl = new ShopDataSourceImpl(dataSourceMock);
-
-    await expect(dataSourceImpl.getAllShops()).rejects.toThrow(new Error('Database error'));
-    expect(dataSourceMock.getRepository).toHaveBeenCalledTimes(1);
-    expect(dataSourceMock.getRepository).toHaveBeenCalledWith(Shop);
-    expect(repositoryMock.find).toHaveBeenCalled();
-  });
-
   test('Should be create shop in database successfully', async () => {
     const repositoryMock = shopRepositoryMock();
     const dataSourceMock = dataSourceShopMock(repositoryMock);

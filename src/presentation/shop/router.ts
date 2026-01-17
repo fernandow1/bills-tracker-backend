@@ -19,10 +19,6 @@ export const ShopRouter = {
       shopController.searchShops(req, res, next);
     });
 
-    router.get('/', (req: Request, res: Response, next: NextFunction) => {
-      shopController.getShops(req, res, next);
-    });
-
     router.post('/', (req: Request, res: Response, next: NextFunction) => {
       shopController.createShop(req, res, next);
     });
