@@ -4,6 +4,7 @@ import { Shop } from '@domain/entities/shop.entity';
 
 export abstract class ShopDataSource {
   abstract search(filter: IQueryFilter): Promise<Pagination<Shop>>;
+  abstract findAll(): Promise<Shop[]>;
   abstract createShop(shopData: Partial<Shop>): Promise<Shop>;
   abstract updateShop(id: number, shopData: Partial<Shop>): Promise<Shop>;
   abstract deleteShop(id: number): Promise<void>;

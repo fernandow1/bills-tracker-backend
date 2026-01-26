@@ -19,12 +19,16 @@ export const ShopRouter = {
       shopController.searchShops(req, res, next);
     });
 
+    router.get('/nearby', (req: Request, res: Response) => {
+      shopController.nearby(req, res);
+    });
+
     router.post('/', (req: Request, res: Response, next: NextFunction) => {
-      shopController.createShop(req, res, next);
+      shopController.createShopHandler(req, res, next);
     });
 
     router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
-      shopController.updateShop(req, res, next);
+      shopController.updateShopHandler(req, res, next);
     });
 
     return router;

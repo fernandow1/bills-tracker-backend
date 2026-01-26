@@ -10,12 +10,13 @@ import {
 } from 'typeorm';
 import { Bill } from '@infrastructure/database/entities/bill.entity';
 
+@Index('idx_shop_name', { unique: true })
+@Index('idx_shop_location')
 @Entity('shop')
 export class Shop {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int', unsigned: true })
   id: number;
 
-  @Index('idx_shop_name', { unique: true })
   @Column({
     name: 'name',
     type: 'varchar',
