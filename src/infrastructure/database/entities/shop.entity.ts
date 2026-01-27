@@ -11,12 +11,12 @@ import {
 import { Bill } from '@infrastructure/database/entities/bill.entity';
 
 @Index('idx_shop_name', { unique: true })
-@Index('idx_shop_location')
+@Index('idx_shop_location', ['latitude', 'longitude'])
 @Entity('shop')
 export class Shop {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int', unsigned: true })
   id: number;
-
+  
   @Column({
     name: 'name',
     type: 'varchar',
