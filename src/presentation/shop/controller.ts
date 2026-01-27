@@ -12,9 +12,23 @@ import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
 import { SearchShop } from '@application/uses-cases/shop/search-shop';
 import { queryMapper } from '@application/mappers/query-filter.mapper';
 import { SHOP_ALLOWED_FIELDS, SHOP_ALLOWED_OPERATIONS } from '@application/queries/shop/shop-where';
+import { FindShopsByProximity } from '@application/uses-cases/shop/find-shops-by-proximity';
+import { DeleteShop } from '@application/uses-cases/shop/delete-shop';
 
 export class ShopController {
-  constructor(private readonly repository: ShopRepository) {}
+  private readonly createShop: CreateShop;
+  private readonly updateShop: UpdateShop;
+  private readonly searchShop: SearchShop;
+  private readonly deleteShop: DeleteShop;
+  private readonly findShopsByProximity: FindShopsByProximity;
+
+  constructor(private readonly repository: ShopRepository) {
+    this.createShop = new CreateShop(repository);
+    this.updateShop = new UpdateShop(repository);
+    this.searchShop = new SearchShop(repository);
+    this.deleteShop = new DeleteShop(repository);
+    this.findShopsByProximity = new FindShopsByProximity(repository);
+  }
 
   searchShops = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -29,7 +43,7 @@ export class ShopController {
         return next(AppError.badRequest('Validation failed', validationErrors));
       }
 
-      const shops = await new SearchShop(this.repository).execute(
+      const shops = await this.searchShop.execute(
         queryMapper(dto, {
           allowedFields: SHOP_ALLOWED_FIELDS,
           allowedOperations: SHOP_ALLOWED_OPERATIONS,
@@ -42,7 +56,7 @@ export class ShopController {
     }
   };
 
-  createShop = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  createShopHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const dto = Object.assign(new CreateShopDTO(), req.body);
     const validationErrors = await validate(dto);
 
@@ -57,7 +71,7 @@ export class ShopController {
     }
 
     try {
-      const shop = await new CreateShop(this.repository).execute(dto);
+      const shop = await this.createShop.execute(dto);
       res.status(201).json(shop);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: unknown) {
@@ -65,7 +79,35 @@ export class ShopController {
     }
   };
 
-  updateShop = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  /**
+   * GET /shops/nearby?lat=X&long=Y&radius=Z
+   * Busca shops cercanos a una ubicación dada
+   */
+  nearby = async (req: Request, res: Response): Promise<void> => {
+    const latitude = Number(req.query.lat);
+    const longitude = Number(req.query.long);
+    const radiusKm = Number(req.query.radius) || 10; // Default 10km
+
+    if (isNaN(latitude) || isNaN(longitude)) {
+      res.status(400).json({
+        error: 'Invalid coordinates. Both lat and long query parameters are required.',
+      });
+      return;
+    }
+
+    if (isNaN(radiusKm) || radiusKm <= 0) {
+      res.status(400).json({
+        error: 'Invalid radius. Must be a positive number.',
+      });
+      return;
+    }
+
+    const shops = await this.findShopsByProximity.execute(latitude, longitude, radiusKm);
+
+    res.status(200).json(shops);
+  };
+
+  updateShopHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { id } = req.params;
     const dto = plainToClass(UpdateShopDTO, req.body);
     const validationErrors = await validate(dto);
@@ -81,7 +123,7 @@ export class ShopController {
     }
 
     try {
-      const shop = await new UpdateShop(this.repository).execute(Number(id), dto);
+      const shop = await this.updateShop.execute(Number(id), dto);
       res.status(200).json(shop);
     } catch (error: unknown) {
       // Manejar EntityNotFoundError de TypeORM

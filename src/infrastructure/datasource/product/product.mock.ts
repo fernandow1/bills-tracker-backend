@@ -6,11 +6,16 @@ import { CreateProductDTO } from '../../../application/dtos/product/create-produ
 import { UpdateProductDTO } from '../../../application/dtos/product/update-product.dto';
 import { ProductDataSource } from '../../../domain/datasources/product.datasource';
 import { ProductRepository } from '../../../domain/repository/product.repository';
+import { BillItemRepository } from '../../../domain/repository/bill-item.repository';
 import { BrandCategory } from '../../database/entities/brand-category.entity';
 import { Brand } from '../../database/entities/brand.entity';
 import { Category } from '../../database/entities/category.entity';
 import { IQueryFilter } from '../../../application/models/query-filter.model';
 import { Pagination } from '../../../application/models/pagination.model';
+import { CreateBillItemDTO } from '../../../application/dtos/bill-item/create-bill-item.dto';
+import { UpdateBillItemDTO } from '../../../application/dtos/bill-item/update-bill-item.dto';
+import { BillItem } from '../../database/entities/bill-item.entity';
+import { ProductPriceByShop } from '../../../application/queries/product/product-price-by-shop.query-result';
 
 // Tipos específicos para mocks
 export interface MockedProductRepository {
@@ -79,6 +84,23 @@ export interface MockedProductRepositoryInterface extends ProductRepository {
   getAllProducts: jest.MockedFunction<() => Promise<Product[]>>;
   getProductById: jest.MockedFunction<(id: number) => Promise<Product>>;
   deleteProduct: jest.MockedFunction<(id: number) => Promise<void>>;
+}
+
+export interface MockedBillItemRepositoryInterface extends BillItemRepository {
+  create: jest.MockedFunction<
+    (createBillItemDTO: CreateBillItemDTO, transaction?: QueryRunner) => Promise<BillItem>
+  >;
+  update: jest.MockedFunction<
+    (id: number, updateBillItemDTO: UpdateBillItemDTO, transaction?: QueryRunner) => Promise<BillItem>
+  >;
+  delete: jest.MockedFunction<(id: number, transaction?: QueryRunner) => Promise<void>>;
+  findAll: jest.MockedFunction<(transaction?: QueryRunner) => Promise<BillItem[]>>;
+  findCheapestShopsByProduct: jest.MockedFunction<
+    (
+      productId: number,
+      options?: { maxAgeDays?: number; limit?: number },
+    ) => Promise<ProductPriceByShop[]>
+  >;
 }
 
 export interface MockedTypeOrmDataSource {
@@ -206,6 +228,15 @@ export const createMockedProductRepositoryInterface = (): MockedProductRepositor
   updateProduct: jest.fn(),
   deleteProduct: jest.fn(),
   getAllProducts: jest.fn(),
+});
+
+// Factory para crear mock del BillItemRepository (domain)
+export const createMockedBillItemRepositoryInterface = (): MockedBillItemRepositoryInterface => ({
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+  findAll: jest.fn(),
+  findCheapestShopsByProduct: jest.fn(),
 });
 
 // Factory para crear mock del ProductDataSource

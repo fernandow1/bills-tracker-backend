@@ -1,21 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
 import { ProductController } from './controller';
 import { ProductRepository } from '../../domain/repository/product.repository';
+import { BillItemRepository } from '../../domain/repository/bill-item.repository';
 import {
   PRODUCT_MOCK,
+  createMockedBillItemRepositoryInterface,
   createMockedProductRepositoryInterface,
 } from '../../infrastructure/datasource/product/product.mock';
 
 describe('ProductController', () => {
   let controller: ProductController;
   let mockRepository: jest.Mocked<ProductRepository>;
+  let mockBillItemRepository: jest.Mocked<BillItemRepository>;
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
   let mockNext: jest.MockedFunction<NextFunction>;
 
   beforeEach(() => {
     mockRepository = createMockedProductRepositoryInterface();
-    controller = new ProductController(mockRepository);
+    mockBillItemRepository = createMockedBillItemRepositoryInterface();
+    
+    controller = new ProductController(mockRepository, mockBillItemRepository);
 
     mockRequest = {
       body: {},

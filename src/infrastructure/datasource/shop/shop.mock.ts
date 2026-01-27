@@ -51,27 +51,25 @@ export function shopRepositoryMock(): jest.Mocked<Repository<Shop>> {
 
 export function shopRepositoryDomainMock(): jest.Mocked<ShopRepository> {
   return {
-    createShop: jest.fn().mockImplementation(async (shopData: Shop): Promise<Shop> => {
-      return {
-        id: faker.datatype.number({ min: 1, max: 1000 }),
-        name: shopData.name ? shopData.name : faker.company.name(),
-        description: shopData.description ? shopData.description : faker.lorem.sentence(),
-        latitude: (shopData.latitude ?? +faker.address.latitude()) as number,
-        longitude: (shopData.longitude ?? +faker.address.longitude()) as number,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as Shop;
+    search: jest.fn(),
+    findAll: jest.fn().mockResolvedValue([SHOPMOCK, SHOPMOCK, SHOPMOCK]),
+    createShop: jest.fn().mockImplementation(async (shopData: Partial<Shop>): Promise<Shop> => {
+      return new Shop(
+        faker.datatype.number({ min: 1, max: 1000 }),
+        shopData.name || faker.company.name(),
+        shopData.description || faker.lorem.sentence(),
+        shopData.latitude ?? +faker.address.latitude(),
+        shopData.longitude ?? +faker.address.longitude(),
+      );
     }),
-    updateShop: jest.fn().mockImplementation(async (id: number, shopData: Shop): Promise<Shop> => {
-      return {
-        id: id,
-        name: shopData.name ? shopData.name : faker.company.name(),
-        description: shopData.description ? shopData.description : faker.lorem.sentence(),
-        latitude: (shopData.latitude ?? +faker.address.latitude()) as number,
-        longitude: (shopData.longitude ?? +faker.address.longitude()) as number,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as Shop;
+    updateShop: jest.fn().mockImplementation(async (id: number, shopData: Partial<Shop>): Promise<Shop> => {
+      return new Shop(
+        id,
+        shopData.name || faker.company.name(),
+        shopData.description || faker.lorem.sentence(),
+        shopData.latitude ?? +faker.address.latitude(),
+        shopData.longitude ?? +faker.address.longitude(),
+      );
     }),
     deleteShop: jest.fn().mockResolvedValue(undefined),
   } as unknown as jest.Mocked<ShopRepository>;
@@ -80,41 +78,36 @@ export function shopRepositoryDomainMock(): jest.Mocked<ShopRepository> {
 // ✅ NUEVO: Mock para el DataSource del dominio (usado en Repository tests)
 export function shopDataSourceDomainMock(): jest.Mocked<ShopDataSource> {
   return {
+    search: jest.fn(),
+    findAll: jest.fn().mockResolvedValue([SHOPMOCK, SHOPMOCK, SHOPMOCK]),
     createShop: jest.fn().mockImplementation(async (shopData: Partial<Shop>): Promise<Shop> => {
-      return {
-        id: faker.datatype.number({ min: 1, max: 1000 }),
-        name: shopData.name || faker.company.name(),
-        description: shopData.description || faker.lorem.sentence(),
-        latitude: shopData.latitude || +faker.address.latitude(),
-        longitude: shopData.longitude || +faker.address.longitude(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as Shop;
+      return new Shop(
+        faker.datatype.number({ min: 1, max: 1000 }),
+        shopData.name || faker.company.name(),
+        shopData.description || faker.lorem.sentence(),
+        shopData.latitude ?? +faker.address.latitude(),
+        shopData.longitude ?? +faker.address.longitude(),
+      );
     }),
     updateShop: jest
       .fn()
       .mockImplementation(async (id: number, shopData: Partial<Shop>): Promise<Shop> => {
-        return {
+        return new Shop(
           id,
-          name: shopData.name || faker.company.name(),
-          description: shopData.description || faker.lorem.sentence(),
-          latitude: shopData.latitude || +faker.address.latitude(),
-          longitude: shopData.longitude || +faker.address.longitude(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        } as Shop;
+          shopData.name || faker.company.name(),
+          shopData.description || faker.lorem.sentence(),
+          shopData.latitude ?? +faker.address.latitude(),
+          shopData.longitude ?? +faker.address.longitude(),
+        );
       }),
     deleteShop: jest.fn().mockResolvedValue(undefined),
   } as unknown as jest.Mocked<ShopDataSource>;
 }
 
-export const SHOPMOCK: Shop = {
-  id: faker.datatype.number({ min: 1, max: 1000 }),
-  name: faker.company.name(),
-  description: faker.lorem.sentence(),
-  latitude: +faker.address.latitude() as number,
-  longitude: +faker.address.longitude() as number,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  deletedAt: null,
-};
+export const SHOPMOCK: Shop = new Shop(
+  faker.datatype.number({ min: 1, max: 1000 }),
+  faker.company.name(),
+  faker.lorem.sentence(),
+  +faker.address.latitude() as number,
+  +faker.address.longitude() as number,
+);

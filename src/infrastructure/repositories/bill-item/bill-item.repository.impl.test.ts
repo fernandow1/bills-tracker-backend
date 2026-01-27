@@ -46,6 +46,7 @@ describe('BillItemRepositoryImpl', () => {
       update: jest.fn(),
       delete: jest.fn(),
       findAll: jest.fn(),
+      findCheapestShopsByProduct: jest.fn(),
     } as unknown as jest.Mocked<BillItemDataSource>;
 
     // Mock QueryRunners
@@ -473,6 +474,122 @@ describe('BillItemRepositoryImpl', () => {
         mockQueryRunner,
       );
       expect(mockBillItemDataSource.delete).toHaveBeenCalledWith(1, mockQueryRunner);
+    });
+  });
+
+  describe('findCheapestShopsByProduct', () => {
+    const mockProductPriceResults = [
+      {
+        shopId: 1,
+        shopName: 'Shop A',
+        latitude: -34.5875,
+        longitude: -58.4173,
+        lastPrice: 100.5,
+        lastPurchaseDate: new Date('2026-01-20'),
+        currency: 'ARS',
+      },
+      {
+        shopId: 2,
+        shopName: 'Shop B',
+        latitude: -34.621,
+        longitude: -58.371,
+        lastPrice: 120.75,
+        lastPurchaseDate: new Date('2026-01-18'),
+        currency: 'ARS',
+      },
+    ];
+
+    beforeEach(() => {
+      billItemRepository = new BillItemRepositoryImpl(mockBillItemDataSource);
+    });
+
+    it('should delegate findCheapestShopsByProduct to datasource without options', async () => {
+      // Arrange
+      mockBillItemDataSource.findCheapestShopsByProduct.mockResolvedValue(
+        mockProductPriceResults,
+      );
+
+      // Act
+      const result = await billItemRepository.findCheapestShopsByProduct(123);
+
+      // Assert
+      expect(mockBillItemDataSource.findCheapestShopsByProduct).toHaveBeenCalledWith(
+        123,
+        undefined,
+      );
+      expect(result).toEqual(mockProductPriceResults);
+    });
+
+    it('should delegate findCheapestShopsByProduct to datasource with options', async () => {
+      // Arrange
+      const options = { maxAgeDays: 30, limit: 10 };
+      mockBillItemDataSource.findCheapestShopsByProduct.mockResolvedValue(
+        mockProductPriceResults,
+      );
+
+      // Act
+      const result = await billItemRepository.findCheapestShopsByProduct(123, options);
+
+      // Assert
+      expect(mockBillItemDataSource.findCheapestShopsByProduct).toHaveBeenCalledWith(
+        123,
+        options,
+      );
+      expect(result).toEqual(mockProductPriceResults);
+    });
+
+    it('should return empty array when no shops found', async () => {
+      // Arrange
+      mockBillItemDataSource.findCheapestShopsByProduct.mockResolvedValue([]);
+
+      // Act
+      const result = await billItemRepository.findCheapestShopsByProduct(999);
+
+      // Assert
+      expect(mockBillItemDataSource.findCheapestShopsByProduct).toHaveBeenCalledWith(
+        999,
+        undefined,
+      );
+      expect(result).toEqual([]);
+    });
+
+    it('should propagate errors from datasource', async () => {
+      // Arrange
+      const error = new Error('Query failed');
+      mockBillItemDataSource.findCheapestShopsByProduct.mockRejectedValue(error);
+
+      // Act & Assert
+      await expect(billItemRepository.findCheapestShopsByProduct(123)).rejects.toThrow(
+        'Query failed',
+      );
+
+      expect(mockBillItemDataSource.findCheapestShopsByProduct).toHaveBeenCalledWith(
+        123,
+        undefined,
+      );
+    });
+
+    it('should handle partial options correctly', async () => {
+      // Arrange
+      mockBillItemDataSource.findCheapestShopsByProduct.mockResolvedValue(
+        mockProductPriceResults,
+      );
+
+      // Act - only maxAgeDays
+      await billItemRepository.findCheapestShopsByProduct(123, { maxAgeDays: 7 });
+
+      // Assert
+      expect(mockBillItemDataSource.findCheapestShopsByProduct).toHaveBeenCalledWith(123, {
+        maxAgeDays: 7,
+      });
+
+      // Act - only limit
+      await billItemRepository.findCheapestShopsByProduct(456, { limit: 5 });
+
+      // Assert
+      expect(mockBillItemDataSource.findCheapestShopsByProduct).toHaveBeenCalledWith(456, {
+        limit: 5,
+      });
     });
   });
 });
