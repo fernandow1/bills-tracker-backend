@@ -3,7 +3,7 @@ import { IQueryFilter } from '@application/models/query-filter.model';
 import { ShopDataSource } from '@domain/datasources/shop.datasource';
 import { Shop } from '@infrastructure/database/entities/shop.entity';
 import { DataSource } from 'typeorm';
-import { ShopMapper } from '@infrastructure/mappers/shop.mapper';
+import { shopToDomain, shopsToDomain } from '@infrastructure/mappers/shop.mapper';
 import { Shop as DomainShop } from '@domain/entities/shop.entity';
 
 export class ShopDataSourceImpl extends ShopDataSource {
@@ -21,19 +21,19 @@ export class ShopDataSourceImpl extends ShopDataSource {
     });
 
     return {
-      data: ShopMapper.toDomainArray(data),
+      data: shopsToDomain(data),
       count,
     };
   }
 
   async findAll(): Promise<DomainShop[]> {
     const shops = await this.dataSource.getRepository(Shop).find();
-    return ShopMapper.toDomainArray(shops);
+    return shopsToDomain(shops);
   }
 
   async createShop(shopData: Partial<DomainShop>): Promise<DomainShop> {
     const saved = await this.dataSource.getRepository(Shop).save(shopData as any);
-    return ShopMapper.toDomain(saved);
+    return shopToDomain(saved);
   }
 
   async updateShop(id: number, shopData: Partial<DomainShop>): Promise<DomainShop> {
@@ -44,7 +44,7 @@ export class ShopDataSourceImpl extends ShopDataSource {
     // Actualizar con los nuevos datos
     this.dataSource.getRepository(Shop).merge(existingShop, shopData as any);
     const updated = await this.dataSource.getRepository(Shop).save(existingShop);
-    return ShopMapper.toDomain(updated);
+    return shopToDomain(updated);
   }
 
   async deleteShop(id: number): Promise<void> {

@@ -4,9 +4,12 @@ import { DeleteProduct } from '@application/uses-cases/product/delete-product';
 import { GetProduct } from '@application/uses-cases/product/get-product';
 import { GetProducts } from '@application/uses-cases/product/get-products';
 import { UpdateProduct } from '@application/uses-cases/product/update-product';
+import { FindCheapestShops } from '@application/uses-cases/product/find-cheapest-shops';
 import { CreateProductDTO } from '@application/dtos/product/create-product.dto';
 import { UpdateProductDTO } from '@application/dtos/product/update-product.dto';
+import { ProductPriceQueryDTO } from '@application/dtos/product/product-price-query.dto';
 import { ProductRepository } from '@domain/repository/product.repository';
+import { BillItemRepository } from '@domain/repository/bill-item.repository';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
@@ -19,7 +22,10 @@ import {
 } from '@application/queries/product/product-where';
 
 export class ProductController {
-  constructor(private readonly productRepository: ProductRepository) {}
+  constructor(
+    private readonly productRepository: ProductRepository,
+    private readonly billItemRepository: BillItemRepository,
+  ) {}
 
   getProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -119,6 +125,32 @@ export class ProductController {
       const productId = req.params.id;
       await new DeleteProduct(this.productRepository).execute(Number(productId));
       res.status(204).send();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return next(AppError.internalError('Internal server error'));
+    }
+  };
+
+  getCheapestShops = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const productId = Number(req.params.id);
+      const dto = plainToClass(ProductPriceQueryDTO, req.query);
+
+      const validationErrors = await validate(dto, {
+        whitelist: true,
+        validationError: { target: false, value: false },
+      });
+
+      if (validationErrors.length) {
+        return next(AppError.badRequest('Validation failed', validationErrors));
+      }
+
+      const shops = await new FindCheapestShops(this.billItemRepository).execute(productId, {
+        maxAgeDays: dto.maxAgeDays,
+        limit: dto.limit,
+      });
+
+      res.status(200).json(shops);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return next(AppError.internalError('Internal server error'));

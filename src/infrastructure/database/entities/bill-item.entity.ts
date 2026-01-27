@@ -15,6 +15,7 @@ import { Product } from './product.entity';
 import { Bill } from './bill.entity';
 
 @Index('uq_bill_item', ['idBill', 'idProduct'], { unique: true })
+@Index('idx_bill_item_product_price', ['idProduct', 'netPrice', 'idBill'])
 @Check('chk_bill_item_quantity_positive', '"quantity" > 0')
 @Check(
   'chk_net_unit_content_value_consistency',

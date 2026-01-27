@@ -388,4 +388,193 @@ describe('BillItemDatasourceImpl', () => {
       expect(mockEntityManager.getRepository).not.toHaveBeenCalled();
     });
   });
+
+  describe('findCheapestShopsByProduct', () => {
+    const mockQueryResults = [
+      {
+        shop_id: 1,
+        shop_name: 'Shop A',
+        latitude: -34.5875,
+        longitude: -58.4173,
+        last_price: '100.50',
+        last_purchase_date: '2026-01-20T10:00:00.000Z',
+        currency: 'ARS',
+      },
+      {
+        shop_id: 2,
+        shop_name: 'Shop B',
+        latitude: -34.621,
+        longitude: -58.371,
+        last_price: '120.75',
+        last_purchase_date: '2026-01-18T15:30:00.000Z',
+        currency: 'ARS',
+      },
+    ];
+
+    let mockDataSource: any;
+
+    beforeEach(() => {
+      mockDataSource = {
+        query: jest.fn(),
+      };
+      billItemDatasource = new BillItemDatasourceImpl(mockDataSource);
+    });
+
+    it('should execute query and return mapped results without options', async () => {
+      // Arrange
+      mockDataSource.query.mockResolvedValue(mockQueryResults);
+
+      // Act
+      const result = await billItemDatasource.findCheapestShopsByProduct(123);
+
+      // Assert
+      expect(mockDataSource.query).toHaveBeenCalledWith(
+        expect.stringContaining('SELECT'),
+        [123, 10], // productId and default limit
+      );
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual({
+        shopId: 1,
+        shopName: 'Shop A',
+        latitude: -34.5875,
+        longitude: -58.4173,
+        lastPrice: 100.5,
+        lastPurchaseDate: new Date('2026-01-20T10:00:00.000Z'),
+        currency: 'ARS',
+      });
+    });
+
+    it('should include maxAgeDays filter when provided', async () => {
+      // Arrange
+      mockDataSource.query.mockResolvedValue(mockQueryResults);
+
+      // Act
+      await billItemDatasource.findCheapestShopsByProduct(123, { maxAgeDays: 30 });
+
+      // Assert
+      expect(mockDataSource.query).toHaveBeenCalledWith(
+        expect.stringContaining('DATE_SUB(NOW(), INTERVAL ? DAY)'),
+        [123, 30, 10], // productId, maxAgeDays, default limit
+      );
+    });
+
+    it('should use custom limit when provided', async () => {
+      // Arrange
+      mockDataSource.query.mockResolvedValue(mockQueryResults);
+
+      // Act
+      await billItemDatasource.findCheapestShopsByProduct(123, { limit: 5 });
+
+      // Assert
+      expect(mockDataSource.query).toHaveBeenCalledWith(
+        expect.stringContaining('LIMIT ?'),
+        [123, 5], // productId and custom limit
+      );
+    });
+
+    it('should handle both maxAgeDays and limit options', async () => {
+      // Arrange
+      mockDataSource.query.mockResolvedValue(mockQueryResults);
+
+      // Act
+      await billItemDatasource.findCheapestShopsByProduct(123, {
+        maxAgeDays: 7,
+        limit: 3,
+      });
+
+      // Assert
+      expect(mockDataSource.query).toHaveBeenCalledWith(
+        expect.stringContaining('DATE_SUB'),
+        [123, 7, 3], // productId, maxAgeDays, limit
+      );
+    });
+
+    it('should return empty array when no results found', async () => {
+      // Arrange
+      mockDataSource.query.mockResolvedValue([]);
+
+      // Act
+      const result = await billItemDatasource.findCheapestShopsByProduct(999);
+
+      // Assert
+      expect(result).toEqual([]);
+      expect(mockDataSource.query).toHaveBeenCalled();
+    });
+
+    it('should handle null coordinates in results', async () => {
+      // Arrange
+      const resultsWithNullCoords = [
+        {
+          shop_id: 3,
+          shop_name: 'Shop C',
+          latitude: null,
+          longitude: null,
+          last_price: '95.00',
+          last_purchase_date: '2026-01-22T08:00:00.000Z',
+          currency: 'USD',
+        },
+      ];
+      mockDataSource.query.mockResolvedValue(resultsWithNullCoords);
+
+      // Act
+      const result = await billItemDatasource.findCheapestShopsByProduct(123);
+
+      // Assert
+      expect(result[0].latitude).toBeNull();
+      expect(result[0].longitude).toBeNull();
+    });
+
+    it('should correctly parse numeric price from string', async () => {
+      // Arrange
+      const resultWithDecimal = [
+        {
+          shop_id: 1,
+          shop_name: 'Shop A',
+          latitude: -34.5875,
+          longitude: -58.4173,
+          last_price: '1234.56',
+          last_purchase_date: '2026-01-20T10:00:00.000Z',
+          currency: 'ARS',
+        },
+      ];
+      mockDataSource.query.mockResolvedValue(resultWithDecimal);
+
+      // Act
+      const result = await billItemDatasource.findCheapestShopsByProduct(123);
+
+      // Assert
+      expect(result[0].lastPrice).toBe(1234.56);
+      expect(typeof result[0].lastPrice).toBe('number');
+    });
+
+    it('should propagate database errors', async () => {
+      // Arrange
+      const dbError = new Error('Database connection failed');
+      mockDataSource.query.mockRejectedValue(dbError);
+
+      // Act & Assert
+      await expect(billItemDatasource.findCheapestShopsByProduct(123)).rejects.toThrow(
+        'Database connection failed',
+      );
+    });
+
+    it('should build query with correct SQL structure', async () => {
+      // Arrange
+      mockDataSource.query.mockResolvedValue([]);
+
+      // Act
+      await billItemDatasource.findCheapestShopsByProduct(123, { maxAgeDays: 30 });
+
+      // Assert
+      const queryCall = mockDataSource.query.mock.calls[0][0];
+      expect(queryCall).toContain('FROM bill_item bi');
+      expect(queryCall).toContain('INNER JOIN bill b ON bi.id_bill = b.id');
+      expect(queryCall).toContain('INNER JOIN shop s ON b.id_shop = s.id');
+      expect(queryCall).toContain('INNER JOIN currency c ON b.id_currency = c.id');
+      expect(queryCall).toContain('WHERE bi.id_product = ?');
+      expect(queryCall).toContain('AND bi.deleted_at IS NULL');
+      expect(queryCall).toContain('AND b.deleted_at IS NULL');
+      expect(queryCall).toContain('ORDER BY bi.net_price ASC, b.purchased_at DESC');
+    });
+  });
 });
