@@ -1,5 +1,6 @@
 import { CreateBillItemDTO } from '@application/dtos/bill-item/create-bill-item.dto';
 import { UpdateBillItemDTO } from '@application/dtos/bill-item/update-bill-item.dto';
+import { ProductPriceByShop } from '@application/queries/product/product-price-by-shop.query-result';
 import { BillItem } from '@domain/entities/bill-item.entity';
 import { QueryRunner } from 'typeorm';
 
@@ -12,4 +13,8 @@ export abstract class BillItemDataSource {
   ): Promise<BillItem>;
   abstract delete(id: number, transaction?: QueryRunner): Promise<void>;
   abstract findAll(transaction?: QueryRunner): Promise<BillItem[]>;
+  abstract findCheapestShopsByProduct(
+    productId: number,
+    options?: { maxAgeDays?: number; limit?: number },
+  ): Promise<ProductPriceByShop[]>;
 }

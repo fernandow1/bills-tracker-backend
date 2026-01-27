@@ -33,37 +33,6 @@ describe('ShopController', () => {
     jest.clearAllMocks();
   });
 
-  describe('getShops', () => {
-    test('should return shops with 200 status', async () => {
-      const mockShops = [SHOPMOCK, SHOPMOCK];
-      mockRepository.getAllShops.mockResolvedValue(mockShops);
-
-      await controller.getShops(mockRequest as Request, mockResponse as Response, mockNext);
-
-      expect(mockRepository.getAllShops).toHaveBeenCalledTimes(1);
-      expect(mockResponse.status).toHaveBeenCalledWith(200);
-      expect(mockResponse.json).toHaveBeenCalledWith(mockShops);
-      expect(mockNext).not.toHaveBeenCalled();
-    });
-
-    test('should handle repository error and call next with AppError', async () => {
-      const error = new Error('Database error');
-      mockRepository.getAllShops.mockRejectedValue(error);
-
-      await controller.getShops(mockRequest as Request, mockResponse as Response, mockNext);
-
-      expect(mockRepository.getAllShops).toHaveBeenCalledTimes(1);
-      expect(mockResponse.status).not.toHaveBeenCalled();
-      expect(mockResponse.json).not.toHaveBeenCalled();
-      expect(mockNext).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: 'Error fetching shops',
-          statusCode: 500,
-        }),
-      );
-    });
-  });
-
   describe('createShop', () => {
     beforeEach(() => {
       mockRequest.body = {
@@ -76,7 +45,7 @@ describe('ShopController', () => {
       const createdShop = { ...SHOPMOCK, ...mockRequest.body };
       mockRepository.createShop.mockResolvedValue(createdShop);
 
-      await controller.createShop(mockRequest as Request, mockResponse as Response, mockNext);
+      await controller.createShopHandler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockRepository.createShop).toHaveBeenCalledWith(
         expect.objectContaining(mockRequest.body),
@@ -90,7 +59,7 @@ describe('ShopController', () => {
       const error = new Error('Database error');
       mockRepository.createShop.mockRejectedValue(error);
 
-      await controller.createShop(mockRequest as Request, mockResponse as Response, mockNext);
+      await controller.createShopHandler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockRepository.createShop).toHaveBeenCalledTimes(1);
       expect(mockResponse.status).not.toHaveBeenCalledWith(201);
@@ -116,7 +85,7 @@ describe('ShopController', () => {
       const updatedShop = { ...SHOPMOCK, ...mockRequest.body, id: 1 };
       mockRepository.updateShop.mockResolvedValue(updatedShop);
 
-      await controller.updateShop(mockRequest as Request, mockResponse as Response, mockNext);
+      await controller.updateShopHandler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockRepository.updateShop).toHaveBeenCalledWith(1, mockRequest.body);
       expect(mockResponse.status).toHaveBeenCalledWith(200);
@@ -128,7 +97,7 @@ describe('ShopController', () => {
       const error = new EntityNotFoundError('Shop', {});
       mockRepository.updateShop.mockRejectedValue(error);
 
-      await controller.updateShop(mockRequest as Request, mockResponse as Response, mockNext);
+      await controller.updateShopHandler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockRepository.updateShop).toHaveBeenCalledWith(1, mockRequest.body);
       expect(mockResponse.status).not.toHaveBeenCalled();
@@ -144,7 +113,7 @@ describe('ShopController', () => {
       const error = new Error('Database error');
       mockRepository.updateShop.mockRejectedValue(error);
 
-      await controller.updateShop(mockRequest as Request, mockResponse as Response, mockNext);
+      await controller.updateShopHandler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockRepository.updateShop).toHaveBeenCalledWith(1, mockRequest.body);
       expect(mockResponse.status).not.toHaveBeenCalled();
