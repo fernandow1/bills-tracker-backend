@@ -17,6 +17,7 @@ export class Shop {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int', unsigned: true })
   id: number;
 
+  @Index('idx_shop_name', { unique: true })
   @Column({
     name: 'name',
     type: 'varchar',
@@ -30,6 +31,7 @@ export class Shop {
   @Column({ name: 'description', type: 'tinytext', nullable: true, default: null })
   description?: string | null;
 
+  @Index('idx_shop_location')
   @Column({
     name: 'latitude',
     type: 'double',
@@ -38,8 +40,9 @@ export class Shop {
     nullable: true,
     default: null,
   })
-  latitude?: number | null;
+  latitude: number | null;
 
+  @Index('idx_shop_location')
   @Column({
     name: 'longitude',
     type: 'double',
@@ -48,7 +51,7 @@ export class Shop {
     nullable: true,
     default: null,
   })
-  longitude?: number | null;
+  longitude: number | null;
 
   @CreateDateColumn({
     name: 'created_at',
