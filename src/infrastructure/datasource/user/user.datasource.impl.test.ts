@@ -121,6 +121,7 @@ describe('UserDataSourceImpl', () => {
         'user.email',
         'user.name',
         'user.surname',
+        'user.role',
       ]);
       expect(mockQueryBuilder.getOne).toHaveBeenCalled();
     });
