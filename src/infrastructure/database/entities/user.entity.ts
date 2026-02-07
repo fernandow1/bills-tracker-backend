@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Bill } from './bill.entity';
+import { Role } from '@domain/enums/role.enum';
 
 @Index('idx_user_email', ['email'], { unique: true })
 @Index('idx_user_username', ['username'], { unique: true })
@@ -44,6 +45,15 @@ export class User {
     collation: 'utf8mb4_bin',
   })
   password: string;
+
+  @Column({
+    name: 'role',
+    type: 'enum',
+    enum: Role,
+    default: Role.Guest,
+    nullable: false,
+  })
+  role: Role;
 
   @CreateDateColumn({
     name: 'created_at',
