@@ -5,6 +5,7 @@ import { UserRepository } from '../../../domain/repository/user.repository';
 import { PasswordHasher } from '../../../domain/ports/password-hasher';
 import { JwtTokenGenerator } from '../../security/jwt-token-generator';
 import { faker } from '@faker-js/faker';
+import { Role } from '../../../domain/enums/role.enum';
 
 export function dataSourceUserMock(
   repository: jest.Mocked<Repository<User>>,
@@ -36,6 +37,7 @@ export function userRepositoryMock(): jest.Mocked<Repository<User>> {
         name: userData.name ? userData.name : faker.datatype.string(),
         surname: userData.surname ? userData.surname : faker.datatype.string(),
         password: userData.password ? userData.password : faker.internet.password(),
+        role: userData.role ? userData.role : Role.Guest,
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
@@ -58,6 +60,7 @@ export function userRepositoryMock(): jest.Mocked<Repository<User>> {
         name: faker.datatype.string(),
         surname: faker.datatype.string(),
         password: faker.internet.password(),
+        role: Role.Guest,
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
@@ -88,6 +91,7 @@ export const USERMOCK: User = {
   name: 'Test',
   surname: 'User',
   password: 'hashedpassword',
+  role: Role.Guest,
   createdAt: new Date('2023-01-01'),
   updatedAt: new Date('2023-01-01'),
   deletedAt: null,
@@ -110,6 +114,7 @@ export const USERCREATEMOCK: Omit<
   name: 'New',
   surname: 'User',
   password: 'newpassword123',
+  role: Role.Guest,
 };
 
 export function userDataSourceDomainMock(): jest.Mocked<UserDataSource> {

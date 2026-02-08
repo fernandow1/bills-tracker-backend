@@ -18,6 +18,7 @@ export class UserDataSourceImpl implements UserDataSource {
         surname: true,
         email: true,
         username: true,
+        role: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -56,6 +57,7 @@ export class UserDataSourceImpl implements UserDataSource {
       'user.email',
       'user.name',
       'user.surname',
+      'user.role',
     ]);
     return query.getOne();
   }

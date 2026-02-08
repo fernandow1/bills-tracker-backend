@@ -5,6 +5,8 @@ import { UserRepositoryImpl } from '@infrastructure/repositories/user/user.repos
 import { UserController } from '@presentation/user/controller';
 import { Request, Router, Response, NextFunction } from 'express';
 import { DataSource } from 'typeorm';
+import { validateJwt } from '@infrastructure/http/middlewares/validate-jwt.middleware';
+import { checkAbility } from '@infrastructure/http/middlewares/check-ability.middleware';
 
 export const UserRouter = {
   routes(dataSource: DataSource): Router {
@@ -17,17 +19,29 @@ export const UserRouter = {
     const userController = new UserController(userRepository, new BcryptPasswordHasher());
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    router.get('/', (req: Request, res: Response, _next: NextFunction) => {
-      userController.searchUsers(req, res);
-    });
+    router.get(
+      '/',
+      [validateJwt, checkAbility('read', 'User')],
+      (req: Request, res: Response, _next: NextFunction) => {
+        userController.searchUsers(req, res);
+      },
+    );
 
-    router.post('/', (req: Request, res: Response, next: NextFunction) => {
-      userController.createUser(req, res, next);
-    });
+    router.post(
+      '/',
+      [validateJwt, checkAbility('create', 'User')],
+      (req: Request, res: Response, next: NextFunction) => {
+        userController.createUser(req, res, next);
+      },
+    );
 
-    router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
-      userController.updateUser(req, res, next);
-    });
+    router.put(
+      '/:id',
+      [validateJwt, checkAbility('update', 'User')],
+      (req: Request, res: Response, next: NextFunction) => {
+        userController.updateUser(req, res, next);
+      },
+    );
 
     return router;
   },
