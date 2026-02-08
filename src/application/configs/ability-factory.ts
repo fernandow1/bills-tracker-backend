@@ -1,6 +1,6 @@
 import { AbilityBuilder, createMongoAbility } from '@casl/ability';
 import { Role } from '@domain/enums/role.enum';
-import type { AppAbility, Action, Subject } from '@application/configs/ability.types';
+import type { AppAbility } from '@application/configs/ability.types';
 
 interface UserWithRole {
   id: number;
@@ -8,7 +8,7 @@ interface UserWithRole {
 }
 
 export function defineAbilityFor(user: UserWithRole): AppAbility {
-  const { can, cannot, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
+  const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
 
   switch (user.role) {
     case Role.Admin:
