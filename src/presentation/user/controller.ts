@@ -89,6 +89,7 @@ export class UserController {
         'name',
         'email',
         'username',
+        'role',
         'createdAt',
         'updatedAt',
         'deletedAt',
