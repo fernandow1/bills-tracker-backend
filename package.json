@@ -32,6 +32,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@casl/ability": "^6.8.0",
     "@types/cors": "^2.8.19",
     "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^3.0.2",

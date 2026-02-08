@@ -4,6 +4,8 @@ import { DataSource } from 'typeorm';
 import { ShopDataSourceImpl } from '@infrastructure/datasource/shop/shop.datasource.impl';
 import { ShopRepositoryImpl } from '@infrastructure/repositories/shop/shop.repository.impl';
 import { ShopController } from '@presentation/shop/controller';
+import { validateJwt } from '@infrastructure/http/middlewares/validate-jwt.middleware';
+import { checkAbility } from '@infrastructure/http/middlewares/check-ability.middleware';
 
 export const ShopRouter = {
   routes(dataSource: DataSource): Router {
@@ -15,21 +17,37 @@ export const ShopRouter = {
 
     const shopController = new ShopController(shopRepository);
 
-    router.get('/search', (req: Request, res: Response, next: NextFunction) => {
-      shopController.searchShops(req, res, next);
-    });
+    router.get(
+      '/search',
+      [validateJwt, checkAbility('read', 'Shop')],
+      (req: Request, res: Response, next: NextFunction) => {
+        shopController.searchShops(req, res, next);
+      },
+    );
 
-    router.get('/nearby', (req: Request, res: Response) => {
-      shopController.nearby(req, res);
-    });
+    router.get(
+      '/nearby',
+      [validateJwt, checkAbility('read', 'Shop')],
+      (req: Request, res: Response) => {
+        shopController.nearby(req, res);
+      },
+    );
 
-    router.post('/', (req: Request, res: Response, next: NextFunction) => {
-      shopController.createShopHandler(req, res, next);
-    });
+    router.post(
+      '/',
+      [validateJwt, checkAbility('create', 'Shop')],
+      (req: Request, res: Response, next: NextFunction) => {
+        shopController.createShopHandler(req, res, next);
+      },
+    );
 
-    router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
-      shopController.updateShopHandler(req, res, next);
-    });
+    router.put(
+      '/:id',
+      [validateJwt, checkAbility('update', 'Shop')],
+      (req: Request, res: Response, next: NextFunction) => {
+        shopController.updateShopHandler(req, res, next);
+      },
+    );
 
     return router;
   },

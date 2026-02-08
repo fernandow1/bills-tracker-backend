@@ -2,6 +2,7 @@ import { NextFunction } from 'express';
 import { validateJwt } from './validate-jwt.middleware';
 import { JwtTokenValidate } from '../../security/jwt-token-validate';
 import { GetUser } from '../../../application/uses-cases/user/get-user';
+import { Role } from '../../../domain/enums/role.enum';
 
 // Mock dependencies
 jest.mock('../../security/jwt-token-validate');
@@ -141,6 +142,7 @@ describe('validateJwt middleware', () => {
         email: 'test@test.com',
         username: 'testuser',
         password: 'hashed-password',
+        role: Role.Guest,
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
@@ -171,6 +173,7 @@ describe('validateJwt middleware', () => {
         email: 'user@test.com',
         username: 'user456',
         password: 'password',
+        role: Role.Guest,
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
