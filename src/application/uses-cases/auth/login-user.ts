@@ -36,6 +36,7 @@ export class LoginUser {
       sub: String(user.id),
       username: user.username,
       email: user.email,
+      role: user.role,
     };
 
     // Generar access token (corta duración)
