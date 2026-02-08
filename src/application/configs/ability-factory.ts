@@ -22,9 +22,6 @@ export function defineAbilityFor(user: UserWithRole): AppAbility {
 
       // User can manage their own bills (will need conditions in the future)
       can(['create', 'read', 'update', 'delete'], 'Bill');
-
-      // User can read and update their own user profile (will need conditions in the future)
-      can(['read', 'update'], 'User');
       break;
 
     case Role.Guest:
