@@ -1,4 +1,5 @@
-import { IsEmail, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { Role } from '@domain/enums/role.enum';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -27,4 +28,8 @@ export class UpdateUserDto {
   @MinLength(6, { message: 'Password must be at least $constraint1 characters long' })
   @MaxLength(255, { message: 'Password must be at most $constraint1 characters long' })
   password?: string;
+
+  @IsOptional()
+  @IsEnum(Role, { message: 'Role must be a valid role (admin, user, guest)' })
+  role?: Role;
 }
