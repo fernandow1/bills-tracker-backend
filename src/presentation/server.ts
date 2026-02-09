@@ -2,6 +2,13 @@ import express, { Router } from 'express';
 import compression from 'compression';
 import { errorHandler } from '@infrastructure/http/middlewares/errorHandler.middleware';
 import cors from 'cors';
+import helmet from 'helmet';
+import {
+  getHelmetConfig,
+  getCorsConfig,
+  getCurrentEnvironment,
+} from '@infrastructure/security/helmet.config';
+import { generalRateLimiter } from '@infrastructure/security/rate-limit.config';
 
 interface Options {
   port: number;
@@ -19,20 +26,21 @@ export class Server {
   }
 
   async start(): Promise<void> {
-    /* Middleware can be added here if needed */
+    // Configurar trust proxy para Railway
+    // Railway usa un reverse proxy, necesitamos confiar en él para obtener la IP real del cliente
+    this.app.set('trust proxy', 1);
 
-    // Configuración más flexible para desarrollo
-    this.app.use(
-      cors({
-        origin:
-          process.env.NODE_ENV === 'production'
-            ? ['https://bills-tracker-frontend-delta.vercel.app']
-            : ['http://localhost:4200', 'http://127.0.0.1:4200'],
-        credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-      }),
-    );
+    // Aplicar configuración de seguridad con Helmet
+    // La configuración se ajusta automáticamente según el entorno (dev/prod)
+    this.app.use(helmet(getHelmetConfig(getCurrentEnvironment())));
+
+    // Aplicar configuración de CORS
+    // Los orígenes permitidos están centralizados en el módulo de seguridad
+    this.app.use(cors(getCorsConfig(getCurrentEnvironment())));
+
+    // Aplicar rate limiting general a toda la API
+    // Límites específicos por endpoint se aplican en las rutas
+    this.app.use(generalRateLimiter);
 
     this.app.use(express.json()); // For parsing application/json
     this.app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
