@@ -32,4 +32,5 @@ export const envs = {
     ? get('JWT_SECRET').default('test-secret-key').asString()
     : get('JWT_SECRET').required().asString(),
   NODE_ENV: get('NODE_ENV').default('development').asString(),
+  REDIS_URL: get('REDIS_URL').asString(),
 };

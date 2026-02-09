@@ -5,10 +5,47 @@ beforeAll(async () => {
   console.log('🔧 Initializing test database...');
 
   try {
-    if (!TestDataSource.isInitialized) {
-      await TestDataSource.initialize();
-      console.log('✅ Test database connected successfully');
+    // Si ya está inicializado, destruir primero
+    if (TestDataSource.isInitialized) {
+      await TestDataSource.destroy();
     }
+
+    // Inicializar sin synchronize primero para limpiar manualmente
+    const { DataSource } = await import('typeorm');
+    const tempDataSource = new DataSource({
+      ...TestDataSource.options,
+      synchronize: false,
+      dropSchema: false,
+    });
+
+    await tempDataSource.initialize();
+
+    // Limpiar manualmente todas las tablas
+    try {
+      await tempDataSource.query('SET FOREIGN_KEY_CHECKS = 0');
+
+      // Obtener todas las tablas
+      const tables = await tempDataSource.query(`
+        SELECT TABLE_NAME 
+        FROM INFORMATION_SCHEMA.TABLES 
+        WHERE TABLE_SCHEMA = DATABASE()
+      `);
+
+      // Eliminar cada tabla
+      for (const table of tables) {
+        await tempDataSource.query(`DROP TABLE IF EXISTS \`${table.TABLE_NAME}\``);
+      }
+
+      await tempDataSource.query('SET FOREIGN_KEY_CHECKS = 1');
+    } catch (cleanupError) {
+      console.warn('⚠️  Error during cleanup:', cleanupError);
+    }
+
+    await tempDataSource.destroy();
+
+    // Ahora inicializar con synchronize para crear esquema limpio
+    await TestDataSource.initialize();
+    console.log('✅ Test database connected successfully');
   } catch (error) {
     console.error('❌ Failed to initialize test database:', error);
     throw error;

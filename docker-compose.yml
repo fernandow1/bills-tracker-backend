@@ -27,8 +27,20 @@ services:
     volumes:
       - db_test_data:/var/lib/mysql
 
+  redis:
+    image: redis:7-alpine
+    container_name: bills-tracker-redis
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
 volumes:
   db_data:
     driver: local
   db_test_data:
+    driver: local
+  redis_data:
     driver: local
