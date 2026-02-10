@@ -1,4 +1,4 @@
-import { AppError } from '@application/errors/app-error';
+import { badRequest, internalError } from '@presentation/helpers/http-error.helper';
 import { CreateBrand } from '@application/uses-cases/brand/create-brand';
 import { GetBrands } from '@application/uses-cases/brand/get-brands';
 import { CreateBrandDTO } from '@application/dtos/brand/create-brand.dto';
@@ -30,14 +30,14 @@ export class BrandController {
 
       if (validationErrors.length) {
         console.log(validationErrors);
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       const brand = await new CreateBrand(this.brandRepository).execute(dto);
       res.status(201).json(brand);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -51,14 +51,14 @@ export class BrandController {
 
       if (validationErrors.length) {
         console.log(validationErrors);
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
       const { id } = req.params;
       const updatedBrand = await new UpdateBrand(this.brandRepository).execute(Number(id), dto);
       res.status(200).json(updatedBrand);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -71,7 +71,7 @@ export class BrandController {
       res.status(204).send();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -81,7 +81,7 @@ export class BrandController {
       res.status(200).json(brands);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -95,7 +95,7 @@ export class BrandController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       const brands = await new SearchBrand(this.brandRepository).execute(
@@ -108,7 +108,7 @@ export class BrandController {
       res.status(200).json(brands);
     } catch (error) {
       console.log(error);
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 }

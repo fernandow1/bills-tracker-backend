@@ -10,7 +10,7 @@ import { queryMapper } from '@application/mappers/query-filter.mapper';
 import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
-import { AppError } from '@application/errors/app-error';
+import { badRequest, notFound } from '@presentation/helpers/http-error.helper';
 import { SafeUser } from '@application/uses-cases/user/types/auth-user.type';
 
 export class UserController {
@@ -28,7 +28,7 @@ export class UserController {
     });
 
     if (validationErrors.length) {
-      return next(AppError.badRequest('Validation failed', validationErrors));
+      return next(badRequest('Validation failed', validationErrors));
     }
 
     try {
@@ -53,7 +53,7 @@ export class UserController {
     });
 
     if (validationErrors.length) {
-      return next(AppError.badRequest('Validation failed', validationErrors));
+      return next(badRequest('Validation failed', validationErrors));
     }
 
     try {
@@ -64,13 +64,13 @@ export class UserController {
       console.error(error);
       if (error instanceof Error) {
         if (error.message === 'User not found') {
-          return next(AppError.notFound('User not found'));
+          return next(notFound('User not found'));
         }
         if (
           error.message === 'Email already in use' ||
           error.message === 'Username already in use'
         ) {
-          return next(AppError.badRequest(error.message, []));
+          return next(badRequest(error.message, []));
         }
       }
       res.status(500).json({

@@ -10,7 +10,12 @@ import { JwtRefreshToken } from '@infrastructure/security/jwt-refresh-token';
 import { UserRepositoryImpl } from '@infrastructure/repositories/user/user.repository.impl';
 import { UserDataSourceImpl } from '@infrastructure/datasource/user/user.datasource.impl';
 import { BcryptPasswordHasher } from '@infrastructure/security/bcrypt-password-hasher';
-import { AppError } from '@application/errors/app-error';
+import {
+  badRequest,
+  forbidden,
+  internalError,
+  isHttpError,
+} from '@presentation/helpers/http-error.helper';
 import { DataSource } from 'typeorm';
 
 export class AuthController {
@@ -23,7 +28,7 @@ export class AuthController {
       const errors = await validate(loginDto);
 
       if (errors.length > 0) {
-        return next(AppError.badRequest('Validation failed', errors));
+        return next(badRequest('Validation failed', errors));
       }
 
       // Crear dependencias
@@ -51,11 +56,11 @@ export class AuthController {
       });
     } catch (error) {
       console.error(error);
-      // Si es un AppError (como unauthorized), pasarlo directamente
-      if (error instanceof AppError) {
+      // Si es un HttpError, pasarlo directamente
+      if (isHttpError(error)) {
         return next(error);
       }
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -67,7 +72,7 @@ export class AuthController {
       const errors = await validate(refreshTokenDto);
 
       if (errors.length > 0) {
-        return next(AppError.badRequest('Validation failed', errors));
+        return next(badRequest('Validation failed', errors));
       }
 
       // Crear dependencias
@@ -85,32 +90,32 @@ export class AuthController {
     } catch (error) {
       console.error('❌ Refresh token error:', error);
       if (error instanceof Error && error.message.includes('expired')) {
-        return next(AppError.badRequest('Refresh token has expired', error));
+        return next(badRequest('Refresh token has expired', error));
       }
       if (error instanceof Error && error.message.includes('revoked')) {
-        return next(AppError.badRequest('Refresh token has been revoked', error));
+        return next(badRequest('Refresh token has been revoked', error));
       }
       if (
         error instanceof Error &&
         error.message.includes('expected refresh token but received access token')
       ) {
         return next(
-          AppError.badRequest(
+          badRequest(
             'Invalid token: You must send the REFRESH TOKEN, not the access token. The refresh token was provided during login.',
             error,
           ),
         );
       }
       if (error instanceof Error && error.message.includes('Invalid refresh token')) {
-        return next(AppError.forbidden('Invalid refresh token', error));
+        return next(forbidden('Invalid refresh token', error));
       }
       if (
         error instanceof Error &&
         (error.message.includes('jwt') || error.message.includes('token'))
       ) {
-        return next(AppError.forbidden('Invalid or malformed token', error));
+        return next(forbidden('Invalid or malformed token', error));
       }
-      return next(AppError.internalError('Failed to refresh token'));
+      return next(internalError('Failed to refresh token'));
     }
   };
 
@@ -121,7 +126,7 @@ export class AuthController {
       const errors = await validate(refreshTokenDto);
 
       if (errors.length > 0) {
-        return next(AppError.badRequest('Validation failed', errors));
+        return next(badRequest('Validation failed', errors));
       }
 
       // Revocar token
@@ -134,7 +139,7 @@ export class AuthController {
     } catch (error) {
       console.error(error);
       if (error instanceof Error && error.message.includes('Cannot revoke invalid token')) {
-        return next(AppError.badRequest('Invalid refresh token', error));
+        return next(badRequest('Invalid refresh token', error));
       }
       if (
         error instanceof Error &&
@@ -142,9 +147,9 @@ export class AuthController {
           error.message.includes('token') ||
           error.message.includes('invalid'))
       ) {
-        return next(AppError.badRequest('Invalid or malformed token', error));
+        return next(badRequest('Invalid or malformed token', error));
       }
-      return next(AppError.internalError('Failed to revoke token'));
+      return next(internalError('Failed to revoke token'));
     }
   };
 }

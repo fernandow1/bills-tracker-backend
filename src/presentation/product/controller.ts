@@ -1,4 +1,4 @@
-import { AppError } from '@application/errors/app-error';
+import { badRequest, internalError } from '@presentation/helpers/http-error.helper';
 import { CreateProduct } from '@application/uses-cases/product/create-product';
 import { DeleteProduct } from '@application/uses-cases/product/delete-product';
 import { GetProduct } from '@application/uses-cases/product/get-product';
@@ -33,7 +33,7 @@ export class ProductController {
       res.status(200).json(products);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -47,7 +47,7 @@ export class ProductController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       const products = await new SearchProduct(this.productRepository).execute(
@@ -59,7 +59,7 @@ export class ProductController {
       res.status(200).json(products);
     } catch (error) {
       console.log(error);
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -70,7 +70,7 @@ export class ProductController {
       res.status(200).json(product);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -84,14 +84,14 @@ export class ProductController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       const product = await new CreateProduct(this.productRepository).execute(dto);
       res.status(201).json(product);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -106,7 +106,7 @@ export class ProductController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       const product = await new UpdateProduct(this.productRepository).execute(
@@ -116,7 +116,7 @@ export class ProductController {
       res.status(200).json(product);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -127,7 +127,7 @@ export class ProductController {
       res.status(204).send();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -142,7 +142,7 @@ export class ProductController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       const shops = await new FindCheapestShops(this.billItemRepository).execute(productId, {
@@ -153,7 +153,7 @@ export class ProductController {
       res.status(200).json(shops);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 }
