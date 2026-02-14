@@ -40,7 +40,7 @@ describe('Rate Limit Configuration', () => {
   });
 
   describe('Rate Limiter Store Configuration', () => {
-    it('should call RedisClient.getInstance when importing module', async () => {
+    it('should NOT call RedisClient.getInstance in test environment', async () => {
       // Clear previous calls
       jest.clearAllMocks();
 
@@ -49,11 +49,11 @@ describe('Rate Limit Configuration', () => {
         await import('./rate-limit.config');
       });
 
-      // Should have called getInstance for each limiter
-      expect(RedisClient.getInstance).toHaveBeenCalled();
+      // In test environment, should NOT call getInstance (rate limiting disabled)
+      expect(RedisClient.getInstance).not.toHaveBeenCalled();
     });
 
-    it('should handle when Redis client is not available', async () => {
+    it('should NOT warn about memory store in test environment', async () => {
       const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
       (RedisClient.getInstance as jest.Mock).mockReturnValue(null);
@@ -62,7 +62,8 @@ describe('Rate Limit Configuration', () => {
         await import('./rate-limit.config');
       });
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
+      // In test environment, should NOT warn (rate limiting disabled)
+      expect(consoleWarnSpy).not.toHaveBeenCalledWith(
         expect.stringContaining('Using memory store for rate limiting'),
       );
 
