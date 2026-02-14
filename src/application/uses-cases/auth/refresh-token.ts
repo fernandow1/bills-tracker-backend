@@ -1,6 +1,6 @@
 import { GenerateToken } from '@domain/ports/generate-token';
 import { RefreshToken } from '@domain/ports/refresh-token';
-import { AppError } from '@application/errors/app-error';
+import { createHttpError } from '@application/errors/http-error.interface';
 import { RefreshTokenResponse } from '@application/uses-cases/auth/types/auth-user.type';
 
 export class RefreshTokenUseCase {
@@ -20,7 +20,7 @@ export class RefreshTokenUseCase {
       const { sub, username, email } = decodedPayload;
 
       if (!sub) {
-        throw AppError.forbidden('Invalid refresh token: missing user ID');
+        throw createHttpError('Invalid refresh token: missing user ID', 403);
       }
 
       // 3. Crear payload para el nuevo access token (sin campos JWT internos)
@@ -34,7 +34,7 @@ export class RefreshTokenUseCase {
       const newAccessToken = await this.generateToken.generate(accessTokenPayload, '1h');
 
       if (!newAccessToken) {
-        throw AppError.internalError('Failed to generate access token');
+        throw createHttpError('Failed to generate access token', 500);
       }
 
       // 5. Generar nuevo refresh token
@@ -51,24 +51,24 @@ export class RefreshTokenUseCase {
         expiresIn: 60 * 60, // 1 hora en segundos
       };
     } catch (error) {
-      if (error instanceof AppError) {
+      if (error instanceof Error && 'statusCode' in error) {
         throw error;
       }
 
       // Manejar errores de JWT
       if (error instanceof Error) {
         if (error.message.includes('expired')) {
-          throw AppError.unauthorized('Refresh token has expired');
+          throw createHttpError('Refresh token has expired', 401);
         }
         if (error.message.includes('invalid')) {
-          throw AppError.forbidden('Invalid refresh token');
+          throw createHttpError('Invalid refresh token', 403);
         }
         if (error.message.includes('revoked')) {
-          throw AppError.forbidden('Refresh token has been revoked');
+          throw createHttpError('Refresh token has been revoked', 403);
         }
       }
 
-      throw AppError.internalError('Failed to refresh token');
+      throw createHttpError('Failed to refresh token', 500);
     }
   }
 }

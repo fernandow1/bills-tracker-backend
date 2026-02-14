@@ -1,4 +1,4 @@
-import { AppError } from '@application/errors/app-error';
+import { badRequest, internalError } from '@presentation/helpers/http-error.helper';
 import { CreateCategory } from '@application/uses-cases/category/create-category';
 import { GetCategories } from '@application/uses-cases/category/get-categories';
 import { CreateCategoryDTO } from '@application/dtos/category/create-category.dto';
@@ -28,14 +28,14 @@ export class CategoryController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       const category = await new CreateCategory(this.categoryRepository).execute(dto);
       res.status(201).json(category);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -45,7 +45,7 @@ export class CategoryController {
       res.status(200).json(categories);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -59,7 +59,7 @@ export class CategoryController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       const categories = await new SearchCategory(this.categoryRepository).execute(
@@ -71,7 +71,7 @@ export class CategoryController {
       res.status(200).json(categories);
     } catch (error) {
       console.log(error);
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -85,14 +85,14 @@ export class CategoryController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       const categoryUpdated = await new UpdateCategory(this.categoryRepository).execute(id, dto);
       res.status(200).json(categoryUpdated);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -103,7 +103,7 @@ export class CategoryController {
       res.status(204).send();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 }
