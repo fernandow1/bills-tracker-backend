@@ -1,17 +1,26 @@
 import rateLimit, { type Options as RateLimitOptions } from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
 import RedisClient from '@infrastructure/database/redis.client';
+import { envs } from '@infrastructure/config/env';
 
 /**
  * Configuración de rate limiting para la aplicación
  * Usa Redis cuando está disponible, sino fallback a MemoryStore
  */
 
+const isDevelopment = envs.NODE_ENV === 'development';
+const isTest = envs.NODE_ENV === 'test';
+
 /**
  * Obtiene el store de rate limiting según disponibilidad de Redis
  * Cada rate limiter debe tener su propia instancia con un prefix único
  */
 const getRateLimitStore = (prefix: string): RedisStore | undefined => {
+  // En desarrollo y test, no usar store (rate limiting desactivado)
+  if (isDevelopment || isTest) {
+    return undefined;
+  }
+
   const redisClient = RedisClient.getInstance();
 
   if (!redisClient) {
@@ -60,6 +69,9 @@ const baseRateLimitConfig: Partial<RateLimitOptions> = {
 
   // Skip failed requests (false = contar todas las requests)
   skipFailedRequests: false,
+
+  // IMPORTANTE: Desactivar rate limiting en desarrollo y test
+  skip: () => isDevelopment || isTest,
 };
 
 /**

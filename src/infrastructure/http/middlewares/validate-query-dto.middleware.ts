@@ -1,4 +1,4 @@
-import { AppError } from '@application/errors/app-error';
+import { badRequest } from '@presentation/helpers/http-error.helper';
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
@@ -22,7 +22,7 @@ export function validateQueryFilter<T extends object>(
     });
 
     if (errors.length) {
-      return next(AppError.badRequest('Validation failed', errors));
+      return next(badRequest('Validation failed', errors));
     }
 
     req.queryFilter = instance as unknown as QueryFilterDTO;

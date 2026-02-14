@@ -103,8 +103,8 @@ describe('AuthController', () => {
 
     it('should handle use case errors', async () => {
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      const { AppError } = await import('../../application/errors/app-error');
-      const authError = AppError.unauthorized('Invalid username or password');
+      const { createHttpError } = await import('../../application/errors/http-error.interface');
+      const authError = createHttpError('Invalid username or password', 401);
       const mockExecute = jest.fn().mockRejectedValue(authError);
       (LoginUser as jest.MockedClass<typeof LoginUser>).mockImplementation(
         () =>

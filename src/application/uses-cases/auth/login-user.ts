@@ -3,7 +3,7 @@ import { UserRepository } from '@domain/repository/user.repository';
 import { JwtTokenGenerator } from '@infrastructure/security/jwt-token-generator';
 import { JwtRefreshToken } from '@infrastructure/security/jwt-refresh-token';
 import { AuthUser } from '@application/uses-cases/auth/types/auth-user.type';
-import { AppError } from '@application/errors/app-error';
+import { createHttpError } from '@application/errors/http-error.interface';
 import { JwtPayload } from 'jsonwebtoken';
 
 export interface LoginUserUseCase {
@@ -23,13 +23,13 @@ export class LoginUser {
     const user = await this.userRepository.findByUsername(username);
 
     if (!user) {
-      throw AppError.unauthorized('Invalid username or password');
+      throw createHttpError('Invalid username or password', 401);
     }
 
     const isValid = await this.passwordHasher.compare(password, user.password);
 
     if (!isValid) {
-      throw AppError.unauthorized('Invalid username or password');
+      throw createHttpError('Invalid username or password', 401);
     }
 
     const tokenPayload: JwtPayload = {

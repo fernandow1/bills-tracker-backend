@@ -1,6 +1,6 @@
 import { CreateBillDto } from '@application/dtos/bill/create-bill.dto';
 import { UpdateBillDto } from '@application/dtos/bill/update-bill.dto';
-import { AppError } from '@application/errors/app-error';
+import { badRequest, internalError } from '@presentation/helpers/http-error.helper';
 import { queryMapper } from '@application/mappers/query-filter.mapper';
 import {
   BILL_ALLOWED_FIELDS,
@@ -32,7 +32,7 @@ export class BillController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       // Use Unit of Work for complex bill creation with items
@@ -48,11 +48,11 @@ export class BillController {
           error.message.includes('Total mismatch') ||
           error.message.includes('Duplicate products')
         ) {
-          return next(AppError.badRequest(error.message, []));
+          return next(badRequest(error.message, []));
         }
       }
 
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -62,7 +62,7 @@ export class BillController {
       res.status(200).json(bills);
     } catch (error) {
       console.log(error);
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -76,7 +76,7 @@ export class BillController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       const bills = await new SearchBill(this.billRepository).execute(
@@ -89,7 +89,7 @@ export class BillController {
       res.status(200).json(bills);
     } catch (error) {
       console.log(error);
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -103,14 +103,14 @@ export class BillController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
       const bill = await new UpdateBill(this.billRepository).execute(Number(id), dto);
 
       res.status(200).json(bill);
     } catch (error) {
       console.log(error);
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -121,7 +121,7 @@ export class BillController {
       res.status(204).send();
     } catch (error) {
       console.log(error);
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 }

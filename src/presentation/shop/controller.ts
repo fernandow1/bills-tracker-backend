@@ -3,7 +3,7 @@ import { ShopRepository } from '@domain/repository/shop.repository';
 import { CreateShopDTO } from '@application/dtos/shop/create-shop.dto';
 import { validate } from 'class-validator';
 import { CreateShop } from '@application/uses-cases/shop/create-shop';
-import { AppError } from '@application/errors/app-error';
+import { badRequest, internalError, notFound } from '@presentation/helpers/http-error.helper';
 import { UpdateShopDTO } from '@application/dtos/shop/update-shop.dto';
 import { UpdateShop } from '@application/uses-cases/shop/update-shop';
 import { plainToClass } from 'class-transformer';
@@ -40,7 +40,7 @@ export class ShopController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       const shops = await this.searchShop.execute(
@@ -52,7 +52,7 @@ export class ShopController {
       res.status(200).json(shops);
     } catch (error) {
       console.log(error);
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -75,7 +75,7 @@ export class ShopController {
       res.status(201).json(shop);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: unknown) {
-      return next(AppError.internalError('Error creating shop'));
+      return next(internalError('Error creating shop'));
     }
   };
 
@@ -128,9 +128,9 @@ export class ShopController {
     } catch (error: unknown) {
       // Manejar EntityNotFoundError de TypeORM
       if (error instanceof EntityNotFoundError) {
-        return next(AppError.notFound(`Shop with id ${id} not found`));
+        return next(notFound(`Shop with id ${id} not found`));
       }
-      return next(AppError.internalError('Error updating shop'));
+      return next(internalError('Error updating shop'));
     }
   };
 }

@@ -1,7 +1,7 @@
 import { RefreshTokenUseCase } from './refresh-token';
 import { GenerateToken } from '../../../domain/ports/generate-token';
 import { RefreshToken } from '../../../domain/ports/refresh-token';
-import { AppError } from '../../errors/app-error';
+import { isHttpError } from '../../errors/http-error.interface';
 
 // Mocks
 const MOCK_GENERATE_TOKEN: jest.Mocked<GenerateToken> = {
@@ -80,7 +80,10 @@ describe('RefreshTokenUseCase', () => {
       MOCK_REFRESH_TOKEN.validateRefreshToken.mockRejectedValue(new Error('invalid'));
 
       // Act & Assert
-      await expect(useCase.execute(refreshTokenStr)).rejects.toThrow(AppError);
+      await expect(useCase.execute(refreshTokenStr)).rejects.toMatchObject({
+        message: 'Invalid refresh token',
+        statusCode: 403,
+      });
     });
 
     it('should throw error when decoded token has no sub', async () => {
@@ -91,7 +94,9 @@ describe('RefreshTokenUseCase', () => {
       MOCK_REFRESH_TOKEN.validateRefreshToken.mockResolvedValue(invalidDecodedToken);
 
       // Act & Assert
-      await expect(useCase.execute(refreshTokenStr)).rejects.toThrow(AppError);
+      const error = await useCase.execute(refreshTokenStr).catch((e) => e);
+      expect(isHttpError(error)).toBe(true);
+      expect(error.statusCode).toBe(403);
     });
 
     it('should throw error when access token generation fails', async () => {
@@ -102,7 +107,9 @@ describe('RefreshTokenUseCase', () => {
       MOCK_GENERATE_TOKEN.generate.mockResolvedValue(undefined);
 
       // Act & Assert
-      await expect(useCase.execute(refreshTokenStr)).rejects.toThrow(AppError);
+      const error = await useCase.execute(refreshTokenStr).catch((e) => e);
+      expect(isHttpError(error)).toBe(true);
+      expect(error.statusCode).toBe(500);
     });
 
     it('should handle refresh token rotation failure gracefully', async () => {

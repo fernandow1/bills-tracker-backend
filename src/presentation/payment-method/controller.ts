@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { CreatePaymentMethodDTO } from '@application/dtos/payment-method/create-payment-method.dto';
 import { PaymentMethodRepository } from '@domain/repository/payment-method.repository';
 import { validate } from 'class-validator';
-import { AppError } from '@application/errors/app-error';
+import { badRequest, internalError, notFound } from '@presentation/helpers/http-error.helper';
 import { CreatePaymentMethod } from '@application/uses-cases/payment-method/create-payment-method';
 import { GetPaymentsMethod } from '@application/uses-cases/payment-method/get-payment-methods';
 import { DeletePaymentMethod } from '@application/uses-cases/payment-method/delete-payment-method';
@@ -22,14 +22,14 @@ export class PaymentMethodController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
       const paymentMethod = await new CreatePaymentMethod(this.repository).execute(dto);
 
       res.status(201).json(paymentMethod);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -40,7 +40,7 @@ export class PaymentMethodController {
       res.status(204).send();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -55,7 +55,7 @@ export class PaymentMethodController {
       });
 
       if (validationErrors.length) {
-        return next(AppError.badRequest('Validation failed', validationErrors));
+        return next(badRequest('Validation failed', validationErrors));
       }
 
       const updatedPaymentMethod = await new UpdatePaymentMethod(this.repository).execute(id, dto);
@@ -64,9 +64,9 @@ export class PaymentMethodController {
     } catch (error: unknown) {
       // Manejar EntityNotFoundError de TypeORM
       if (error instanceof EntityNotFoundError) {
-        return next(AppError.notFound(`Payment method with id ${req.params.id} not found`));
+        return next(notFound(`Payment method with id ${req.params.id} not found`));
       }
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 
@@ -76,7 +76,7 @@ export class PaymentMethodController {
       res.status(200).json(paymentMethods);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(AppError.internalError('Internal server error'));
+      return next(internalError('Internal server error'));
     }
   };
 }

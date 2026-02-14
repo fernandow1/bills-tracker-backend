@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { CurrencyRepository } from '@domain/repository/currency.repository';
 import { CreateCurrencyDto } from '@application/dtos/currency/create-currency.dto';
 import { validate } from 'class-validator';
-import { AppError } from '@application/errors/app-error';
+import { internalError, notFound } from '@presentation/helpers/http-error.helper';
 import { plainToClass } from 'class-transformer';
 import { EntityNotFoundError } from 'typeorm';
 import { UpdateCurrencyDto } from '@application/dtos/currency/update-currency.dto';
@@ -18,7 +18,7 @@ export class CurrencyController {
       res.status(200).json(currencies);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: unknown) {
-      return next(AppError.internalError('Error fetching currencies'));
+      return next(internalError('Error fetching currencies'));
     }
   };
 
@@ -41,7 +41,7 @@ export class CurrencyController {
       res.status(201).json(currency);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: unknown) {
-      return next(AppError.internalError('Error creating currency'));
+      return next(internalError('Error creating currency'));
     }
   };
 
@@ -67,9 +67,9 @@ export class CurrencyController {
     } catch (error: unknown) {
       // Manejar EntityNotFoundError de TypeORM
       if (error instanceof EntityNotFoundError) {
-        return next(AppError.notFound(`Currency with id ${id} not found`));
+        return next(notFound(`Currency with id ${id} not found`));
       }
-      return next(AppError.internalError('Error updating currency'));
+      return next(internalError('Error updating currency'));
     }
   };
 
@@ -82,9 +82,9 @@ export class CurrencyController {
     } catch (error: unknown) {
       // Manejar EntityNotFoundError de TypeORM
       if (error instanceof EntityNotFoundError) {
-        return next(AppError.notFound(`Currency with id ${id} not found`));
+        return next(notFound(`Currency with id ${id} not found`));
       }
-      return next(AppError.internalError('Error deleting currency'));
+      return next(internalError('Error deleting currency'));
     }
   };
 }
