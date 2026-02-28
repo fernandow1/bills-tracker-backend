@@ -19,6 +19,7 @@ const INTEGRATION_CONFIG: Config = {
     '^@domain/(.*)$': '<rootDir>/src/domain/$1',
     '^@infrastructure/(.*)$': '<rootDir>/src/infrastructure/$1',
     '^@presentation/(.*)$': '<rootDir>/src/presentation/$1',
+    '^uuid$': '<rootDir>/tests/uuid.mock.ts',
   },
   // Timeout más alto para tests de integración (BD puede ser lenta)
   testTimeout: 30000,
