@@ -13,11 +13,11 @@ export type PaymentMethodPublic = Omit<
   updatedAt: Date;
 };
 
-export class PaymentMethodMapper {
+export const PaymentMethodMapper = {
   /**
    * Converts a domain PaymentMethod to its public representation
    */
-  static toPublic(paymentMethod: PaymentMethod): PaymentMethodPublic | null {
+  toPublic(paymentMethod: PaymentMethod): PaymentMethodPublic | null {
     if (!paymentMethod) return null;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -27,12 +27,12 @@ export class PaymentMethodMapper {
       ...rest,
       uuid: uuid as string,
     };
-  }
+  },
 
   /**
    * Converts an array of domain PaymentMethods to their public representation
    */
-  static toPublicArray(paymentMethods: PaymentMethod[]): PaymentMethodPublic[] {
+  toPublicArray(paymentMethods: PaymentMethod[]): PaymentMethodPublic[] {
     return paymentMethods.map((pm) => this.toPublic(pm) as PaymentMethodPublic);
-  }
-}
+  },
+};
