@@ -3,6 +3,8 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import path from 'node:path';
 
+import { DATABASE_ENTITIES } from '@infrastructure/database/entities';
+
 export const TestDataSource = new DataSource({
   type: 'mysql',
   host: process.env.TEST_DB_HOST || 'localhost',
@@ -13,7 +15,7 @@ export const TestDataSource = new DataSource({
   synchronize: true, // ✅ Para tests: recrea esquema automáticamente
   logging: false, // ✅ Evita logs en tests
   dropSchema: true, // ✅ Limpia BD entre tests
-  entities: [path.resolve(__dirname, '../database/entities/*.ts')],
+  entities: DATABASE_ENTITIES,
   migrations: [], // ✅ No necesarias con synchronize: true
   subscribers: [],
 });
