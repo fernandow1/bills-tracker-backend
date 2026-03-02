@@ -2,6 +2,7 @@ import { CreateBillWithUoW } from './create-bill-with-uow';
 import { CreateBillDto } from '../../dtos/bill/create-bill.dto';
 import { IUnitOfWork } from '../../../domain/ports/unit-of-work.interface';
 import { BillRepository } from '../../../domain/repository/bill.repository';
+import { PaymentMethodRepository } from '../../../domain/repository/payment-method.repository';
 import { BillItemRepository } from '../../../domain/repository/bill-item.repository';
 import { Bill } from '../../../domain/entities/bill.entity';
 import { NetUnits } from '../../../domain/value-objects/net-units.enum';
@@ -11,6 +12,7 @@ describe('CreateBillWithUoW Use Case', () => {
   let mockUnitOfWork: IUnitOfWork;
   let mockBillRepository: BillRepository;
   let mockBillItemRepository: BillItemRepository;
+  let mockPaymentMethodRepository: PaymentMethodRepository;
   let mockUnitOfWorkFactory: () => IUnitOfWork;
 
   beforeEach(() => {
@@ -42,8 +44,11 @@ describe('CreateBillWithUoW Use Case', () => {
     };
 
     mockUnitOfWorkFactory = jest.fn().mockReturnValue(mockUnitOfWork);
+    mockPaymentMethodRepository = {
+      getByUuid: jest.fn().mockResolvedValue({ id: 1 }),
+    } as unknown as PaymentMethodRepository;
 
-    createBillUseCase = new CreateBillWithUoW(mockUnitOfWorkFactory);
+    createBillUseCase = new CreateBillWithUoW(mockUnitOfWorkFactory, mockPaymentMethodRepository);
   });
 
   afterEach(() => {
@@ -56,7 +61,7 @@ describe('CreateBillWithUoW Use Case', () => {
       const billData: CreateBillDto = {
         idShop: 1,
         idCurrency: 1,
-        idPaymentMethod: 1,
+        uuidPaymentMethod: '01234567-89ab-cdef-0123-456789abcdef',
         idUser: 1,
         subTotal: 150.5,
         discount: 0,
@@ -148,7 +153,7 @@ describe('CreateBillWithUoW Use Case', () => {
       const billData: CreateBillDto = {
         idShop: 1,
         idCurrency: 1,
-        idPaymentMethod: 1,
+        uuidPaymentMethod: '01234567-89ab-cdef-0123-456789abcdef',
         idUser: 1,
         subTotal: 100,
         discount: 0,
@@ -183,7 +188,7 @@ describe('CreateBillWithUoW Use Case', () => {
       const billData: CreateBillDto = {
         idShop: 1,
         idCurrency: 1,
-        idPaymentMethod: 1,
+        uuidPaymentMethod: '01234567-89ab-cdef-0123-456789abcdef',
         idUser: 1,
         subTotal: 200,
         discount: 0,
@@ -222,7 +227,7 @@ describe('CreateBillWithUoW Use Case', () => {
       const billData: CreateBillDto = {
         idShop: 1,
         idCurrency: 1,
-        idPaymentMethod: 1,
+        uuidPaymentMethod: '01234567-89ab-cdef-0123-456789abcdef',
         idUser: 1,
         subTotal: 150.75,
         discount: 0,
@@ -273,7 +278,7 @@ describe('CreateBillWithUoW Use Case', () => {
       const billData: CreateBillDto = {
         idShop: 1,
         idCurrency: 1,
-        idPaymentMethod: 1,
+        uuidPaymentMethod: '01234567-89ab-cdef-0123-456789abcdef',
         idUser: 1,
         subTotal: 100,
         discount: 0,
@@ -307,7 +312,7 @@ describe('CreateBillWithUoW Use Case', () => {
       const billData: CreateBillDto = {
         idShop: 1,
         idCurrency: 1,
-        idPaymentMethod: 1,
+        uuidPaymentMethod: '01234567-89ab-cdef-0123-456789abcdef',
         idUser: 1,
         subTotal: 100,
         discount: 0,

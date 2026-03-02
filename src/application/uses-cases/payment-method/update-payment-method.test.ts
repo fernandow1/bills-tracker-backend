@@ -9,26 +9,37 @@ describe('Update Payment Method Use Case', () => {
   });
 
   test('should update a payment method successfully', async () => {
-    const id = faker.datatype.number({ min: 1, max: 1000 });
+    const uuid = faker.datatype.uuid();
     const repositoryMock = paymentMethodRepositoryDomainMock();
+
+    repositoryMock.getByUuid.mockResolvedValueOnce({ id: 1, uuid } as any);
+    repositoryMock.updatePaymentMethod.mockResolvedValueOnce({
+      id: 1,
+      uuid,
+      name: 'Updated Card',
+      description: 'Updated payment method',
+    } as any);
+
     const updatePaymentMethodUseCase = new UpdatePaymentMethod(repositoryMock);
-    const result = await updatePaymentMethodUseCase.execute(id, {
+    const result = await updatePaymentMethodUseCase.execute(uuid, {
       name: 'Updated Card',
       description: 'Updated payment method',
     });
-    expect(result).toHaveProperty('id', id);
+    expect(result).toHaveProperty('uuid', uuid);
+    expect(result).not.toHaveProperty('id');
     expect(result).toHaveProperty('name', 'Updated Card');
     expect(result).toHaveProperty('description', 'Updated payment method');
   });
 
   test('Should propagate error when repository fails', async () => {
-    const id = faker.datatype.number({ min: 1, max: 1000 });
+    const uuid = faker.datatype.uuid();
     const repositoryMock = paymentMethodRepositoryDomainMock();
+    repositoryMock.getByUuid.mockResolvedValueOnce({ id: 1 } as any);
     repositoryMock.updatePaymentMethod.mockRejectedValueOnce(new Error('Database error'));
     const updatePaymentMethodUseCase = new UpdatePaymentMethod(repositoryMock);
 
     await expect(
-      updatePaymentMethodUseCase.execute(id, {
+      updatePaymentMethodUseCase.execute(uuid, {
         name: 'Updated Card',
         description: 'Updated payment method',
       }),

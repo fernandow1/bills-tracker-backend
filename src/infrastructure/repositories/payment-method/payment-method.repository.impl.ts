@@ -21,6 +21,9 @@ export class PaymentMethodRepositoryImpl implements PaymentMethodRepository {
   async createPaymentMethod(paymentMethod: CreatePaymentMethodDTO): Promise<PaymentMethod> {
     return this.paymentMethodDataSource.createPaymentMethod(paymentMethod);
   }
+  async getByUuid(uuid: string): Promise<PaymentMethod | null> {
+    return this.paymentMethodDataSource.getByUuid(uuid);
+  }
 
   async getAllPaymentMethods(): Promise<PaymentMethod[]> {
     return this.paymentMethodDataSource.getAllPaymentMethods();

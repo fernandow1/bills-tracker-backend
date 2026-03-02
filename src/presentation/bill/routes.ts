@@ -3,6 +3,8 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { DataSource } from 'typeorm';
 import { BillDataSourceImpl } from '@infrastructure/datasource/bill/bill.datasource.impl';
 import { BillRepositoryImpl } from '@infrastructure/repositories/bill/bill.repository.impl';
+import { PaymentMethodDataSourceImpl } from '@infrastructure/datasource/payment-method/payment-method.datasource.impl';
+import { PaymentMethodRepositoryImpl } from '@infrastructure/repositories/payment-method/payment-method.repository.impl';
 import { BillController } from '@presentation/bill/controller';
 import { validateJwt } from '@infrastructure/http/middlewares/validate-jwt.middleware';
 import { checkAbility } from '@infrastructure/http/middlewares/check-ability.middleware';
@@ -14,8 +16,10 @@ export const BillRouter = {
 
     const billDataSource = new BillDataSourceImpl(dataSource);
     const billRepository = new BillRepositoryImpl(billDataSource);
+    const pmDataSource = new PaymentMethodDataSourceImpl(dataSource);
+    const pmRepository = new PaymentMethodRepositoryImpl(pmDataSource);
     const unitOfWorkFactory = CREATE_UNIT_OF_WORK_FACTORY();
-    const billController = new BillController(billRepository, unitOfWorkFactory);
+    const billController = new BillController(billRepository, pmRepository, unitOfWorkFactory);
 
     router.get(
       '/',
