@@ -4,6 +4,8 @@ import { DataSource } from 'typeorm';
 import path from 'node:path';
 import { envs } from '@infrastructure/config/env';
 
+import { DATABASE_ENTITIES } from '@infrastructure/database/entities';
+
 const isDevelopment = envs.NODE_ENV === 'development';
 
 export const AppDataSource = new DataSource({
@@ -15,9 +17,7 @@ export const AppDataSource = new DataSource({
   database: envs.DB_NAME,
   synchronize: false,
   logging: false,
-  entities: isDevelopment
-    ? [path.join(process.cwd(), 'src', 'infrastructure', 'database', 'entities', '*.ts')]
-    : [path.join(process.cwd(), 'dist', 'infrastructure', 'database', 'entities', '*.js')],
+  entities: DATABASE_ENTITIES,
   migrationsRun: false,
   migrations: [path.join(process.cwd(), 'migrations', '*.js')],
   subscribers: [],

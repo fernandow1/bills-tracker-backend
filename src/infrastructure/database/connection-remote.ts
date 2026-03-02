@@ -4,6 +4,8 @@ import { DataSource } from 'typeorm';
 import path from 'node:path';
 import { envs } from '@infrastructure/config/env';
 
+import { DATABASE_ENTITIES } from '@infrastructure/database/entities';
+
 export const RemoteDataSource = new DataSource({
   type: 'mysql',
   host: envs.REMOTE_DB_HOST,
@@ -13,7 +15,7 @@ export const RemoteDataSource = new DataSource({
   database: envs.REMOTE_DB_NAME,
   synchronize: false,
   logging: false,
-  entities: [path.join(process.cwd(), 'dist', 'infrastructure', 'database', 'entities', '*.js')],
+  entities: DATABASE_ENTITIES,
   migrationsRun: false,
   migrations: [path.join(process.cwd(), 'migrations', '*.js')],
   subscribers: [],
