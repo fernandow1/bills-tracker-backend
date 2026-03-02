@@ -11,6 +11,7 @@ import { GetBills } from '@application/uses-cases/bill/get-bills';
 import { SearchBill } from '@application/uses-cases/bill/search-bill';
 import { UpdateBill } from '@application/uses-cases/bill/update-bill';
 import { BillRepository } from '@domain/repository/bill.repository';
+import { PaymentMethodRepository } from '@domain/repository/payment-method.repository';
 import { IUnitOfWork } from '@domain/ports/unit-of-work.interface';
 import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
 import { plainToClass } from 'class-transformer';
@@ -20,6 +21,7 @@ import { NextFunction, Request, Response } from 'express';
 export class BillController {
   constructor(
     private readonly billRepository: BillRepository,
+    private readonly paymentMethodRepository: PaymentMethodRepository,
     private readonly unitOfWorkFactory: () => IUnitOfWork,
   ) {}
 
@@ -36,7 +38,10 @@ export class BillController {
       }
 
       // Use Unit of Work for complex bill creation with items
-      const bill = await new CreateBillWithUoW(this.unitOfWorkFactory).execute(dto);
+      const bill = await new CreateBillWithUoW(
+        this.unitOfWorkFactory,
+        this.paymentMethodRepository,
+      ).execute(dto);
 
       res.status(201).json(bill);
     } catch (error) {
@@ -105,7 +110,10 @@ export class BillController {
       if (validationErrors.length) {
         return next(badRequest('Validation failed', validationErrors));
       }
-      const bill = await new UpdateBill(this.billRepository).execute(Number(id), dto);
+      const bill = await new UpdateBill(this.billRepository, this.paymentMethodRepository).execute(
+        Number(id),
+        dto,
+      );
 
       res.status(200).json(bill);
     } catch (error) {

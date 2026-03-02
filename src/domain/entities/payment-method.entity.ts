@@ -1,5 +1,6 @@
 export class PaymentMethod {
   id: number;
+  uuid?: string;
   name: string;
   description: string | null;
   createdAt: Date;
@@ -13,6 +14,7 @@ export class PaymentMethod {
     createdAt: Date,
     updatedAt: Date,
     deletedAt: Date | null,
+    uuid?: string,
   ) {
     this.id = id;
     this.name = name;
@@ -20,5 +22,6 @@ export class PaymentMethod {
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.deletedAt = deletedAt;
+    if (uuid) this.uuid = uuid;
   }
 }

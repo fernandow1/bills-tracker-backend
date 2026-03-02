@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { UpdateBill, UpdateBillUseCase } from './update-bill';
 import { BillRepository } from '../../../domain/repository/bill.repository';
+import { PaymentMethodRepository } from '../../../domain/repository/payment-method.repository';
 import {
   CREATE_MOCK_BILL,
   CREATE_MOCK_UPDATE_BILL_DTO,
@@ -10,13 +11,17 @@ import {
 describe('UpdateBill Use Case', () => {
   let updateBillUseCase: UpdateBillUseCase;
   let mockBillRepository: jest.Mocked<BillRepository>;
+  let mockPaymentMethodRepository: jest.Mocked<PaymentMethodRepository>;
 
   const mockBill = CREATE_MOCK_BILL();
   const updateBillDto = CREATE_MOCK_UPDATE_BILL_DTO();
 
   beforeEach(() => {
     mockBillRepository = CREATE_MOCK_BILL_REPOSITORY() as jest.Mocked<BillRepository>;
-    updateBillUseCase = new UpdateBill(mockBillRepository);
+    mockPaymentMethodRepository = {
+      getByUuid: jest.fn().mockResolvedValue({ id: 1, uuid: 'some-uuid' }),
+    } as unknown as jest.Mocked<PaymentMethodRepository>;
+    updateBillUseCase = new UpdateBill(mockBillRepository, mockPaymentMethodRepository);
   });
 
   afterEach(() => {

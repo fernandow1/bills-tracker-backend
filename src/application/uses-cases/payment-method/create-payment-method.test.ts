@@ -16,7 +16,8 @@ describe('Create Payment Method Use Case', () => {
       description: 'Payment via credit card',
     });
 
-    expect(result).toHaveProperty('id');
+    expect(result).toHaveProperty('uuid');
+    expect(result).not.toHaveProperty('id');
     expect(result).toHaveProperty('name', 'Credit Card');
     expect(result).toHaveProperty('description', 'Payment via credit card');
     expect(repositoryMock.createPaymentMethod).toHaveBeenCalledTimes(1);

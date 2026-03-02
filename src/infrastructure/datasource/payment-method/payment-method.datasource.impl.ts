@@ -22,6 +22,9 @@ export class PaymentMethodDataSourceImpl implements PaymentMethodDataSource {
     const paymentMethod = this.dataSource.getRepository(PaymentMethod).create(data);
     return this.dataSource.getRepository(PaymentMethod).save(paymentMethod);
   }
+  async getByUuid(uuid: string): Promise<PaymentMethod | null> {
+    return this.dataSource.getRepository(PaymentMethod).findOne({ where: { uuid } });
+  }
 
   async getAllPaymentMethods(): Promise<PaymentMethod[]> {
     return this.dataSource.getRepository(PaymentMethod).find();

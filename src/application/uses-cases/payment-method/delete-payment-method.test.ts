@@ -9,22 +9,24 @@ describe('Delete Payment Method Use Case', () => {
   });
 
   test('should delete a payment method successfully', async () => {
-    const id = faker.datatype.number({ min: 1, max: 1000 });
+    const uuid = faker.datatype.uuid();
     const repositoryMock = paymentMethodRepositoryDomainMock();
     const deletePaymentMethodUseCase = new DeletePaymentMethod(repositoryMock);
 
-    await deletePaymentMethodUseCase.execute(id);
+    await deletePaymentMethodUseCase.execute(uuid);
+    expect(repositoryMock.getByUuid).toHaveBeenCalledWith(uuid);
     expect(repositoryMock.deletePaymentMethod).toHaveBeenCalledTimes(1);
-    expect(repositoryMock.deletePaymentMethod).toHaveBeenCalledWith(id);
+    expect(repositoryMock.deletePaymentMethod).toHaveBeenCalledWith(1);
   });
 
   test('Should propagate error when repository fails', async () => {
-    const id = faker.datatype.number({ min: 1, max: 1000 });
+    const uuid = faker.datatype.uuid();
     const repositoryMock = paymentMethodRepositoryDomainMock();
+    repositoryMock.getByUuid.mockResolvedValueOnce({ id: 1 } as any);
     repositoryMock.deletePaymentMethod.mockRejectedValueOnce(new Error('Database error'));
     const deletePaymentMethodUseCase = new DeletePaymentMethod(repositoryMock);
 
-    await expect(deletePaymentMethodUseCase.execute(id)).rejects.toThrow('Database error');
+    await expect(deletePaymentMethodUseCase.execute(uuid)).rejects.toThrow('Database error');
     expect(repositoryMock.deletePaymentMethod).toHaveBeenCalledTimes(1);
   });
 });

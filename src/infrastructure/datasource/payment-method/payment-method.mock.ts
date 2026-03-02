@@ -28,6 +28,7 @@ export function paymentMethodRepositoryMock(): jest.Mocked<Repository<PaymentMet
             id: paymentMethodData.id
               ? paymentMethodData.id
               : faker.datatype.number({ min: 1, max: 1000 }),
+            uuid: paymentMethodData.uuid,
             name: paymentMethodData.name ? paymentMethodData.name : faker.commerce.department(),
             description: paymentMethodData.description
               ? paymentMethodData.description
@@ -53,6 +54,7 @@ export function paymentMethodRepositoryMock(): jest.Mocked<Repository<PaymentMet
       .mockImplementation((paymentMethodData: Partial<PaymentMethod>): PaymentMethod => {
         return {
           id: faker.datatype.number({ min: 1, max: 1000 }),
+          uuid: paymentMethodData.uuid,
           name: paymentMethodData.name || faker.commerce.department(),
           description: paymentMethodData.description || faker.lorem.sentence(),
           createdAt: new Date(),
@@ -79,12 +81,16 @@ export function paymentMethodRepositoryDomainMock(): jest.Mocked<PaymentMethodRe
     getAllPaymentMethods: jest
       .fn()
       .mockResolvedValue([PAYMENT_METHOD_MOCK, PAYMENT_METHOD_MOCK, PAYMENT_METHOD_MOCK]),
+    getByUuid: jest
+      .fn()
+      .mockImplementation(async (uuid: string) => ({ ...PAYMENT_METHOD_MOCK, uuid })),
     createPaymentMethod: jest
       .fn()
       .mockImplementation(
         async (paymentMethodData: Partial<PaymentMethod>): Promise<PaymentMethod> => {
           return {
             id: faker.datatype.number({ min: 1, max: 1000 }),
+            uuid: paymentMethodData.uuid,
             name: paymentMethodData.name || faker.commerce.department(),
             description: paymentMethodData.description || faker.lorem.sentence(),
             createdAt: new Date(),
@@ -99,6 +105,7 @@ export function paymentMethodRepositoryDomainMock(): jest.Mocked<PaymentMethodRe
         async (id: number, paymentMethodData: Partial<PaymentMethod>): Promise<PaymentMethod> => {
           return {
             id,
+            uuid: paymentMethodData.uuid,
             name: paymentMethodData.name || faker.commerce.department(),
             description: paymentMethodData.description || faker.lorem.sentence(),
             createdAt: new Date(),
@@ -117,12 +124,16 @@ export function paymentMethodDataSourceDomainMock(): jest.Mocked<PaymentMethodDa
     getAllPaymentMethods: jest
       .fn()
       .mockResolvedValue([PAYMENT_METHOD_MOCK, PAYMENT_METHOD_MOCK, PAYMENT_METHOD_MOCK]),
+    getByUuid: jest
+      .fn()
+      .mockImplementation(async (uuid: string) => ({ ...PAYMENT_METHOD_MOCK, uuid })),
     createPaymentMethod: jest
       .fn()
       .mockImplementation(
         async (paymentMethodData: Partial<PaymentMethod>): Promise<PaymentMethod> => {
           return {
             id: faker.datatype.number({ min: 1, max: 1000 }),
+            uuid: paymentMethodData.uuid,
             name: paymentMethodData.name || faker.commerce.department(),
             description: paymentMethodData.description || faker.lorem.sentence(),
             createdAt: new Date(),
@@ -137,6 +148,7 @@ export function paymentMethodDataSourceDomainMock(): jest.Mocked<PaymentMethodDa
         async (id: number, paymentMethodData: Partial<PaymentMethod>): Promise<PaymentMethod> => {
           return {
             id,
+            uuid: paymentMethodData.uuid,
             name: paymentMethodData.name || faker.commerce.department(),
             description: paymentMethodData.description || faker.lorem.sentence(),
             createdAt: new Date(),
@@ -152,6 +164,7 @@ export function paymentMethodDataSourceDomainMock(): jest.Mocked<PaymentMethodDa
 // Mock data constante para usar en tests
 export const PAYMENT_METHOD_MOCK: PaymentMethod = {
   id: 1,
+  uuid: '01234567-89ab-cdef-0123-456789abcdef',
   name: 'Credit Card',
   description: 'Payment via credit card',
   createdAt: new Date(),
@@ -161,6 +174,7 @@ export const PAYMENT_METHOD_MOCK: PaymentMethod = {
 
 export const PAYMENT_METHOD_MOCK_CASH: PaymentMethod = {
   id: 2,
+  uuid: 'abcdef01-2345-6789-abcd-ef0123456789',
   name: 'Cash',
   description: 'Cash payment',
   createdAt: new Date(),

@@ -184,7 +184,7 @@ export class BillDataSourceImpl implements BillDataSource {
       if (!billItemsDeleted) throw new Error('BillItems delete failed');
     }
 
-    return savedBill;
+    return savedBill as unknown as UpdateBillDto;
   }
   async delete(id: number, transaction?: QueryRunner): Promise<void> {
     // If transaction is provided, use it; otherwise create a new one

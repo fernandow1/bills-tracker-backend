@@ -35,8 +35,8 @@ export class PaymentMethodController {
 
   deletePaymentMethod = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const id = Number(req.params.id);
-      await new DeletePaymentMethod(this.repository).execute(id);
+      const uuid = req.params.uuid;
+      await new DeletePaymentMethod(this.repository).execute(uuid);
       res.status(204).send();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
@@ -46,7 +46,7 @@ export class PaymentMethodController {
 
   updatePaymentMethod = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const id = Number(req.params.id);
+      const uuid = req.params.uuid;
       const dto = plainToClass(CreatePaymentMethodDTO, req.body);
 
       const validationErrors = await validate(dto, {
@@ -58,13 +58,16 @@ export class PaymentMethodController {
         return next(badRequest('Validation failed', validationErrors));
       }
 
-      const updatedPaymentMethod = await new UpdatePaymentMethod(this.repository).execute(id, dto);
+      const updatedPaymentMethod = await new UpdatePaymentMethod(this.repository).execute(
+        uuid,
+        dto,
+      );
 
       res.status(200).json(updatedPaymentMethod);
     } catch (error: unknown) {
       // Manejar EntityNotFoundError de TypeORM
       if (error instanceof EntityNotFoundError) {
-        return next(notFound(`Payment method with id ${req.params.id} not found`));
+        return next(notFound(`Payment method with uuid ${req.params.uuid} not found`));
       }
       return next(internalError('Internal server error'));
     }

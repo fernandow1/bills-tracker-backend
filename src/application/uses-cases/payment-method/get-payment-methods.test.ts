@@ -14,7 +14,8 @@ describe('Get Payment Methods Use Case', () => {
     expect(paymentMethods).toBeInstanceOf(Array);
     expect(paymentMethods.length).toBeGreaterThan(0);
     paymentMethods.forEach((paymentMethod) => {
-      expect(paymentMethod).toHaveProperty('id');
+      expect(paymentMethod).toHaveProperty('uuid');
+      expect(paymentMethod).not.toHaveProperty('id');
       expect(paymentMethod).toHaveProperty('name');
       expect(paymentMethod).toHaveProperty('description');
     });
