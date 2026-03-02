@@ -1,4 +1,4 @@
-import { IsArray, IsDateString, IsInt, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsArray, IsDateString, IsInt, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
 import { CreateBillItemDTO } from '../bill-item/create-bill-item.dto';
 import { Type } from 'class-transformer';
 
@@ -12,8 +12,8 @@ export class CreateBillDto {
   idCurrency: number;
 
   @IsNotEmpty()
-  @IsInt({ message: 'The idPaymentMethod must be an integer number' })
-  idPaymentMethod: number;
+  @IsUUID('7', { message: 'The uuidPaymentMethod must be a valid UUID v7' })
+  uuidPaymentMethod: string;
 
   @IsNotEmpty()
   @IsInt({ message: 'The idUser must be an integer number' })

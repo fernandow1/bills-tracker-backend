@@ -29,15 +29,15 @@ export const PaymentMethodRouter = {
         paymentMethodController.createPaymentMethod(req, res, next);
       },
     );
-    router.put(
-      '/:id',
+    router.patch(
+      '/:uuid',
       [validateJwt, checkAbility('update', 'PaymentMethod')],
       (req: Request, res: Response, next: NextFunction) => {
         paymentMethodController.updatePaymentMethod(req, res, next);
       },
     );
     router.delete(
-      '/:id',
+      '/:uuid',
       [validateJwt, checkAbility('delete', 'PaymentMethod')],
       (req: Request, res: Response, next: NextFunction) => {
         paymentMethodController.deletePaymentMethod(req, res, next);

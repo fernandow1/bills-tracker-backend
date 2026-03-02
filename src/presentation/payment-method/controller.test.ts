@@ -5,6 +5,7 @@ import {
   PAYMENT_METHOD_MOCK,
   paymentMethodRepositoryDomainMock,
 } from '../../infrastructure/datasource/payment-method/payment-method.mock';
+import { PaymentMethodMapper } from './payment-method.mapper';
 
 // Mock Use Cases
 jest.mock('../../application/uses-cases/payment-method/get-payment-methods');
@@ -85,7 +86,10 @@ describe('PaymentMethodController', () => {
 
   describe('getAllPaymentMethods', () => {
     test('should return payment methods with 200 status', async () => {
-      const mockPaymentMethods = [PAYMENT_METHOD_MOCK, PAYMENT_METHOD_MOCK];
+      const mockPaymentMethods = PaymentMethodMapper.toPublicArray([
+        PAYMENT_METHOD_MOCK,
+        PAYMENT_METHOD_MOCK,
+      ]);
       mockGetPaymentsMethod.execute.mockResolvedValue(mockPaymentMethods);
 
       await controller.getAllPaymentMethods(
@@ -132,8 +136,11 @@ describe('PaymentMethodController', () => {
     });
 
     test('should create payment method and return 201 status', async () => {
-      const createdPaymentMethod = { ...PAYMENT_METHOD_MOCK, ...mockRequest.body };
-      mockCreatePaymentMethod.execute.mockResolvedValue(createdPaymentMethod);
+      const createdPaymentMethod = PaymentMethodMapper.toPublic({
+        ...PAYMENT_METHOD_MOCK,
+        ...mockRequest.body,
+      });
+      mockCreatePaymentMethod.execute.mockResolvedValue(createdPaymentMethod!);
 
       await controller.createPaymentMethod(
         mockRequest as Request,
@@ -173,7 +180,7 @@ describe('PaymentMethodController', () => {
 
   describe('updatePaymentMethod', () => {
     beforeEach(() => {
-      mockRequest.params = { id: '1' };
+      mockRequest.params = { uuid: '01234567-89ab-cdef-0123-456789abcdef' };
       mockRequest.body = {
         name: 'Updated Payment Method',
         description: 'Updated description',
@@ -181,8 +188,12 @@ describe('PaymentMethodController', () => {
     });
 
     test('should update payment method and return 200 status', async () => {
-      const updatedPaymentMethod = { ...PAYMENT_METHOD_MOCK, ...mockRequest.body, id: 1 };
-      mockUpdatePaymentMethod.execute.mockResolvedValue(updatedPaymentMethod);
+      const updatedPaymentMethod = PaymentMethodMapper.toPublic({
+        ...PAYMENT_METHOD_MOCK,
+        ...mockRequest.body,
+        uuid: mockRequest.params!.uuid,
+      });
+      mockUpdatePaymentMethod.execute.mockResolvedValue(updatedPaymentMethod!);
 
       await controller.updatePaymentMethod(
         mockRequest as Request,
@@ -191,7 +202,10 @@ describe('PaymentMethodController', () => {
       );
 
       expect(UpdatePaymentMethod).toHaveBeenCalledWith(mockRepository);
-      expect(mockUpdatePaymentMethod.execute).toHaveBeenCalledWith(1, mockRequest.body);
+      expect(mockUpdatePaymentMethod.execute).toHaveBeenCalledWith(
+        '01234567-89ab-cdef-0123-456789abcdef',
+        mockRequest.body,
+      );
       expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith(updatedPaymentMethod);
       expect(mockNext).not.toHaveBeenCalled();
@@ -207,7 +221,10 @@ describe('PaymentMethodController', () => {
         mockNext,
       );
 
-      expect(mockUpdatePaymentMethod.execute).toHaveBeenCalledWith(1, mockRequest.body);
+      expect(mockUpdatePaymentMethod.execute).toHaveBeenCalledWith(
+        '01234567-89ab-cdef-0123-456789abcdef',
+        mockRequest.body,
+      );
       expect(mockResponse.status).not.toHaveBeenCalled();
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -220,7 +237,7 @@ describe('PaymentMethodController', () => {
 
   describe('deletePaymentMethod', () => {
     beforeEach(() => {
-      mockRequest.params = { id: '1' };
+      mockRequest.params = { uuid: '01234567-89ab-cdef-0123-456789abcdef' };
     });
 
     test('should delete payment method and return 204 status', async () => {
@@ -233,7 +250,9 @@ describe('PaymentMethodController', () => {
       );
 
       expect(DeletePaymentMethod).toHaveBeenCalledWith(mockRepository);
-      expect(mockDeletePaymentMethod.execute).toHaveBeenCalledWith(1);
+      expect(mockDeletePaymentMethod.execute).toHaveBeenCalledWith(
+        '01234567-89ab-cdef-0123-456789abcdef',
+      );
       expect(mockResponse.status).toHaveBeenCalledWith(204);
       expect(mockResponse.send).toHaveBeenCalled();
       expect(mockNext).not.toHaveBeenCalled();
@@ -249,7 +268,9 @@ describe('PaymentMethodController', () => {
         mockNext,
       );
 
-      expect(mockDeletePaymentMethod.execute).toHaveBeenCalledWith(1);
+      expect(mockDeletePaymentMethod.execute).toHaveBeenCalledWith(
+        '01234567-89ab-cdef-0123-456789abcdef',
+      );
       expect(mockResponse.status).not.toHaveBeenCalled();
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({

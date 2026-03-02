@@ -125,7 +125,7 @@ describe('BillController', () => {
       const createBillDto = {
         idShop: 1,
         idCurrency: 1,
-        idPaymentMethod: 1,
+        uuidPaymentMethod: '01234567-89ab-cdef-0123-456789abcdef',
         idUser: 1,
         subTotal: 100,
         discount: 0,

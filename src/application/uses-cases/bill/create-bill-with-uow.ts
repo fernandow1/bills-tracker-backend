@@ -2,6 +2,8 @@ import { CreateBillDto } from '@application/dtos/bill/create-bill.dto';
 import { Bill } from '@domain/entities/bill.entity';
 import { IUnitOfWork } from '@domain/ports/unit-of-work.interface';
 import { NetUnits } from '@domain/value-objects/net-units.enum';
+import { PaymentMethodRepository } from '@domain/repository/payment-method.repository';
+import { notFound } from '@presentation/helpers/http-error.helper';
 
 export interface CreateBillWithUoWUseCase {
   execute(billData: CreateBillDto): Promise<Bill>;
@@ -12,9 +14,15 @@ export interface CreateBillWithUoWUseCase {
  * Provides explicit transaction management and business logic separation
  */
 export class CreateBillWithUoW implements CreateBillWithUoWUseCase {
-  constructor(private readonly unitOfWorkFactory: () => IUnitOfWork) {}
+  constructor(
+    private readonly unitOfWorkFactory: () => IUnitOfWork,
+    private readonly paymentMethodRepository: PaymentMethodRepository,
+  ) {}
 
   async execute(billData: CreateBillDto): Promise<Bill> {
+    const paymentMethod = await this.paymentMethodRepository.getByUuid(billData.uuidPaymentMethod);
+    if (!paymentMethod) throw notFound('Payment method not found');
+
     const unitOfWork = this.unitOfWorkFactory();
 
     try {
@@ -24,13 +32,14 @@ export class CreateBillWithUoW implements CreateBillWithUoWUseCase {
       await this.validateBusinessRules(billData);
 
       // Separate bill data from items
-      const { billItems, ...billInfo } = billData;
+      const { billItems, uuidPaymentMethod, ...billInfo } = billData as any;
 
       // Create the bill first
       const createdBill = await unitOfWork.billRepository.create({
         ...billInfo,
+        idPaymentMethod: paymentMethod.id,
         billItems: [], // Create bill without items initially
-      });
+      } as any);
 
       // Create bill items with reference to the created bill
       // Using sequential execution to maintain transaction integrity
