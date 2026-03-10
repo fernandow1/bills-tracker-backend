@@ -37,4 +37,7 @@ export const envs = {
   BETTERSTACK_ENDPOINT: get('BETTERSTACK_ENDPOINT')
     .default('https://in.logs.betterstack.com')
     .asString(),
+  GEMINI_API_KEY: isTest
+    ? get('GEMINI_API_KEY').default('test-gemini-key').asString()
+    : get('GEMINI_API_KEY').required().asString(),
 };
