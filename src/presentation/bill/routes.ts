@@ -9,6 +9,9 @@ import { BillController } from '@presentation/bill/controller';
 import { validateJwt } from '@infrastructure/http/middlewares/validate-jwt.middleware';
 import { checkAbility } from '@infrastructure/http/middlewares/check-ability.middleware';
 import { CREATE_UNIT_OF_WORK_FACTORY } from '@infrastructure/unit-of-work/unit-of-work.factory';
+import { ExtractBillDataFromImage } from '@application/uses-cases/bill/extract-bill-data-from-image';
+import { GeminiVisionService } from '@infrastructure/services/gemini-vision.service';
+import multer from 'multer';
 
 export const BillRouter = {
   routes(dataSource: DataSource): Router {
@@ -19,7 +22,14 @@ export const BillRouter = {
     const pmDataSource = new PaymentMethodDataSourceImpl(dataSource);
     const pmRepository = new PaymentMethodRepositoryImpl(pmDataSource);
     const unitOfWorkFactory = CREATE_UNIT_OF_WORK_FACTORY();
-    const billController = new BillController(billRepository, pmRepository, unitOfWorkFactory);
+    const geminiVisionService = new GeminiVisionService();
+    const extractBillDataFromImageUseCase = new ExtractBillDataFromImage(geminiVisionService);
+    const billController = new BillController(
+      billRepository,
+      pmRepository,
+      unitOfWorkFactory,
+      extractBillDataFromImageUseCase,
+    );
 
     router.get(
       '/',
@@ -56,6 +66,20 @@ export const BillRouter = {
         billController.deleteBill(req, res, next);
       },
     );
+
+    const upload = multer({
+      storage: multer.memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    });
+
+    router.post(
+      '/extract-image',
+      [validateJwt, upload.single('image')],
+      (req: Request, res: Response, next: NextFunction) => {
+        billController.extractFromImage(req, res, next);
+      },
+    );
+
     return router;
   },
 };

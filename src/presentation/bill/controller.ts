@@ -10,6 +10,7 @@ import { CreateBillWithUoW } from '@application/uses-cases/bill/create-bill-with
 import { GetBills } from '@application/uses-cases/bill/get-bills';
 import { SearchBill } from '@application/uses-cases/bill/search-bill';
 import { UpdateBill } from '@application/uses-cases/bill/update-bill';
+import { ExtractBillDataFromImage } from '@application/uses-cases/bill/extract-bill-data-from-image';
 import { BillRepository } from '@domain/repository/bill.repository';
 import { PaymentMethodRepository } from '@domain/repository/payment-method.repository';
 import { IUnitOfWork } from '@domain/ports/unit-of-work.interface';
@@ -23,6 +24,7 @@ export class BillController {
     private readonly billRepository: BillRepository,
     private readonly paymentMethodRepository: PaymentMethodRepository,
     private readonly unitOfWorkFactory: () => IUnitOfWork,
+    private readonly extractBillDataFromImage?: ExtractBillDataFromImage, // Optional para no romper tests anteriores temporalmente
   ) {}
 
   createBill = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -130,6 +132,23 @@ export class BillController {
     } catch (error) {
       console.log(error);
       return next(internalError('Internal server error'));
+    }
+  };
+
+  extractFromImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.file) {
+        return next(badRequest('No image file provided', []));
+      }
+
+      const { buffer, mimetype } = req.file;
+
+      const items = await this.extractBillDataFromImage?.execute(buffer, mimetype);
+
+      res.status(200).json(items);
+    } catch (error) {
+      console.error('Image extraction error:', error);
+      return next(internalError('Failed to extract data from image'));
     }
   };
 }
