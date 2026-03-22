@@ -133,6 +133,13 @@ export class ProductDataSourceImpl extends ProductDataSource {
     await this.dataSource.getRepository(Product).softDelete(existingProduct.id);
   }
 
+  async findByName(name: string): Promise<Product | null> {
+    const product = await this.dataSource.getRepository(Product).findOne({
+      where: { name },
+    });
+    return product;
+  }
+
   async getAllProducts(): Promise<Product[]> {
     const products = await this.dataSource.getRepository(Product).find({
       relations: { brand: true, category: true },

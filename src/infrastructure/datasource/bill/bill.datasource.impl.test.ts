@@ -168,6 +168,7 @@ describe('BillDataSourceImpl', () => {
           total: true,
           createdAt: true,
           purchasedAt: true,
+          receiptNumber: true,
           currency: {
             id: true,
             name: true,

@@ -9,6 +9,7 @@ export abstract class BillRepository {
   abstract create(bill: CreateBillDto, transaction?: QueryRunner): Promise<Bill>;
   abstract search(filter: IQueryFilter): Promise<Pagination<Bill>>;
   abstract findById(id: number): Promise<Bill | null>;
+  abstract findByReceipt(idUser: number, idShop: number, receiptNumber: string): Promise<Bill | null>;
   abstract findAll(): Promise<Bill[]>;
   abstract update(
     id: number,

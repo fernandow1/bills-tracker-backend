@@ -13,7 +13,7 @@ import { BillItem } from './bill-item.entity';
 import { Shop } from '@infrastructure/database/entities/shop.entity';
 import { Currency } from '@infrastructure/database/entities/currency.entity';
 import { PaymentMethod } from '@infrastructure/database/entities/payment-method.entity';
-import { User } from './user.entity';
+import { User } from '@infrastructure/database/entities/user.entity';
 
 @Entity('bill')
 export class Bill {
@@ -59,6 +59,9 @@ export class Bill {
     default: () => 'CURRENT_TIMESTAMP(0)',
   })
   purchasedAt: Date;
+
+  @Column({ name: 'receipt_number', type: 'varchar', length: 150, nullable: true, default: null })
+  receiptNumber?: string | null;
 
   @CreateDateColumn({
     name: 'created_at',
