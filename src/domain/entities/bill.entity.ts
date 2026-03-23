@@ -9,6 +9,7 @@ export class Bill {
   total: number;
   idUserOwner: number;
   purchasedAt: Date;
+  receiptNumber?: string | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
@@ -26,6 +27,7 @@ export class Bill {
     purchasedAt: Date,
     createdAt: Date,
     updatedAt: Date,
+    receiptNumber?: string | null,
     deletedAt?: Date | null,
   ) {
     this.id = id;
@@ -40,6 +42,7 @@ export class Bill {
     this.purchasedAt = purchasedAt;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+    this.receiptNumber = receiptNumber;
     this.deletedAt = deletedAt;
   }
 }

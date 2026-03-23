@@ -73,6 +73,7 @@ export interface MockedProductDataSource extends ProductDataSource {
   getAllProducts: jest.MockedFunction<() => Promise<Product[]>>;
   getProductById: jest.MockedFunction<(id: number) => Promise<Product>>;
   deleteProduct: jest.MockedFunction<(id: number) => Promise<void>>;
+  findByName: jest.MockedFunction<(name: string) => Promise<Product | null>>;
 }
 
 export interface MockedProductRepositoryInterface extends ProductRepository {
@@ -84,6 +85,7 @@ export interface MockedProductRepositoryInterface extends ProductRepository {
   getAllProducts: jest.MockedFunction<() => Promise<Product[]>>;
   getProductById: jest.MockedFunction<(id: number) => Promise<Product>>;
   deleteProduct: jest.MockedFunction<(id: number) => Promise<void>>;
+  findByName: jest.MockedFunction<(name: string) => Promise<Product | null>>;
 }
 
 export interface MockedBillItemRepositoryInterface extends BillItemRepository {
@@ -227,6 +229,7 @@ export const createMockedProductRepositoryInterface = (): MockedProductRepositor
   getProductById: jest.fn(),
   updateProduct: jest.fn(),
   deleteProduct: jest.fn(),
+  findByName: jest.fn(),
   getAllProducts: jest.fn(),
 });
 
@@ -246,5 +249,6 @@ export const createMockedProductDataSource = (): MockedProductDataSource => ({
   getProductById: jest.fn(),
   updateProduct: jest.fn(),
   deleteProduct: jest.fn(),
+  findByName: jest.fn(),
   getAllProducts: jest.fn(),
 });

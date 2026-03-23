@@ -25,6 +25,7 @@ describe('BillRepositoryImpl', () => {
       create: jest.fn(),
       search: jest.fn(),
       findById: jest.fn(),
+      findByReceipt: jest.fn(),
       findAll: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
