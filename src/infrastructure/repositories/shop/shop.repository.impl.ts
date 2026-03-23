@@ -19,6 +19,10 @@ export class ShopRepositoryImpl implements ShopRepository {
     return this.shopDataSource.findAll();
   }
 
+  getByName(name: string): Promise<Shop | null> {
+    return this.shopDataSource.getByName(name);
+  }
+
   createShop(shop: Partial<Shop>): Promise<Shop> {
     return this.shopDataSource.createShop(shop);
   }

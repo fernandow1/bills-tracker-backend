@@ -26,6 +26,10 @@ export class BillRepositoryImpl implements BillRepository {
     return this.billDataSource.findById(id);
   }
 
+  findByReceipt(idUser: number, idShop: number, receiptNumber: string): Promise<Bill | null> {
+    return this.billDataSource.findByReceipt(idUser, idShop, receiptNumber);
+  }
+
   findAll(): Promise<Bill[]> {
     return this.billDataSource.findAll();
   }

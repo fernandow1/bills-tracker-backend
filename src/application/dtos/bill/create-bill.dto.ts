@@ -1,4 +1,4 @@
-import { IsArray, IsDateString, IsInt, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import { IsArray, IsDateString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 import { CreateBillItemDTO } from '../bill-item/create-bill-item.dto';
 import { Type } from 'class-transformer';
 
@@ -52,6 +52,10 @@ export class CreateBillDto {
     },
   )
   purchasedAt: string;
+
+  @IsOptional()
+  @IsString({ message: 'receiptNumber must be a string' })
+  receiptNumber?: string;
 
   @IsArray({ message: 'billItems must be an array' })
   @Type(() => CreateBillItemDTO)

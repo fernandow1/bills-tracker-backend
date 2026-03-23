@@ -28,6 +28,9 @@ export class ProductRepositoryImpl implements ProductRepository {
   deleteProduct(id: number): Promise<void> {
     return this.productDataSource.deleteProduct(id);
   }
+  findByName(name: string): Promise<Product | null> {
+    return this.productDataSource.findByName(name);
+  }
   getAllProducts(): Promise<Product[]> {
     return this.productDataSource.getAllProducts();
   }

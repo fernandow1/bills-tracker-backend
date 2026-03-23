@@ -1,6 +1,7 @@
 import { CreateBillDto } from '@application/dtos/bill/create-bill.dto';
+import { CreateBillItemDTO } from '@application/dtos/bill-item/create-bill-item.dto';
 import { UpdateBillDto } from '@application/dtos/bill/update-bill.dto';
-import { badRequest, internalError } from '@presentation/helpers/http-error.helper';
+import { badRequest, conflict, internalError } from '@presentation/helpers/http-error.helper';
 import { queryMapper } from '@application/mappers/query-filter.mapper';
 import {
   BILL_ALLOWED_FIELDS,
@@ -14,6 +15,7 @@ import { ExtractBillDataFromImage } from '@application/uses-cases/bill/extract-b
 import { BillRepository } from '@domain/repository/bill.repository';
 import { PaymentMethodRepository } from '@domain/repository/payment-method.repository';
 import { IUnitOfWork } from '@domain/ports/unit-of-work.interface';
+import { NetUnits } from '@domain/value-objects/net-units.enum';
 import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
@@ -141,14 +143,146 @@ export class BillController {
         return next(badRequest('No image file provided', []));
       }
 
+      const metadataStr = req.body.metadata;
+      if (!metadataStr) {
+        return next(badRequest('Metadata is required in the form-data request', []));
+      }
+
+      type ExtractBillMetadata = Pick<CreateBillDto, 'idShop' | 'idCurrency' | 'uuidPaymentMethod' | 'purchasedAt'> & {
+        aiInstructions?: string;
+      };
+
+      let metadata: ExtractBillMetadata;
+      try {
+        metadata = JSON.parse(metadataStr);
+      } catch (e) {
+        return next(badRequest('Metadata must be a valid JSON string', []));
+      }
+
+      if (!metadata.idShop || !metadata.idCurrency || !metadata.uuidPaymentMethod || !metadata.purchasedAt) {
+        return next(
+          badRequest('idShop, idCurrency, uuidPaymentMethod, and purchasedAt are required in metadata', []),
+        );
+      }
+
+      const idUser = (req as any).user?.id;
+      if (!idUser) {
+        return next(badRequest('User not authenticated properly', []));
+      }
+
       const { buffer, mimetype } = req.file;
 
-      const items = await this.extractBillDataFromImage?.execute(buffer, mimetype);
+      const aiData = await this.extractBillDataFromImage?.execute(
+        buffer,
+        mimetype,
+        metadata.idShop,
+        metadata.aiInstructions,
+      );
+      if (!aiData) {
+        return next(internalError('Failed to extract data from image'));
+      }
 
-      res.status(200).json(items);
+      if (aiData.receipt_number && aiData.receipt_number.trim() !== '') {
+        const existingBill = await this.billRepository.findByReceipt(
+          idUser,
+          metadata.idShop,
+          aiData.receipt_number.trim(),
+        );
+
+        if (existingBill) {
+          return next(
+            conflict(
+              `Receipt already exists: A bill with receipt number ${aiData.receipt_number} from this shop has already been processed.`,
+              [{ message: 'Receipt already exists', code: 'DUPLICATE_RECEIPT_ERROR' }],
+            ),
+          );
+        }
+      }
+
+      const subTotal = aiData.items.reduce((acc, currentItem) => acc + currentItem.net_price, 0);
+      const discount = 0;
+      const total = subTotal - discount;
+
+      const createBillDto = new CreateBillDto();
+      createBillDto.idShop = metadata.idShop;
+      createBillDto.idCurrency = metadata.idCurrency;
+      createBillDto.uuidPaymentMethod = metadata.uuidPaymentMethod;
+      createBillDto.idUser = idUser;
+      createBillDto.subTotal = subTotal;
+      createBillDto.discount = discount;
+      createBillDto.total = total;
+      createBillDto.idUserOwner = idUser;
+      createBillDto.purchasedAt = metadata.purchasedAt;
+      createBillDto.receiptNumber = aiData.receipt_number ? aiData.receipt_number.trim() : undefined;
+
+      // Collapse identical products to prevent Duplicate errors
+      const itemsMap = new Map<number, typeof aiData.items[0]>();
+
+      for (const item of aiData.items) {
+        if (item.id_product === undefined || item.id_product === null) continue;
+
+        if (itemsMap.has(item.id_product)) {
+          const existing = itemsMap.get(item.id_product)!;
+          existing.quantity += item.quantity;
+          existing.net_price += item.net_price;
+          // net_unit and content_value remain the same since it's the same product
+        } else {
+          itemsMap.set(item.id_product, { ...item }); // Clone to avoid mutation issues
+        }
+      }
+
+      createBillDto.billItems = Array.from(itemsMap.values()).map((item) => {
+        const createBillItem = new CreateBillItemDTO();
+        createBillItem.idBill = 0; // Assigned later inside UoW
+        createBillItem.idProduct = item.id_product!;
+        createBillItem.quantity = item.quantity;
+        
+        // Fallback for contentValue if unit requires it but Gemini missed it
+        if (item.net_unit === 'u') {
+          createBillItem.contentValue = undefined;
+        } else if (item.content_value !== null && item.content_value !== undefined) {
+          createBillItem.contentValue = item.content_value;
+        } else {
+          createBillItem.contentValue = 1; // Default content value logic
+        }
+
+        // Calculate unit price based on collapsed totals
+        createBillItem.netPrice = item.net_price / (item.quantity > 0 ? item.quantity : 1);
+        
+        const unitValue = item.net_unit as string;
+        if (!Object.values(NetUnits).includes(unitValue as any)) {
+          throw new Error(`Invalid netUnit received from AI: ${unitValue}`);
+        }
+        createBillItem.netUnit = unitValue as NetUnits;
+
+        return createBillItem;
+      });
+
+      if (createBillDto.billItems.length === 0) {
+        return next(badRequest('No valid items were extracted from the bill', []));
+      }
+
+      const bill = await new CreateBillWithUoW(
+        this.unitOfWorkFactory,
+        this.paymentMethodRepository,
+      ).execute(createBillDto);
+
+      res.status(201).json(bill);
     } catch (error) {
-      console.error('Image extraction error:', error);
-      return next(internalError('Failed to extract data from image'));
+      console.error('Image extraction and bill creation error:', error);
+      
+      if (error instanceof Error) {
+        if (
+          error.message.includes('Total mismatch') ||
+          error.message.includes('Duplicate products') ||
+          error.message.includes('contentValue') ||
+          error.message.includes('netUnit')
+        ) {
+          return next(badRequest(error.message, []));
+        }
+      }
+
+      return next(internalError('Failed to process image and create bill'));
     }
   };
 }

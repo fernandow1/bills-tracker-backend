@@ -31,6 +31,13 @@ export class ShopDataSourceImpl extends ShopDataSource {
     return shopsToDomain(shops);
   }
 
+  async getByName(name: string): Promise<DomainShop | null> {
+    const shop = await this.dataSource.getRepository(Shop).findOne({
+      where: { name },
+    });
+    return shop ? shopToDomain(shop) : null;
+  }
+
   async createShop(shopData: Partial<DomainShop>): Promise<DomainShop> {
     const saved = await this.dataSource.getRepository(Shop).save(shopData as any);
     return shopToDomain(saved);

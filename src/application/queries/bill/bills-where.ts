@@ -12,6 +12,7 @@ export interface BillsWhere {
 export const BILL_ALLOWED_FIELDS = new Map<string, { relation?: string }>([
   ['idProduct', { relation: 'billItems' }],
   ['idShop', {}],
+  ['receiptNumber', {}],
   ['idCurrency', {}],
   ['idPaymentMethod', {}],
   ['total', {}],

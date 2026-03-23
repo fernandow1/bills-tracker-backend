@@ -9,6 +9,8 @@ import { Product } from '@infrastructure/database/entities/product.entity';
 import { Shop } from '@infrastructure/database/entities/shop.entity';
 import { User } from '@infrastructure/database/entities/user.entity';
 
+import { ProductAliasEntity } from '@infrastructure/database/entities/product-alias.entity';
+
 export const DATABASE_ENTITIES = [
   BillItem,
   Bill,
@@ -17,6 +19,7 @@ export const DATABASE_ENTITIES = [
   Category,
   Currency,
   PaymentMethod,
+  ProductAliasEntity,
   Product,
   Shop,
   User,

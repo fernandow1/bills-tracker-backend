@@ -69,6 +69,7 @@ export class BillDataSourceImpl implements BillDataSource {
         total: true,
         createdAt: true,
         purchasedAt: true,
+        receiptNumber: true,
         currency: {
           id: true,
           name: true,
@@ -108,6 +109,17 @@ export class BillDataSourceImpl implements BillDataSource {
 
   async findById(id: number): Promise<Bill | null> {
     return await this.dataSource.getRepository(Bill).findOne({ where: { id: Number(id) } });
+  }
+
+  async findByReceipt(idUser: number, idShop: number, receiptNumber: string): Promise<Bill | null> {
+    return await this.dataSource.getRepository(Bill).findOne({
+      where: {
+        idUserOwner: idUser,
+        idShop: idShop,
+        receiptNumber: receiptNumber,
+      },
+      select: ['id', 'receiptNumber']
+    });
   }
   async findAll(): Promise<Bill[]> {
     const query = this.dataSource.getRepository(Bill).createQueryBuilder('bill');

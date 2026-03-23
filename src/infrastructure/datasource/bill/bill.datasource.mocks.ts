@@ -19,6 +19,7 @@ interface MockBill {
   idPaymentMethod?: number;
   idUser?: number;
   total?: number;
+  receiptNumber?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date | null;
@@ -57,6 +58,7 @@ export const CREATE_MOCK_BILL = (overrides: Partial<MockBill> = {}): MockBill =>
   total: 150.75,
   createdAt: new Date('2024-01-01'),
   updatedAt: new Date('2024-01-01'),
+  receiptNumber: null,
   deletedAt: null,
   ...overrides,
 });
@@ -246,6 +248,7 @@ export const CREATE_MOCK_BILL_REPOSITORY = (
   create: jest.fn(),
   search: jest.fn(),
   findById: jest.fn(),
+  findByReceipt: jest.fn(),
   findAll: jest.fn(),
   update: jest.fn(),
   delete: jest.fn(),
