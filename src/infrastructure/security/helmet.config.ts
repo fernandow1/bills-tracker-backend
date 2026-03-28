@@ -5,7 +5,12 @@ import { CorsOptions } from 'cors';
  * URLs permitidas según el entorno
  */
 const ALLOWED_ORIGINS = {
-  development: ['http://localhost:4200', 'http://127.0.0.1:4200'],
+  development: [
+    'http://localhost:4200',
+    'http://127.0.0.1:4200',
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+  ],
   production: [
     process.env.FRONTEND_URL_PROD || 'https://bills-tracker-frontend-delta.vercel.app',
   ].filter(Boolean) as string[],

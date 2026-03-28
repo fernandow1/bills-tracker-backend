@@ -244,7 +244,12 @@ describe('Helmet Configuration', () => {
       it('should include localhost origins for development', () => {
         const config = getCorsConfig('development');
 
-        expect(config.origin).toEqual(['http://localhost:4200', 'http://127.0.0.1:4200']);
+        expect(config.origin).toEqual([
+          'http://localhost:4200',
+          'http://127.0.0.1:4200',
+          'http://localhost:8080',
+          'http://127.0.0.1:8080',
+        ]);
       });
 
       it('should allow credentials in development', () => {
