@@ -1,4 +1,25 @@
 services:
+  app:
+    build:
+      context: .
+      target: development
+    container_name: bills-tracker-api
+    restart: always
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - MYSQLHOST=db
+      - MYSQLPORT=3306
+      - REDIS_URL=redis://redis:6379
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+
   db:
     image: mysql:8.0
     container_name: bills-tracker-db
