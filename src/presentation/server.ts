@@ -9,6 +9,7 @@ import {
   getCurrentEnvironment,
 } from '@infrastructure/security/helmet.config';
 import { generalRateLimiter } from '@infrastructure/security/rate-limit.config';
+import { logger } from '@infrastructure/logging/logger.config';
 
 interface Options {
   port: number;
@@ -19,6 +20,7 @@ export class Server {
   readonly app = express();
   readonly port: number;
   readonly routes: Router;
+  private listener?: ReturnType<typeof express.application.listen>;
 
   constructor(options: Options) {
     this.port = options.port;
@@ -51,8 +53,21 @@ export class Server {
     this.app.use(errorHandler);
 
     // Start the server
-    this.app.listen(this.port, () => {
-      console.log(`Server is running on port ${this.port}`);
+    this.listener = this.app.listen(this.port, () => {
+      logger.info(`Server is running on port ${this.port}`);
+    });
+  }
+
+  async stop(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.listener) {
+        this.listener.close((err) => {
+          if (err) return reject(err);
+          resolve();
+        });
+      } else {
+        resolve();
+      }
     });
   }
 }
