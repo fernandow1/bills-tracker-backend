@@ -38,3 +38,6 @@ jobs:
 
       - name: Build project
         run: npm run build
+
+      - name: Test Docker Build (Production Target)
+        run: docker build --target production -t bills-tracker:test .

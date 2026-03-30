@@ -1,0 +1,15 @@
+node_modules
+dist
+coverage
+.git
+.github
+*.md
+.prettierrc
+eslint.config.mjs
+jest.config.ts
+jest.integration.config.ts
+.env
+.idea
+.vscode
+!package.json
+!package-lock.json
