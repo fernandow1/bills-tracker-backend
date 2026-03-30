@@ -32,6 +32,13 @@ async function main(): Promise<void> {
   // --- Graceful Shutdown Logic ---
   const gracefulShutdown = async (signal: NodeJS.Signals): Promise<void> => {
     logger.info(`\n[${signal}] Signal received. Starting graceful shutdown...`);
+
+    // Failsafe: Prevenir que el proceso se congele indefinidamente si algo bloquea el cierre
+    setTimeout(() => {
+      logger.error('Shutdown timed out, forcing exit.');
+      process.exit(1);
+    }, 10000).unref();
+
     try {
       logger.info('1. Closing HTTP server (stopping new connections)...');
       await server.stop();
