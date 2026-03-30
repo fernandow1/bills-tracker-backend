@@ -45,22 +45,29 @@ RUN npm run build
 # 4. Production Stage
 # ==========================================
 FROM node:22-alpine AS production
+
+# 1. Resolver problema del PID 1: Instalamos tini para gestionar señales del sistema (SIGTERM, SIGINT)
+RUN apk add --no-cache tini
+
 WORKDIR /app
-# Seteamos estrictamente a producción
 ENV NODE_ENV=production
 
-# Copiamos solo el package.json para resolver dependencias de prod
-COPY package*.json ./
+# 2. Seguridad: Damos propiedad del entorno de trabajo al usuario "node" nativo de la imagen
+RUN chown -R node:node /app
+USER node
 
-# Instalamos únicamente dependencias de producción (--omit=dev evita eslint, typescript, nodemon, etc.)
+# Copiamos asignando propiedad a nuestro usuario "node"
+COPY --chown=node:node package*.json ./
+
+# Instalamos únicamente dependencias de producción
 RUN npm ci --omit=dev
 
-# Copiamos la compilación limpia del builder
-COPY --from=builder /app/dist ./dist
+# Copiamos la compilación limpia del builder con los permisos correctos
+COPY --chown=node:node --from=builder /app/dist ./dist
 
-# Para entornos que no sean cloud, exponemos un puerto explícitamente (Railway inyectará PORT a fuego)
 ENV PORT=3000
 EXPOSE 3000
 
-# Arrancamos con Node nativo sumamente rápido y sin consumo extra
+# Arrancamos la aplicación envuelta delegando el PID 1 a tini, conectando en cascada con Node
+ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "dist/app.js"]
