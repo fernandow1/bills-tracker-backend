@@ -62,7 +62,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: fernandow1/bills-tracker-backend
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/bills-tracker-backend
           tags: |
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=raw,value=dev,enable=${{ github.ref == format('refs/heads/{0}', 'development') }}
