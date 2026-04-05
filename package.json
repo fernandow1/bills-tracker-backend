@@ -30,7 +30,8 @@
     "test:unit": "jest --config jest.config.ts",
     "test:integration": "jest --config jest.integration.config.ts --runInBand",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:load": "docker compose --profile testing run --rm k6 run /tests/basic.js"
   },
   "keywords": [],
   "author": "Fernando Wabab",
@@ -69,6 +70,7 @@
     "@types/compression": "^1.8.1",
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
+    "@types/k6": "^1.7.0",
     "@types/multer": "^2.1.0",
     "@types/node": "^24.0.12",
     "@types/supertest": "^6.0.3",
