@@ -1,5 +1,5 @@
 import request from 'supertest';
-import jwt from 'jsonwebtoken';
+import { getAdminToken } from '../../../tests/helpers/auth.helper';
 import { CREATE_TEST_SERVER } from '../../../tests/helpers/server';
 import { Application } from 'express';
 
@@ -12,9 +12,7 @@ describe('Bill Integration Tests', () => {
     app = CREATE_TEST_SERVER.app;
 
     // Crear token JWT de test (sin verificar base de datos)
-    authToken = jwt.sign({ sub: '1' }, process.env.JWT_SECRET || 'test-secret', {
-      expiresIn: '1h',
-    });
+    authToken = getAdminToken();
   });
 
   describe('GET /bills', () => {

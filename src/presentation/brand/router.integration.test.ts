@@ -1,9 +1,9 @@
-import supertest from 'supertest';
+import { createAuthRequest } from '../../../tests/helpers/auth-request.helper';
 import { CREATE_TEST_SERVER } from '../../../tests/helpers/server';
 import { Brand } from '../../domain/entities/brand.entity';
 
 describe('Brand Router Integration Tests', () => {
-  const request = supertest(CREATE_TEST_SERVER.app);
+  const request = createAuthRequest(CREATE_TEST_SERVER.app);
 
   describe('GET /api/brands', () => {
     test('should retrieve all brands (empty array when no data)', async () => {
@@ -85,10 +85,10 @@ describe('Brand Router Integration Tests', () => {
       const response = await request.post('/api/brands').send(invalidBrandData).expect(400);
 
       // Las validaciones retornan un error específico
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
-      expect(response.body.error).toHaveProperty('msg', 'Validation failed');
-      expect(response.body.error).toHaveProperty('details');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
+      expect(response.body).toHaveProperty('title', 'Validation Error');
+      expect(response.body).toHaveProperty('errors');
 
       console.log(`✅ POST /api/brands (invalid): Correctly rejected request without name`);
     });
@@ -100,8 +100,8 @@ describe('Brand Router Integration Tests', () => {
 
       const response = await request.post('/api/brands').send(invalidBrandData).expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
 
       console.log(`✅ POST /api/brands (empty name): Correctly rejected empty name`);
     });
@@ -113,8 +113,8 @@ describe('Brand Router Integration Tests', () => {
 
       const response = await request.post('/api/brands').send(invalidBrandData).expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
 
       console.log(`✅ POST /api/brands (long name): Correctly rejected name exceeding max length`);
     });
@@ -126,8 +126,8 @@ describe('Brand Router Integration Tests', () => {
 
       const response = await request.post('/api/brands').send(invalidBrandData).expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
 
       console.log(`✅ POST /api/brands (non-string): Correctly rejected non-string name`);
     });
@@ -192,8 +192,8 @@ describe('Brand Router Integration Tests', () => {
 
       const response = await request.put(`/api/brands/${brandId}`).send(invalidData).expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
 
       console.log(`✅ PUT /api/brands/:id (invalid): Correctly rejected invalid update data`);
     });
@@ -209,7 +209,7 @@ describe('Brand Router Integration Tests', () => {
         .send(updatedData)
         .expect(500); // El controlador actual devuelve 500 para errores internos
 
-      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('title');
 
       console.log(`✅ PUT /api/brands/:id: Handled update for non-existent brand`);
     });

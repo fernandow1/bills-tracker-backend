@@ -5,46 +5,15 @@ beforeAll(async () => {
   console.log('🔧 Initializing test database...');
 
   try {
-    // Si ya está inicializado, destruir primero
-    if (TestDataSource.isInitialized) {
-      await TestDataSource.destroy();
+    // Si ya está inicializado, no hacer nada especial
+    if (!TestDataSource.isInitialized) {
+      await TestDataSource.initialize();
     }
-
-    // Inicializar sin synchronize primero para limpiar manualmente
-    const { DataSource } = await import('typeorm');
-    const tempDataSource = new DataSource({
-      ...TestDataSource.options,
-      synchronize: false,
-      dropSchema: false,
-    });
-
-    await tempDataSource.initialize();
-
-    // Limpiar manualmente todas las tablas
-    try {
-      await tempDataSource.query('SET FOREIGN_KEY_CHECKS = 0');
-
-      // Obtener todas las tablas
-      const tables = await tempDataSource.query(`
-        SELECT TABLE_NAME 
-        FROM INFORMATION_SCHEMA.TABLES 
-        WHERE TABLE_SCHEMA = DATABASE()
-      `);
-
-      // Eliminar cada tabla
-      for (const table of tables) {
-        await tempDataSource.query(`DROP TABLE IF EXISTS \`${table.TABLE_NAME}\``);
-      }
-
-      await tempDataSource.query('SET FOREIGN_KEY_CHECKS = 1');
-    } catch (cleanupError) {
-      console.warn('⚠️  Error during cleanup:', cleanupError);
-    }
-
-    await tempDataSource.destroy();
-
-    // Ahora inicializar con synchronize para crear esquema limpio
-    await TestDataSource.initialize();
+    
+    // Evitar bug de TypeORM de 'Table already exists' con dropSchema explícito
+    await TestDataSource.dropDatabase();
+    await TestDataSource.synchronize();
+    
     console.log('✅ Test database connected successfully');
   } catch (error) {
     console.error('❌ Failed to initialize test database:', error);
@@ -62,8 +31,8 @@ afterAll(async () => {
   }
 });
 
-// Limpiar datos entre tests (opcional)
-afterEach(async () => {
+// Limpiar datos y plantar base antes de cada test
+beforeEach(async () => {
   if (TestDataSource.isInitialized) {
     // Limpiar todas las tablas entre tests
     const entities = TestDataSource.entityMetadatas;
@@ -78,5 +47,16 @@ afterEach(async () => {
 
     // Rehabilitar foreign keys
     await TestDataSource.query('SET FOREIGN_KEY_CHECKS = 1');
+
+    // Plantar usuarios por defecto para las pruebas
+    const bcrypt = await import('bcryptjs');
+    const hashedPassword = await bcrypt.hash('password123', 10);
+    
+    await TestDataSource.query(
+      `INSERT INTO \`user\` (id, name, email, username, password, role, created_at, updated_at) VALUES 
+      (1, 'Admin Test', 'admin@example.com', 'admin_test', ?, 'admin', NOW(), NOW()),
+      (2, 'User Test', 'user@example.com', 'user_test', ?, 'guest', NOW(), NOW())`,
+      [hashedPassword, hashedPassword]
+    );
   }
 });

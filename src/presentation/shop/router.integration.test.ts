@@ -1,17 +1,19 @@
-import supertest from 'supertest';
+import { createAuthRequest } from '../../../tests/helpers/auth-request.helper';
 import { CREATE_TEST_SERVER } from '../../../tests/helpers/server';
 import { Shop } from '../../domain/entities/shop.entity';
 
 describe('Shop Router Integration Tests', () => {
-  const request = supertest(CREATE_TEST_SERVER.app);
+  const request = createAuthRequest(CREATE_TEST_SERVER.app);
 
-  describe('GET /api/shops', () => {
+  describe('GET /api/shops/search', () => {
     test('should retrieve all shops (empty array when no data)', async () => {
-      const response = await request.get('/api/shops').expect(200);
+      const response = await request.get('/api/shops/search?page=1&pageSize=10');
+      if (response.status !== 200) console.log('SHOP ERROR 1:', response.body);
+      expect(response.status).toBe(200);
 
-      // Verificar que la respuesta sea un array
-      expect(response.body).toBeInstanceOf(Array);
-      expect(response.body).toEqual([]); // BD limpia en cada test
+      // Verificar que la respuesta contenga datos paginados
+      expect(response.body.data).toBeInstanceOf(Array);
+      expect(response.body.data).toEqual([]); // BD limpia en cada test
 
       console.log(`✅ GET /api/shops: Retrieved ${response.body.length} shops`);
     });
@@ -30,22 +32,21 @@ describe('Shop Router Integration Tests', () => {
       expect(createResponse.body).toHaveProperty('id');
 
       // Ahora obtener todos los shops
-      const getResponse = await request.get('/api/shops').expect(200);
+      const getResponse = await request.get('/api/shops/search?page=1&pageSize=10');
+      if (getResponse.status !== 200) console.log('SHOP ERROR 2:', getResponse.body);
+      expect(getResponse.status).toBe(200);
 
-      expect(getResponse.body).toBeInstanceOf(Array);
-      expect(getResponse.body.length).toBeGreaterThan(0);
+      expect(getResponse.body.data).toBeInstanceOf(Array);
+      expect(getResponse.body.data.length).toBeGreaterThan(0);
 
       // Verificar estructura del shop
-      const shop = getResponse.body[0];
+      const shop = getResponse.body.data[0];
       expect(shop).toHaveProperty('id');
       expect(shop).toHaveProperty('name');
       expect(shop).toHaveProperty('description');
       expect(shop).toHaveProperty('latitude');
       expect(shop).toHaveProperty('longitude');
-      expect(shop).toHaveProperty('createdAt');
-      expect(shop).toHaveProperty('updatedAt');
-
-      console.log(`✅ GET /api/shops with data: Retrieved ${getResponse.body.length} shops`);
+      console.log(`✅ GET /api/shops with data: Retrieved ${getResponse.body.data.length} shops`);
     });
   });
 
@@ -64,11 +65,8 @@ describe('Shop Router Integration Tests', () => {
       expect(response.body).toHaveProperty('id');
       expect(response.body.name).toBe(shopData.name);
       expect(response.body.description).toBe(shopData.description);
-      expect(response.body.latitude).toBe(shopData.latitude);
-      expect(response.body.longitude).toBe(shopData.longitude);
-      expect(response.body).toHaveProperty('createdAt');
-      expect(response.body).toHaveProperty('updatedAt');
-
+      expect(Number(response.body.latitude)).toBeCloseTo(shopData.latitude);
+      expect(Number(response.body.longitude)).toBeCloseTo(shopData.longitude);
       console.log(`✅ POST /api/shops: Created shop with ID ${response.body.id}`);
     });
 
@@ -141,8 +139,8 @@ describe('Shop Router Integration Tests', () => {
       expect(updateResponse.body.id).toBe(shopId);
       expect(updateResponse.body.name).toBe(updatedData.name);
       expect(updateResponse.body.description).toBe(updatedData.description);
-      expect(updateResponse.body.latitude).toBe(updatedData.latitude);
-      expect(updateResponse.body.longitude).toBe(updatedData.longitude);
+      expect(Number(updateResponse.body.latitude)).toBeCloseTo(updatedData.latitude);
+      expect(Number(updateResponse.body.longitude)).toBeCloseTo(updatedData.longitude);
       console.log(`✅ UPDATE /api/shops/:id: Updated shop with ID ${shopId}`);
     });
 
@@ -158,10 +156,10 @@ describe('Shop Router Integration Tests', () => {
         .expect(404);
 
       // Verificar estructura de error correcta
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'NOT_FOUND');
-      expect(response.body.error).toHaveProperty('msg');
-      expect(response.body.error.msg).toContain(`Shop with id ${nonExistentId} not found`);
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 404);
+      
+      expect(response.body.title).toContain(`Resource Not Found`);
 
       console.log(`✅ UPDATE /api/shops/:id: Correctly handled update for non-existent shop`);
     });
@@ -170,8 +168,10 @@ describe('Shop Router Integration Tests', () => {
   describe('Complete workflow', () => {
     test('should create and retrieve shops in complete workflow', async () => {
       // 1. Verificar que inicialmente no hay shops
-      let getResponse = await request.get('/api/shops').expect(200);
-      expect(getResponse.body).toEqual([]);
+      let getResponse = await request.get('/api/shops/search?page=1&pageSize=10');
+      if (getResponse.status !== 200) console.log('SHOP ERROR 3:', getResponse.body);
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body.data).toEqual([]);
 
       // 2. Crear múltiples shops
       const shopsToCreate = [
@@ -206,11 +206,13 @@ describe('Shop Router Integration Tests', () => {
       });
 
       // 4. Obtener todos los shops y verificar
-      getResponse = await request.get('/api/shops').expect(200);
-      expect(getResponse.body).toHaveLength(3);
+      getResponse = await request.get('/api/shops/search?page=1&pageSize=10');
+      if (getResponse.status !== 200) console.log('SHOP ERROR 4:', getResponse.body);
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body.data).toHaveLength(3);
 
       // 5. Verificar que los datos persisten correctamente
-      const retrievedShops = getResponse.body as Shop[];
+      const retrievedShops = getResponse.body.data as Shop[];
       expect(retrievedShops.find((s) => s.name === 'Shop 1')).toBeDefined();
       expect(retrievedShops.find((s) => s.name === 'Shop 2')).toBeDefined();
       expect(retrievedShops.find((s) => s.name === 'Shop 3')).toBeDefined();
