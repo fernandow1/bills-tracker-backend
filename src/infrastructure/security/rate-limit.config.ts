@@ -16,8 +16,8 @@ const isTest = envs.NODE_ENV === 'test';
  * Cada rate limiter debe tener su propia instancia con un prefix único
  */
 const getRateLimitStore = (prefix: string): RedisStore | undefined => {
-  // En desarrollo y test, no usar store (rate limiting desactivado)
-  if (isDevelopment || isTest) {
+  // En test local (Jest), no usar store redis para evitar problemas de conexión/cerrado
+  if (isTest) {
     return undefined;
   }
 
@@ -70,8 +70,8 @@ const baseRateLimitConfig: Partial<RateLimitOptions> = {
   // Skip failed requests (false = contar todas las requests)
   skipFailedRequests: false,
 
-  // IMPORTANTE: Desactivar rate limiting en desarrollo y test
-  skip: () => isDevelopment || isTest,
+  // IMPORTANTE: Modificado para testear k6 (ahora solo salta el rate limit en 'test')
+  skip: () => isTest,
 };
 
 /**
@@ -82,7 +82,7 @@ export const generalRateLimiter = rateLimit({
   ...baseRateLimitConfig,
   store: getRateLimitStore('rl:general:'),
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 200,
+  max: 250, // 250 peticiones por ventana (holgado para navegación normal)
   message: {
     error: 'Too many requests',
     message: 'You have made too many requests. Please wait a few minutes and try again.',

@@ -58,6 +58,18 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
 
+  k6:
+    image: grafana/k6:latest
+    container_name: bills-tracker-k6
+    profiles:
+      - testing
+    volumes:
+      - ./tests/load:/tests
+    environment:
+      - API_TOKEN=${TEST_API_TOKEN:-}
+    depends_on:
+      - app
+
 volumes:
   db_data:
     driver: local
