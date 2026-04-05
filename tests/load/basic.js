@@ -2,8 +2,10 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 // The k6 container refers to the backend as `app` since they use the same docker network.
+// eslint-disable-next-line no-undef
 const BASE_URL = __ENV.API_BASE_URL || 'http://app:3000/api';
 // Optionally get the token from environment flag (mapped from .env as TEST_API_TOKEN)
+// eslint-disable-next-line no-undef
 const TOKEN = __ENV.API_TOKEN || '';
 
 export const options = {
