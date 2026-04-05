@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import RedisClient from '@infrastructure/database/redis.client';
 import { AppDataSource } from '@infrastructure/database/connection';
+import { TestDataSource } from '@infrastructure/database/connection-test';
 
+const activeDataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
 export class HealthController {
   public checkHealth = async (req: Request, res: Response): Promise<void> => {
     // Check Redis connection
@@ -12,7 +14,7 @@ export class HealthController {
         : 'not_configured';
 
     // Check database connection
-    const dbStatus = AppDataSource.isInitialized ? 'connected' : 'disconnected';
+    const dbStatus = activeDataSource.isInitialized ? 'connected' : 'disconnected';
 
     // Overall health status
     const isHealthy = dbStatus === 'connected';

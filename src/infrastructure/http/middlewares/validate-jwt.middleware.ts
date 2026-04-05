@@ -5,7 +5,10 @@ import { UserDataSourceImpl } from '@infrastructure/datasource/user/user.datasou
 import { UserRepositoryImpl } from '@infrastructure/repositories/user/user.repository.impl';
 import { GetUser } from '@application/uses-cases/user/get-user';
 import { AppDataSource } from '@infrastructure/database/connection';
+import { TestDataSource } from '@infrastructure/database/connection-test';
 import type { SafeUser } from '@application/uses-cases/user/types/auth-user.type';
+
+const activeDataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
 
 export async function validateJwt(req: Request, res: Response, next: NextFunction): Promise<void> {
   const token = req.header('Authorization');
@@ -29,7 +32,7 @@ export async function validateJwt(req: Request, res: Response, next: NextFunctio
       }
 
       const user = await new GetUser(
-        new UserRepositoryImpl(new UserDataSourceImpl(AppDataSource)),
+        new UserRepositoryImpl(new UserDataSourceImpl(activeDataSource)),
       ).execute(Number(decoded.sub));
 
       if (!user) {

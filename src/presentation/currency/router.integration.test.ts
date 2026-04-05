@@ -1,9 +1,9 @@
-import supertest from 'supertest';
+import { createAuthRequest } from '../../../tests/helpers/auth-request.helper';
 import { CREATE_TEST_SERVER } from '../../../tests/helpers/server';
 import { Currency } from '../../domain/entities/currency.entity';
 
 describe('Currency Router Integration Tests', () => {
-  const request = supertest(CREATE_TEST_SERVER.app);
+  const request = createAuthRequest(CREATE_TEST_SERVER.app);
 
   describe('GET /api/currencies', () => {
     test('should retrieve all currencies (empty array when no data)', async () => {
@@ -167,9 +167,9 @@ describe('Currency Router Integration Tests', () => {
         .send(updateData)
         .expect(404);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('msg');
-      expect(response.body.error.msg).toContain('not found');
+      expect(response.body).toHaveProperty('title');
+
+      expect(response.body.title).toContain('Resource Not Found');
 
       console.log(`✅ PUT /api/currencies/${nonExistentId}: Correctly returned 404`);
     });

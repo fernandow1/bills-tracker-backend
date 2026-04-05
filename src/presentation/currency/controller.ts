@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { CurrencyRepository } from '@domain/repository/currency.repository';
 import { CreateCurrencyDto } from '@application/dtos/currency/create-currency.dto';
 import { validate } from 'class-validator';
-import { internalError, notFound } from '@presentation/helpers/http-error.helper';
+import { internalError, isHttpError, notFound } from '@presentation/helpers/http-error.helper';
 import { plainToClass } from 'class-transformer';
 import { EntityNotFoundError } from 'typeorm';
 import { UpdateCurrencyDto } from '@application/dtos/currency/update-currency.dto';
@@ -69,6 +69,11 @@ export class CurrencyController {
       if (error instanceof EntityNotFoundError) {
         return next(notFound(`Currency with id ${id} not found`));
       }
+
+      if (isHttpError(error)) {
+        return next(error);
+      }
+
       return next(internalError('Error updating currency'));
     }
   };

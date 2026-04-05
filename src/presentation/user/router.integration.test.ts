@@ -1,4 +1,5 @@
 import request from 'supertest';
+import { getAuthHeader } from '../../../tests/helpers/auth.helper';
 import { CREATE_TEST_SERVER } from '../../../tests/helpers/server';
 import { Application } from 'express';
 
@@ -20,7 +21,7 @@ describe('User Router Integration Tests', () => {
     };
 
     it('should attempt to create a new user', async () => {
-      const response = await request(app).post('/api/users').send(validUserData);
+      const response = await request(app).post('/api/users').set('Authorization', getAuthHeader()).send(validUserData);
 
       // Puede retornar 201 (éxito) o 500 (error interno)
       expect([201, 500]).toContain(response.status);
@@ -43,7 +44,7 @@ describe('User Router Integration Tests', () => {
         password: '123', // Invalid: too short
       };
 
-      const response = await request(app).post('/api/users').send(invalidUserData);
+      const response = await request(app).post('/api/users').set('Authorization', getAuthHeader()).send(invalidUserData);
 
       // Puede retornar 400 (validación) o 500 (error interno)
       expect([400, 500]).toContain(response.status);
@@ -55,24 +56,24 @@ describe('User Router Integration Tests', () => {
         // Missing email, password, name, surname
       };
 
-      const response = await request(app).post('/api/users').send(incompleteUserData);
+      const response = await request(app).post('/api/users').set('Authorization', getAuthHeader()).send(incompleteUserData);
 
       // Puede retornar 400 (validación) o 500 (error interno)
       expect([400, 500]).toContain(response.status);
     });
   });
 
-  describe('POST /api/users/login', () => {
+  describe('POST /api/auth/login', () => {
     const loginCredentials = {
       username: 'loginuser',
       password: 'password123',
     };
 
     it('should attempt to login with valid format', async () => {
-      const response = await request(app).post('/api/users/login').send(loginCredentials);
+      const response = await request(app).post('/api/auth/login').send(loginCredentials);
 
-      // Puede retornar 200 (éxito), 403 (credenciales inválidas) o 500 (error interno)
-      expect([200, 403, 500]).toContain(response.status);
+      // Puede retornar 200 (éxito), 401 (no autorizado), 403 (credenciales inválidas) o 500 (error interno)
+      expect([200, 401, 403, 500]).toContain(response.status);
 
       if (response.status === 200) {
         expect(response.body).toMatchObject({
@@ -87,7 +88,7 @@ describe('User Router Integration Tests', () => {
         password: 'password123',
       };
 
-      const response = await request(app).post('/api/users/login').send(missingUsername);
+      const response = await request(app).post('/api/auth/login').send(missingUsername);
 
       // Puede retornar 400 (validación) o 500 (error interno)
       expect([400, 500]).toContain(response.status);
@@ -98,7 +99,7 @@ describe('User Router Integration Tests', () => {
         username: 'testuser',
       };
 
-      const response = await request(app).post('/api/users/login').send(missingPassword);
+      const response = await request(app).post('/api/auth/login').send(missingPassword);
 
       // Puede retornar 400 (validación) o 500 (error interno)
       expect([400, 500]).toContain(response.status);
