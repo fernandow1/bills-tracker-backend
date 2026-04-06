@@ -38,8 +38,12 @@ export default function () {
     idUser: 1,
     idShop: 1,
     idCurrency: 1,
-    idPaymentMethod: 1,
+    idPaymentMethod: 'some-uuid',
+    subtotal: 1550.75,
+    discount: 0,
     total: 1550.75,
+    idUserOwner: 1,
+    purchasedAt: new Date().toISOString(),
     billItems: [
       {
         idProduct: 1,
