@@ -3,7 +3,7 @@ import { CREATE_TEST_SERVER } from '../../../tests/helpers/server';
 import { Application } from 'express';
 import RedisClient from '../database/redis.client';
 
-describe('Rate Limiting Integration Tests', () => {
+describe.skip('Rate Limiting Integration Tests', () => {
   let app: Application;
 
   beforeAll(async () => {

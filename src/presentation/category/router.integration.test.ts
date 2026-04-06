@@ -1,9 +1,9 @@
-import supertest from 'supertest';
+import { createAuthRequest } from '../../../tests/helpers/auth-request.helper';
 import { CREATE_TEST_SERVER } from '../../../tests/helpers/server';
 import { Category } from '../../domain/entities/category.entity';
 
 describe('Category Router Integration Tests', () => {
-  const request = supertest(CREATE_TEST_SERVER.app);
+  const request = createAuthRequest(CREATE_TEST_SERVER.app);
 
   describe('GET /api/categories', () => {
     test('should retrieve all categories (empty array when no data)', async () => {
@@ -89,10 +89,10 @@ describe('Category Router Integration Tests', () => {
       const response = await request.post('/api/categories').send(invalidCategoryData).expect(400);
 
       // Las validaciones retornan un error específico
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
-      expect(response.body.error).toHaveProperty('msg', 'Validation failed');
-      expect(response.body.error).toHaveProperty('details');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
+      expect(response.body).toHaveProperty('title', 'Validation Error');
+      expect(response.body).toHaveProperty('errors');
 
       console.log(`✅ POST /api/categories (invalid): Correctly rejected request without name`);
     });
@@ -104,8 +104,8 @@ describe('Category Router Integration Tests', () => {
 
       const response = await request.post('/api/categories').send(invalidCategoryData).expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
 
       console.log(`✅ POST /api/categories (empty name): Correctly rejected empty name`);
     });
@@ -117,8 +117,8 @@ describe('Category Router Integration Tests', () => {
 
       const response = await request.post('/api/categories').send(invalidCategoryData).expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
 
       console.log(
         `✅ POST /api/categories (long name): Correctly rejected name exceeding max length`,
@@ -132,8 +132,8 @@ describe('Category Router Integration Tests', () => {
 
       const response = await request.post('/api/categories').send(invalidCategoryData).expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
 
       console.log(`✅ POST /api/categories (non-string): Correctly rejected non-string name`);
     });
@@ -201,8 +201,8 @@ describe('Category Router Integration Tests', () => {
         .send(invalidData)
         .expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
 
       console.log(`✅ PUT /api/categories/:id (invalid): Correctly rejected invalid update data`);
     });
@@ -218,7 +218,7 @@ describe('Category Router Integration Tests', () => {
         .send(updatedData)
         .expect(500); // El controlador actual devuelve 500 para errores internos
 
-      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('title');
 
       console.log(`✅ PUT /api/categories/:id: Handled update for non-existent category`);
     });

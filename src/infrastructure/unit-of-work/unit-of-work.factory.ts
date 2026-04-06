@@ -1,13 +1,15 @@
 import { IUnitOfWork } from '@domain/ports/unit-of-work.interface';
 import { TypeOrmUnitOfWork } from '@infrastructure/unit-of-work/typeorm-unit-of-work';
 import { AppDataSource } from '@infrastructure/database/connection';
+import { TestDataSource } from '@infrastructure/database/connection-test';
 
+const activeDataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
 /**
  * Creates a new Unit of Work instance
  * @returns Fresh UnitOfWork instance ready to begin transactions
  */
 export const CREATE_UNIT_OF_WORK = (): IUnitOfWork => {
-  return new TypeOrmUnitOfWork(AppDataSource);
+  return new TypeOrmUnitOfWork(activeDataSource);
 };
 
 /**

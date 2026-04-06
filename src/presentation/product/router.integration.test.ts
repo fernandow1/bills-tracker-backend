@@ -1,8 +1,8 @@
-import supertest from 'supertest';
+import { createAuthRequest } from '../../../tests/helpers/auth-request.helper';
 import { CREATE_TEST_SERVER } from '../../../tests/helpers/server';
 
 describe('Product Router Integration Tests', () => {
-  const request = supertest(CREATE_TEST_SERVER.app);
+  const request = createAuthRequest(CREATE_TEST_SERVER.app);
 
   describe('GET /api/products', () => {
     test('should retrieve all products (empty array when no data)', async () => {
@@ -96,8 +96,8 @@ describe('Product Router Integration Tests', () => {
 
       const response = await request.get(`/api/products/${nonExistentId}`).expect(500);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'INTERNAL_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 500);
 
       console.log(`✅ GET /api/products/${nonExistentId}: Correctly handled non-existent product`);
     });
@@ -189,10 +189,10 @@ describe('Product Router Integration Tests', () => {
 
       const response = await request.post('/api/products').send(invalidProductData).expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
-      expect(response.body.error).toHaveProperty('msg', 'Validation failed');
-      expect(response.body.error).toHaveProperty('details');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
+      expect(response.body).toHaveProperty('title', 'Validation Error');
+      expect(response.body).toHaveProperty('errors');
 
       console.log(
         `✅ POST /api/products (invalid): Correctly rejected request without required fields`,
@@ -209,9 +209,9 @@ describe('Product Router Integration Tests', () => {
 
       const response = await request.post('/api/products').send(invalidProductData).expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
-      expect(response.body.error).toHaveProperty('msg', 'Validation failed');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
+      expect(response.body).toHaveProperty('title', 'Validation Error');
 
       console.log(`✅ POST /api/products (empty name): Correctly rejected request with empty name`);
     });
@@ -226,9 +226,9 @@ describe('Product Router Integration Tests', () => {
 
       const response = await request.post('/api/products').send(invalidProductData).expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
-      expect(response.body.error).toHaveProperty('msg', 'Validation failed');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
+      expect(response.body).toHaveProperty('title', 'Validation Error');
 
       console.log(
         `✅ POST /api/products (invalid idBrand): Correctly rejected request with invalid idBrand`,
@@ -245,9 +245,9 @@ describe('Product Router Integration Tests', () => {
 
       const response = await request.post('/api/products').send(invalidProductData).expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
-      expect(response.body.error).toHaveProperty('msg', 'Validation failed');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
+      expect(response.body).toHaveProperty('title', 'Validation Error');
 
       console.log(
         `✅ POST /api/products (invalid idCategory): Correctly rejected request with invalid idCategory`,
@@ -350,9 +350,9 @@ describe('Product Router Integration Tests', () => {
         .send(invalidUpdateData)
         .expect(400);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
-      expect(response.body.error).toHaveProperty('msg', 'Validation failed');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 400);
+      expect(response.body).toHaveProperty('title', 'Validation Error');
 
       console.log(`✅ PUT /api/products/${testProductId}: Correctly rejected invalid update data`);
     });
@@ -371,8 +371,8 @@ describe('Product Router Integration Tests', () => {
         .send(updateData)
         .expect(500);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'INTERNAL_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 500);
 
       console.log(`✅ PUT /api/products/${nonExistentId}: Correctly handled non-existent product`);
     });
@@ -421,8 +421,8 @@ describe('Product Router Integration Tests', () => {
 
       const response = await request.delete(`/api/products/${nonExistentId}`).expect(500);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'INTERNAL_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 500);
 
       console.log(
         `✅ DELETE /api/products/${nonExistentId}: Correctly handled non-existent product`,
@@ -465,8 +465,8 @@ describe('Product Router Integration Tests', () => {
 
       const response = await request.get(`/api/products/${invalidId}`).expect(500);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'INTERNAL_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 500);
 
       console.log(`✅ GET /api/products/${invalidId}: Correctly handled invalid ID format`);
     });
@@ -482,8 +482,8 @@ describe('Product Router Integration Tests', () => {
 
       const response = await request.put(`/api/products/${invalidId}`).send(updateData).expect(500);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'INTERNAL_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 500);
 
       console.log(`✅ PUT /api/products/${invalidId}: Correctly handled invalid ID format`);
     });
@@ -493,8 +493,8 @@ describe('Product Router Integration Tests', () => {
 
       const response = await request.delete(`/api/products/${invalidId}`).expect(500);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('code', 'INTERNAL_ERROR');
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('status', 500);
 
       console.log(`✅ DELETE /api/products/${invalidId}: Correctly handled invalid ID format`);
     });

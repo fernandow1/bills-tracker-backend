@@ -39,7 +39,7 @@ services:
     container_name: bills-tracker-db-test
     restart: always
     ports:
-      - '3309:3306' # Puerto diferente para BD de pruebas
+      - '3309:3306'
     environment:
       MYSQL_ROOT_PASSWORD: ${TEST_DB_ROOT_PASSWORD:-testroot}
       MYSQL_DATABASE: ${TEST_DB_NAME:-bills_tracker_test}
@@ -58,10 +58,97 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
 
+  k6:
+    image: grafana/k6:latest
+    container_name: bills-tracker-k6
+    profiles:
+      - testing
+    volumes:
+      - ./tests/load:/tests
+    environment:
+      - API_TOKEN=${TEST_API_TOKEN:-}
+      - K6_OUT=experimental-prometheus-rw
+      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+    depends_on:
+      - app
+      - prometheus
+      - grafana
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: bills-tracker-prometheus
+    profiles:
+      - testing
+    restart: always
+    ports:
+      - '9090:9090'
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver
+    volumes:
+      - prometheus_data:/prometheus
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - mysqld-exporter
+
+  mysqld-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: bills-tracker-mysqld-exporter
+    profiles:
+      - testing
+    restart: always
+    ports:
+      - '9104:9104'
+    environment:
+      - MYSQLD_EXPORTER_PASSWORD=${DB_ROOT_PASSWORD}
+    volumes:
+      - ./monitoring/mysql/.my.cnf:/.my.cnf
+    depends_on:
+      - db
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: bills-tracker-grafana
+    profiles:
+      - testing
+    restart: always
+    ports:
+      - '3001:3000'
+    environment:
+      - GF_SERVER_ROOT_URL=http://localhost:3001/
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/k6.json
+      - GF_RENDERING_SERVER_URL=http://grafana-image-renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
+      - GF_LOG_FILTERS=rendering:debug
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    depends_on:
+      - prometheus
+      - grafana-image-renderer
+
+  grafana-image-renderer:
+    image: grafana/grafana-image-renderer:latest
+    container_name: bills-tracker-grafana-image-renderer
+    profiles:
+      - testing
+    restart: always
+    ports:
+      - '8081:8081'
+
 volumes:
   db_data:
     driver: local
   db_test_data:
     driver: local
   redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
     driver: local

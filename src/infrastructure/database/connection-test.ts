@@ -9,13 +9,12 @@ export const TestDataSource = new DataSource({
   type: 'mysql',
   host: process.env.TEST_DB_HOST || 'localhost',
   port: Number(process.env.TEST_DB_PORT) || 3309,
-  username: process.env.TEST_DB_USER || 'testuser',
-  password: process.env.TEST_DB_PASSWORD || 'testpass',
+  username: process.env.TEST_DB_USER || 'root',
+  password: process.env.TEST_DB_PASSWORD || 'testroot',
   database: process.env.TEST_DB_NAME || 'bills_tracker_test',
-  synchronize: true, // ✅ Para tests: recrea esquema automáticamente
-  logging: false, // ✅ Evita logs en tests
-  dropSchema: true, // ✅ Limpia BD entre tests
+  synchronize: true,
+  logging: false,
   entities: DATABASE_ENTITIES,
-  migrations: [], // ✅ No necesarias con synchronize: true
+  migrations: [path.join(process.cwd(), 'migrations', '*.js')],
   subscribers: [],
 });

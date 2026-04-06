@@ -9,6 +9,7 @@ import { GetPaymentsMethod } from '@application/uses-cases/payment-method/get-pa
 import { DeletePaymentMethod } from '@application/uses-cases/payment-method/delete-payment-method';
 import { UpdatePaymentMethod } from '@application/uses-cases/payment-method/update-payment-method';
 import { EntityNotFoundError } from 'typeorm';
+import { isHttpError } from '@application/errors/http-error.interface';
 
 export class PaymentMethodController {
   constructor(private readonly repository: PaymentMethodRepository) {}
@@ -40,6 +41,14 @@ export class PaymentMethodController {
       res.status(204).send();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
+      if (error instanceof EntityNotFoundError) {
+        return next(notFound(`Payment method with uuid ${req.params.uuid} not found`));
+      }
+
+      if (isHttpError(error)) {
+        return next(error);
+      }
+
       return next(internalError('Internal server error'));
     }
   };
@@ -69,6 +78,11 @@ export class PaymentMethodController {
       if (error instanceof EntityNotFoundError) {
         return next(notFound(`Payment method with uuid ${req.params.uuid} not found`));
       }
+
+      if (isHttpError(error)) {
+        return next(error);
+      }
+
       return next(internalError('Internal server error'));
     }
   };

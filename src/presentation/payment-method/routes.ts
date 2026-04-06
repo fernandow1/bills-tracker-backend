@@ -29,7 +29,7 @@ export const PaymentMethodRouter = {
         paymentMethodController.createPaymentMethod(req, res, next);
       },
     );
-    router.patch(
+    router.put(
       '/:uuid',
       [validateJwt, checkAbility('update', 'PaymentMethod')],
       (req: Request, res: Response, next: NextFunction) => {
