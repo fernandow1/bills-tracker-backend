@@ -6,8 +6,6 @@ import { envs } from '@infrastructure/config/env';
 
 import { DATABASE_ENTITIES } from '@infrastructure/database/entities';
 
-const isDevelopment = envs.NODE_ENV === 'development';
-
 export const AppDataSource = new DataSource({
   type: 'mysql',
   host: envs.DB_HOST,

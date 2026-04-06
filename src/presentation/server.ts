@@ -10,6 +10,7 @@ import {
 } from '@infrastructure/security/helmet.config';
 import { generalRateLimiter } from '@infrastructure/security/rate-limit.config';
 import { logger } from '@infrastructure/logging/logger.config';
+import * as promClient from 'prom-client';
 
 interface Options {
   port: number;
@@ -28,6 +29,11 @@ export class Server {
   }
 
   async start(): Promise<void> {
+    // Collect default metrics for Prometheus only in development
+    if (getCurrentEnvironment() === 'development') {
+      promClient.collectDefaultMetrics();
+    }
+
     // Configurar trust proxy para Railway
     // Railway usa un reverse proxy, necesitamos confiar en él para obtener la IP real del cliente
     this.app.set('trust proxy', 1);
@@ -48,6 +54,14 @@ export class Server {
     this.app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
     this.app.use(compression()); // Enable compression for responses
     this.app.use(this.routes);
+
+    // Prometheus metrics endpoint - Only available in development
+    if (getCurrentEnvironment() === 'development') {
+      this.app.get('/metrics', async (req, res) => {
+        res.set('Content-Type', promClient.register.contentType);
+        res.end(await promClient.register.metrics());
+      });
+    }
 
     /* Middleware for errors */
     this.app.use(errorHandler);
