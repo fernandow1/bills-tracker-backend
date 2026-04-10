@@ -22,8 +22,8 @@ export const UserRouter = {
     router.get(
       '/',
       [validateJwt, checkAbility('read', 'User')],
-      (req: Request, res: Response, _next: NextFunction) => {
-        userController.searchUsers(req, res);
+      (req: Request, res: Response, next: NextFunction) => {
+        userController.searchUsers(req, res, next);
       },
     );
 
