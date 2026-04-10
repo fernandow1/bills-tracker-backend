@@ -31,9 +31,8 @@ export class ProductController {
     try {
       const products = await new GetProducts(this.productRepository).execute();
       res.status(200).json(products);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -58,8 +57,7 @@ export class ProductController {
       );
       res.status(200).json(products);
     } catch (error) {
-      console.log(error);
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -68,9 +66,8 @@ export class ProductController {
       const productId = req.params.id;
       const product = await new GetProduct(this.productRepository).execute(Number(productId));
       res.status(200).json(product);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -89,9 +86,8 @@ export class ProductController {
 
       const product = await new CreateProduct(this.productRepository).execute(dto);
       res.status(201).json(product);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -114,9 +110,8 @@ export class ProductController {
         dto,
       );
       res.status(200).json(product);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -125,9 +120,8 @@ export class ProductController {
       const productId = req.params.id;
       await new DeleteProduct(this.productRepository).execute(Number(productId));
       res.status(204).send();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -151,9 +145,8 @@ export class ProductController {
       });
 
       res.status(200).json(shops);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 }

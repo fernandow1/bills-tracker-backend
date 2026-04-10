@@ -53,6 +53,7 @@ export function errorHandler(err: unknown, req: Request, res: Response, _next: N
     ip: req.ip,
     userAgent: req.get('user-agent'),
     errorType: err instanceof Error ? err.constructor.name : typeof err,
+    details: isHttpError(err) ? err.details : undefined,
     validationErrors,
     stack: err instanceof Error ? err.stack : undefined,
     timestamp: new Date().toISOString(),

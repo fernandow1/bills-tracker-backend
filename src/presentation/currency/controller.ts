@@ -16,9 +16,8 @@ export class CurrencyController {
     try {
       const currencies = await this.repository.getCurrencies();
       res.status(200).json(currencies);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: unknown) {
-      return next(internalError('Error fetching currencies'));
+      return next(internalError('Error fetching currencies', error));
     }
   };
 
@@ -39,9 +38,8 @@ export class CurrencyController {
     try {
       const currency = await this.repository.createCurrency(dto);
       res.status(201).json(currency);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: unknown) {
-      return next(internalError('Error creating currency'));
+      return next(internalError('Error creating currency', error));
     }
   };
 
@@ -74,7 +72,7 @@ export class CurrencyController {
         return next(error);
       }
 
-      return next(internalError('Error updating currency'));
+      return next(internalError('Error updating currency', error));
     }
   };
 
@@ -89,7 +87,7 @@ export class CurrencyController {
       if (error instanceof EntityNotFoundError) {
         return next(notFound(`Currency with id ${id} not found`));
       }
-      return next(internalError('Error deleting currency'));
+      return next(internalError('Error deleting currency', error));
     }
   };
 }

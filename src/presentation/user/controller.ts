@@ -10,7 +10,7 @@ import { queryMapper } from '@application/mappers/query-filter.mapper';
 import { QueryFilterDTO } from '@infrastructure/http/dto/query-filter.dto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
-import { badRequest, notFound } from '@presentation/helpers/http-error.helper';
+import { badRequest, internalError, notFound } from '@presentation/helpers/http-error.helper';
 import { SafeUser } from '@application/uses-cases/user/types/auth-user.type';
 
 export class UserController {
@@ -35,11 +35,9 @@ export class UserController {
       const createUser = new CreateUser(this.repository, this.passwordHasher);
       const user = await createUser.execute(dto);
       res.status(201).json(user);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
-      res.status(500).json({
-        message: 'Internal server error',
-      });
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -60,7 +58,7 @@ export class UserController {
       const updateUser = new UpdateUser(this.repository, this.passwordHasher);
       const user = await updateUser.execute(Number(id), dto);
       res.status(200).json(user);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
       if (error instanceof Error) {
         if (error.message === 'User not found') {
@@ -73,13 +71,11 @@ export class UserController {
           return next(badRequest(error.message, []));
         }
       }
-      res.status(500).json({
-        message: 'Internal server error',
-      });
+      return next(internalError('Internal server error', error));
     }
   };
 
-  searchUsers = async (req: Request, res: Response): Promise<void> => {
+  searchUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const dto = plainToClass(QueryFilterDTO, req.query);
 
@@ -102,11 +98,9 @@ export class UserController {
       const searchUser = new SearchUser(this.repository);
       const result = await searchUser.execute(filter);
       res.status(200).json(result);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
-      res.status(500).json({
-        message: 'Internal server error',
-      });
+      return next(internalError('Internal server error', error));
     }
   };
 }
