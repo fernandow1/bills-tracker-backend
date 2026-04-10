@@ -33,9 +33,8 @@ export class CategoryController {
 
       const category = await new CreateCategory(this.categoryRepository).execute(dto);
       res.status(201).json(category);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -43,9 +42,8 @@ export class CategoryController {
     try {
       const categories = await new GetCategories(this.categoryRepository).execute();
       res.status(200).json(categories);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -70,8 +68,7 @@ export class CategoryController {
       );
       res.status(200).json(categories);
     } catch (error) {
-      console.log(error);
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -90,9 +87,8 @@ export class CategoryController {
 
       const categoryUpdated = await new UpdateCategory(this.categoryRepository).execute(id, dto);
       res.status(200).json(categoryUpdated);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -101,9 +97,8 @@ export class CategoryController {
       const id = Number(req.params.id);
       await new DeleteCategory(this.categoryRepository).execute(id);
       res.status(204).send();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 }

@@ -60,7 +60,7 @@ export class AuthController {
       if (isHttpError(error)) {
         return next(error);
       }
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -115,7 +115,7 @@ export class AuthController {
       ) {
         return next(forbidden('Invalid or malformed token', error));
       }
-      return next(internalError('Failed to refresh token'));
+      return next(internalError('Failed to refresh token', error));
     }
   };
 
@@ -149,7 +149,7 @@ export class AuthController {
       ) {
         return next(badRequest('Invalid or malformed token', error));
       }
-      return next(internalError('Failed to revoke token'));
+      return next(internalError('Failed to revoke token', error));
     }
   };
 }
