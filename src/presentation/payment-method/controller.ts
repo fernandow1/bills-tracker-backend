@@ -28,9 +28,8 @@ export class PaymentMethodController {
       const paymentMethod = await new CreatePaymentMethod(this.repository).execute(dto);
 
       res.status(201).json(paymentMethod);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -91,9 +90,8 @@ export class PaymentMethodController {
     try {
       const paymentMethods = await new GetPaymentsMethod(this.repository).execute();
       res.status(200).json(paymentMethods);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 }

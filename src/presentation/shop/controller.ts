@@ -52,7 +52,7 @@ export class ShopController {
       res.status(200).json(shops);
     } catch (error) {
       console.log(error);
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -73,9 +73,8 @@ export class ShopController {
     try {
       const shop = await this.createShop.execute(dto);
       res.status(201).json(shop);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: unknown) {
-      return next(internalError('Error creating shop'));
+      return next(internalError('Error creating shop', error));
     }
   };
 
@@ -130,7 +129,7 @@ export class ShopController {
       if (error instanceof EntityNotFoundError) {
         return next(notFound(`Shop with id ${id} not found`));
       }
-      return next(internalError('Error updating shop'));
+      return next(internalError('Error updating shop', error));
     }
   };
 }

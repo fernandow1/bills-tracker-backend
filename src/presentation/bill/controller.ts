@@ -61,7 +61,7 @@ export class BillController {
         }
       }
 
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -71,7 +71,7 @@ export class BillController {
       res.status(200).json(bills);
     } catch (error) {
       console.log(error);
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -98,7 +98,7 @@ export class BillController {
       res.status(200).json(bills);
     } catch (error) {
       console.log(error);
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -122,7 +122,7 @@ export class BillController {
       res.status(200).json(bill);
     } catch (error) {
       console.log(error);
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -133,7 +133,7 @@ export class BillController {
       res.status(204).send();
     } catch (error) {
       console.log(error);
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -179,7 +179,7 @@ export class BillController {
         metadata.aiInstructions,
       );
       if (!aiData) {
-        return next(internalError('Failed to extract data from image'));
+        return next(internalError('Failed to extract data from image', { reason: 'AI returned null data' }));
       }
 
       if (aiData.receipt_number && aiData.receipt_number.trim() !== '') {
@@ -282,7 +282,7 @@ export class BillController {
         }
       }
 
-      return next(internalError('Failed to process image and create bill'));
+      return next(internalError('Failed to process image and create bill', error));
     }
   };
 }

@@ -35,9 +35,8 @@ export class BrandController {
 
       const brand = await new CreateBrand(this.brandRepository).execute(dto);
       res.status(201).json(brand);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -56,9 +55,8 @@ export class BrandController {
       const { id } = req.params;
       const updatedBrand = await new UpdateBrand(this.brandRepository).execute(Number(id), dto);
       res.status(200).json(updatedBrand);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -69,9 +67,8 @@ export class BrandController {
       await new DeleteBrand(this.brandRepository).execute(Number(id));
 
       res.status(204).send();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -79,9 +76,8 @@ export class BrandController {
     try {
       const brands = await new GetBrands(this.brandRepository).execute();
       res.status(200).json(brands);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 
@@ -108,7 +104,7 @@ export class BrandController {
       res.status(200).json(brands);
     } catch (error) {
       console.log(error);
-      return next(internalError('Internal server error'));
+      return next(internalError('Internal server error', error));
     }
   };
 }
