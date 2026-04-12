@@ -42,7 +42,9 @@ export class ExtractBillDataFromImage {
     for (const item of aiData.items) {
       if (item.id_category === null) {
         const newCategoryName = item.suggested_category?.trim() || 'Sin Categoría';
-        const existingCategory = categories.find((c) => c.name.toLowerCase() === newCategoryName.toLowerCase());
+        const existingCategory = categories.find(
+          (c) => c.name.toLowerCase() === newCategoryName.toLowerCase(),
+        );
 
         if (existingCategory) {
           item.id_category = existingCategory.id;
@@ -58,7 +60,9 @@ export class ExtractBillDataFromImage {
 
       if (item.id_brand === null) {
         const newBrandName = item.suggested_brand?.trim() || 'Genérica';
-        const existingBrand = brands.find((b) => b.name.toLowerCase() === newBrandName.toLowerCase());
+        const existingBrand = brands.find(
+          (b) => b.name.toLowerCase() === newBrandName.toLowerCase(),
+        );
 
         if (existingBrand) {
           item.id_brand = existingBrand.id;

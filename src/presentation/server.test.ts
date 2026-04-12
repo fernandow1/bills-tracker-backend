@@ -38,7 +38,7 @@ describe('Server', () => {
 
     // Procedemos a probar el método stop()
     await server.stop();
-    
+
     // Validamos que el Graceful Shutdown haya llamado al método close() de node http.Server
     expect(mockClose).toHaveBeenCalledTimes(1);
   });

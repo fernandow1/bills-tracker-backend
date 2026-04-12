@@ -1,4 +1,15 @@
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: bills-tracker-nginx
+    restart: always
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+
   app:
     build:
       context: .
@@ -13,12 +24,10 @@ services:
     environment:
       - MYSQLHOST=db
       - MYSQLPORT=3306
-      - REDIS_URL=redis://redis:6379
     env_file:
       - .env
     depends_on:
       - db
-      - redis
 
   db:
     image: mysql:8.0
@@ -48,16 +57,6 @@ services:
     volumes:
       - db_test_data:/var/lib/mysql
 
-  redis:
-    image: redis:7-alpine
-    container_name: bills-tracker-redis
-    restart: always
-    ports:
-      - '6379:6379'
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
-
   k6:
     image: grafana/k6:latest
     container_name: bills-tracker-k6
@@ -66,11 +65,12 @@ services:
     volumes:
       - ./tests/load:/tests
     environment:
+      - API_BASE_URL=http://nginx/api
       - API_TOKEN=${TEST_API_TOKEN:-}
       - K6_OUT=experimental-prometheus-rw
       - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
     depends_on:
-      - app
+      - nginx
       - prometheus
       - grafana
 
@@ -145,8 +145,6 @@ volumes:
   db_data:
     driver: local
   db_test_data:
-    driver: local
-  redis_data:
     driver: local
   prometheus_data:
     driver: local

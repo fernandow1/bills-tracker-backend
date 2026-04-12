@@ -64,8 +64,10 @@ export class GeminiVisionService implements IAIVisionPort {
     if (aiInstructions) {
       // Sanitizar la instrucción del usuario: limitar a 300 caracteres y escapar comillas
       const sanitizedInstructions = aiInstructions.trim().substring(0, 300).replace(/"/g, "'");
-      logger.info('Instrucciones extra provistas para la IA:', { instructions: sanitizedInstructions });
-      
+      logger.info('Instrucciones extra provistas para la IA:', {
+        instructions: sanitizedInstructions,
+      });
+
       basePrompt += `\n\nINSTRUCCIONES EXTRA ESPECÍFICAS DEL USUARIO PARA ESTA IMAGEN:\n- ${sanitizedInstructions}`;
     }
 

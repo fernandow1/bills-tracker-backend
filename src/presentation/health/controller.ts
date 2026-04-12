@@ -1,18 +1,10 @@
 import { Request, Response } from 'express';
-import RedisClient from '@infrastructure/database/redis.client';
 import { AppDataSource } from '@infrastructure/database/connection';
 import { TestDataSource } from '@infrastructure/database/connection-test';
 
 const activeDataSource = process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
 export class HealthController {
   public checkHealth = async (req: Request, res: Response): Promise<void> => {
-    // Check Redis connection
-    const redisStatus = RedisClient.isConnected()
-      ? 'connected'
-      : RedisClient.getInstance()
-        ? 'disconnected'
-        : 'not_configured';
-
     // Check database connection
     const dbStatus = activeDataSource.isInitialized ? 'connected' : 'disconnected';
 
@@ -28,12 +20,6 @@ export class HealthController {
         database: {
           status: dbStatus,
           type: 'mysql',
-        },
-        redis: {
-          status: redisStatus,
-          type: 'redis',
-          note:
-            redisStatus === 'not_configured' ? 'Using memory store for rate limiting' : undefined,
         },
       },
     });

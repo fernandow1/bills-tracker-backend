@@ -29,8 +29,8 @@ describe('FindCheapestShops', () => {
         {
           shopId: 2,
           shopName: 'Shop B',
-          latitude: -34.6210,
-          longitude: -58.3710,
+          latitude: -34.621,
+          longitude: -58.371,
           lastPrice: 150,
           lastPurchaseDate: new Date('2026-01-18'),
           currency: 'ARS',
