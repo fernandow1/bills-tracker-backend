@@ -27,8 +27,12 @@ export class Shop {
    * @returns true si tanto latitude como longitude están definidas
    */
   hasLocation(): boolean {
-    return this.latitude !== null && this.latitude !== undefined && 
-           this.longitude !== null && this.longitude !== undefined;
+    return (
+      this.latitude !== null &&
+      this.latitude !== undefined &&
+      this.longitude !== null &&
+      this.longitude !== undefined
+    );
   }
 
   /**

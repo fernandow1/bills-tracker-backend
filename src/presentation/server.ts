@@ -8,7 +8,6 @@ import {
   getCorsConfig,
   getCurrentEnvironment,
 } from '@infrastructure/security/helmet.config';
-import { generalRateLimiter } from '@infrastructure/security/rate-limit.config';
 import { logger } from '@infrastructure/logging/logger.config';
 import * as promClient from 'prom-client';
 
@@ -45,10 +44,6 @@ export class Server {
     // Aplicar configuración de CORS
     // Los orígenes permitidos están centralizados en el módulo de seguridad
     this.app.use(cors(getCorsConfig(getCurrentEnvironment())));
-
-    // Aplicar rate limiting general a toda la API
-    // Límites específicos por endpoint se aplican en las rutas
-    this.app.use(generalRateLimiter);
 
     this.app.use(express.json()); // For parsing application/json
     this.app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded

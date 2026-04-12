@@ -62,15 +62,17 @@ export function shopRepositoryDomainMock(): jest.Mocked<ShopRepository> {
         shopData.longitude ?? +faker.address.longitude(),
       );
     }),
-    updateShop: jest.fn().mockImplementation(async (id: number, shopData: Partial<Shop>): Promise<Shop> => {
-      return new Shop(
-        id,
-        shopData.name || faker.company.name(),
-        shopData.description || faker.lorem.sentence(),
-        shopData.latitude ?? +faker.address.latitude(),
-        shopData.longitude ?? +faker.address.longitude(),
-      );
-    }),
+    updateShop: jest
+      .fn()
+      .mockImplementation(async (id: number, shopData: Partial<Shop>): Promise<Shop> => {
+        return new Shop(
+          id,
+          shopData.name || faker.company.name(),
+          shopData.description || faker.lorem.sentence(),
+          shopData.latitude ?? +faker.address.latitude(),
+          shopData.longitude ?? +faker.address.longitude(),
+        );
+      }),
     deleteShop: jest.fn().mockResolvedValue(undefined),
   } as unknown as jest.Mocked<ShopRepository>;
 }

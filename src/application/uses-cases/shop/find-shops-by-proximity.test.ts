@@ -97,7 +97,7 @@ describe('FindShopsByProximity', () => {
       const shops = [
         new Shop(1, 'Shop Lejano', null, -34.5875, -58.4173), // ~4 km
         new Shop(2, 'Shop Cercano', null, -34.6037, -58.3816), // 0 km
-        new Shop(3, 'Shop Medio', null, -34.6100, -58.3900), // ~1 km
+        new Shop(3, 'Shop Medio', null, -34.61, -58.39), // ~1 km
       ];
 
       mockShopRepository.findAll.mockResolvedValue(shops);

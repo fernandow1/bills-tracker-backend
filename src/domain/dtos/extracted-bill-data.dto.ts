@@ -18,7 +18,6 @@ export interface ExtractedBillItemDTO {
 }
 
 export interface ExtractedBillDataDTO {
-
   receipt_number: string | null;
   items: ExtractedBillItemDTO[];
 }

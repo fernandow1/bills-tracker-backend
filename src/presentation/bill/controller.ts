@@ -148,7 +148,10 @@ export class BillController {
         return next(badRequest('Metadata is required in the form-data request', []));
       }
 
-      type ExtractBillMetadata = Pick<CreateBillDto, 'idShop' | 'idCurrency' | 'uuidPaymentMethod' | 'purchasedAt'> & {
+      type ExtractBillMetadata = Pick<
+        CreateBillDto,
+        'idShop' | 'idCurrency' | 'uuidPaymentMethod' | 'purchasedAt'
+      > & {
         aiInstructions?: string;
       };
 
@@ -159,9 +162,17 @@ export class BillController {
         return next(badRequest('Metadata must be a valid JSON string', []));
       }
 
-      if (!metadata.idShop || !metadata.idCurrency || !metadata.uuidPaymentMethod || !metadata.purchasedAt) {
+      if (
+        !metadata.idShop ||
+        !metadata.idCurrency ||
+        !metadata.uuidPaymentMethod ||
+        !metadata.purchasedAt
+      ) {
         return next(
-          badRequest('idShop, idCurrency, uuidPaymentMethod, and purchasedAt are required in metadata', []),
+          badRequest(
+            'idShop, idCurrency, uuidPaymentMethod, and purchasedAt are required in metadata',
+            [],
+          ),
         );
       }
 
@@ -179,7 +190,9 @@ export class BillController {
         metadata.aiInstructions,
       );
       if (!aiData) {
-        return next(internalError('Failed to extract data from image', { reason: 'AI returned null data' }));
+        return next(
+          internalError('Failed to extract data from image', { reason: 'AI returned null data' }),
+        );
       }
 
       if (aiData.receipt_number && aiData.receipt_number.trim() !== '') {
@@ -213,10 +226,12 @@ export class BillController {
       createBillDto.total = total;
       createBillDto.idUserOwner = idUser;
       createBillDto.purchasedAt = metadata.purchasedAt;
-      createBillDto.receiptNumber = aiData.receipt_number ? aiData.receipt_number.trim() : undefined;
+      createBillDto.receiptNumber = aiData.receipt_number
+        ? aiData.receipt_number.trim()
+        : undefined;
 
       // Collapse identical products to prevent Duplicate errors
-      const itemsMap = new Map<number, typeof aiData.items[0]>();
+      const itemsMap = new Map<number, (typeof aiData.items)[0]>();
 
       for (const item of aiData.items) {
         if (item.id_product === undefined || item.id_product === null) continue;
@@ -236,7 +251,7 @@ export class BillController {
         createBillItem.idBill = 0; // Assigned later inside UoW
         createBillItem.idProduct = item.id_product!;
         createBillItem.quantity = item.quantity;
-        
+
         // Fallback for contentValue if unit requires it but Gemini missed it
         if (item.net_unit === 'u') {
           createBillItem.contentValue = undefined;
@@ -248,7 +263,7 @@ export class BillController {
 
         // Calculate unit price based on collapsed totals
         createBillItem.netPrice = item.net_price / (item.quantity > 0 ? item.quantity : 1);
-        
+
         const unitValue = item.net_unit as string;
         if (!Object.values(NetUnits).includes(unitValue as any)) {
           throw new Error(`Invalid netUnit received from AI: ${unitValue}`);
@@ -270,7 +285,7 @@ export class BillController {
       res.status(201).json(bill);
     } catch (error) {
       console.error('Image extraction and bill creation error:', error);
-      
+
       if (error instanceof Error) {
         if (
           error.message.includes('Total mismatch') ||

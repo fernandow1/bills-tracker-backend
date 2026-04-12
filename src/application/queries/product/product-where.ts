@@ -7,7 +7,10 @@ export interface ProductWhere {
   updatedAt?: Date;
 }
 
-export const PRODUCT_ALLOWED_FIELDS = new Map<string, { relation?: string; relationField?: string }>([
+export const PRODUCT_ALLOWED_FIELDS = new Map<
+  string,
+  { relation?: string; relationField?: string }
+>([
   ['id', {}],
   ['name', {}],
   ['idCategory', { relation: 'category', relationField: 'id' }],
