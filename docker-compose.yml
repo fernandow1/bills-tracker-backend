@@ -1,12 +1,16 @@
 services:
   nginx:
-    image: nginx:alpine
+    build:
+      context: ./nginx
     container_name: bills-tracker-nginx
     restart: always
     ports:
       - '80:80'
+    environment:
+      - PORT=80
+      - UPSTREAM_URL=http://app:3000
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/templates:/etc/nginx/templates:ro
     depends_on:
       - app
 
