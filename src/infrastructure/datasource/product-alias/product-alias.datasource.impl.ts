@@ -17,14 +17,14 @@ export class ProductAliasDataSourceImpl implements ProductAliasDataSource {
       idShop: productAlias.idShop,
       aliasName: productAlias.aliasName,
     });
-    
+
     const savedEntity = await repository.save(newAliasEntity);
-    
+
     return new ProductAlias(
       savedEntity.id,
       savedEntity.idProduct,
       savedEntity.idShop,
-      savedEntity.aliasName
+      savedEntity.aliasName,
     );
   }
 
@@ -40,7 +40,7 @@ export class ProductAliasDataSourceImpl implements ProductAliasDataSource {
       aliasEntity.id,
       aliasEntity.idProduct,
       aliasEntity.idShop,
-      aliasEntity.aliasName
+      aliasEntity.aliasName,
     );
   }
 }

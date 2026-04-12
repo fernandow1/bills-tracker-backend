@@ -2,7 +2,6 @@ import { AppDataSource } from '@infrastructure/database/connection';
 import { AppRoutes } from '@presentation/routes';
 import { Server } from '@presentation/server';
 import { envs } from '@infrastructure/config/env';
-import RedisClient from '@infrastructure/database/redis.client';
 import { logger } from '@infrastructure/logging/logger.config';
 
 (async (): Promise<void> => {
@@ -47,9 +46,6 @@ async function main(): Promise<void> {
       if (AppDataSource.isInitialized) {
         await AppDataSource.destroy();
       }
-
-      logger.info('3. Disconnecting from Redis...');
-      await RedisClient.disconnect();
 
       logger.info('✅ Graceful shutdown completed successfully. Exiting process.');
       process.exit(0);

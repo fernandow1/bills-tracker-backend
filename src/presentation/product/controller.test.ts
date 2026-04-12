@@ -19,7 +19,7 @@ describe('ProductController', () => {
   beforeEach(() => {
     mockRepository = createMockedProductRepositoryInterface();
     mockBillItemRepository = createMockedBillItemRepositoryInterface();
-    
+
     controller = new ProductController(mockRepository, mockBillItemRepository);
 
     mockRequest = {

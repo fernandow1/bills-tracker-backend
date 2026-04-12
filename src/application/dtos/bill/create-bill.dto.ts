@@ -1,4 +1,13 @@
-import { IsArray, IsDateString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { CreateBillItemDTO } from '../bill-item/create-bill-item.dto';
 import { Type } from 'class-transformer';
 

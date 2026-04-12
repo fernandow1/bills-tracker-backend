@@ -158,7 +158,7 @@ describe('Shop Router Integration Tests', () => {
       // Verificar estructura de error correcta
       expect(response.body).toHaveProperty('title');
       expect(response.body).toHaveProperty('status', 404);
-      
+
       expect(response.body.title).toContain(`Resource Not Found`);
 
       console.log(`✅ UPDATE /api/shops/:id: Correctly handled update for non-existent shop`);

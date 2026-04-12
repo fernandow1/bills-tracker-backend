@@ -32,10 +32,7 @@ export class FindCheapestShops {
     }
 
     // Llamar al repositorio
-    const results = await this.billItemRepository.findCheapestShopsByProduct(
-      productId,
-      options,
-    );
+    const results = await this.billItemRepository.findCheapestShopsByProduct(productId, options);
 
     return results;
   }

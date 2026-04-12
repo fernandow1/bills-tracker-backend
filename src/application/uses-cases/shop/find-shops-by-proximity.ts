@@ -33,12 +33,7 @@ export class FindShopsByProximity {
       .filter((shop: Shop) => shop.hasLocation())
       .map((shop: Shop) => ({
         shop,
-        distance: this.calculateDistance(
-          latitude,
-          longitude,
-          shop.latitude!,
-          shop.longitude!,
-        ),
+        distance: this.calculateDistance(latitude, longitude, shop.latitude!, shop.longitude!),
       }))
       .filter((item: ShopWithDistance) => item.distance <= radiusKm)
       .sort((a: ShopWithDistance, b: ShopWithDistance) => a.distance - b.distance);

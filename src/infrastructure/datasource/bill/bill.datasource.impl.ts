@@ -118,7 +118,7 @@ export class BillDataSourceImpl implements BillDataSource {
         idShop: idShop,
         receiptNumber: receiptNumber,
       },
-      select: ['id', 'receiptNumber']
+      select: ['id', 'receiptNumber'],
     });
   }
   async findAll(): Promise<Bill[]> {

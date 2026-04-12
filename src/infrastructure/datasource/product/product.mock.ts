@@ -93,7 +93,11 @@ export interface MockedBillItemRepositoryInterface extends BillItemRepository {
     (createBillItemDTO: CreateBillItemDTO, transaction?: QueryRunner) => Promise<BillItem>
   >;
   update: jest.MockedFunction<
-    (id: number, updateBillItemDTO: UpdateBillItemDTO, transaction?: QueryRunner) => Promise<BillItem>
+    (
+      id: number,
+      updateBillItemDTO: UpdateBillItemDTO,
+      transaction?: QueryRunner,
+    ) => Promise<BillItem>
   >;
   delete: jest.MockedFunction<(id: number, transaction?: QueryRunner) => Promise<void>>;
   findAll: jest.MockedFunction<(transaction?: QueryRunner) => Promise<BillItem[]>>;

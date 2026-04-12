@@ -21,7 +21,10 @@ describe('User Router Integration Tests', () => {
     };
 
     it('should attempt to create a new user', async () => {
-      const response = await request(app).post('/api/users').set('Authorization', getAuthHeader()).send(validUserData);
+      const response = await request(app)
+        .post('/api/users')
+        .set('Authorization', getAuthHeader())
+        .send(validUserData);
 
       // Puede retornar 201 (éxito) o 500 (error interno)
       expect([201, 500]).toContain(response.status);
@@ -44,7 +47,10 @@ describe('User Router Integration Tests', () => {
         password: '123', // Invalid: too short
       };
 
-      const response = await request(app).post('/api/users').set('Authorization', getAuthHeader()).send(invalidUserData);
+      const response = await request(app)
+        .post('/api/users')
+        .set('Authorization', getAuthHeader())
+        .send(invalidUserData);
 
       // Puede retornar 400 (validación) o 500 (error interno)
       expect([400, 500]).toContain(response.status);
@@ -56,7 +62,10 @@ describe('User Router Integration Tests', () => {
         // Missing email, password, name, surname
       };
 
-      const response = await request(app).post('/api/users').set('Authorization', getAuthHeader()).send(incompleteUserData);
+      const response = await request(app)
+        .post('/api/users')
+        .set('Authorization', getAuthHeader())
+        .send(incompleteUserData);
 
       // Puede retornar 400 (validación) o 500 (error interno)
       expect([400, 500]).toContain(response.status);

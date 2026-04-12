@@ -505,9 +505,7 @@ describe('BillItemRepositoryImpl', () => {
 
     it('should delegate findCheapestShopsByProduct to datasource without options', async () => {
       // Arrange
-      mockBillItemDataSource.findCheapestShopsByProduct.mockResolvedValue(
-        mockProductPriceResults,
-      );
+      mockBillItemDataSource.findCheapestShopsByProduct.mockResolvedValue(mockProductPriceResults);
 
       // Act
       const result = await billItemRepository.findCheapestShopsByProduct(123);
@@ -523,18 +521,13 @@ describe('BillItemRepositoryImpl', () => {
     it('should delegate findCheapestShopsByProduct to datasource with options', async () => {
       // Arrange
       const options = { maxAgeDays: 30, limit: 10 };
-      mockBillItemDataSource.findCheapestShopsByProduct.mockResolvedValue(
-        mockProductPriceResults,
-      );
+      mockBillItemDataSource.findCheapestShopsByProduct.mockResolvedValue(mockProductPriceResults);
 
       // Act
       const result = await billItemRepository.findCheapestShopsByProduct(123, options);
 
       // Assert
-      expect(mockBillItemDataSource.findCheapestShopsByProduct).toHaveBeenCalledWith(
-        123,
-        options,
-      );
+      expect(mockBillItemDataSource.findCheapestShopsByProduct).toHaveBeenCalledWith(123, options);
       expect(result).toEqual(mockProductPriceResults);
     });
 
@@ -571,9 +564,7 @@ describe('BillItemRepositoryImpl', () => {
 
     it('should handle partial options correctly', async () => {
       // Arrange
-      mockBillItemDataSource.findCheapestShopsByProduct.mockResolvedValue(
-        mockProductPriceResults,
-      );
+      mockBillItemDataSource.findCheapestShopsByProduct.mockResolvedValue(mockProductPriceResults);
 
       // Act - only maxAgeDays
       await billItemRepository.findCheapestShopsByProduct(123, { maxAgeDays: 7 });
