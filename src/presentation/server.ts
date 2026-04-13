@@ -34,7 +34,16 @@ export class Server {
 
     // Aplicar configuración de seguridad con Helmet
     // La configuración se ajusta automáticamente según el entorno (dev/prod)
-    this.app.use(helmet(getHelmetConfig(getCurrentEnvironment())));
+    this.app.use(
+      helmet({
+        contentSecurityPolicy: false,
+        hsts: false,
+        frameguard: { action: 'deny' },
+        xssFilter: true,
+        noSniff: true,
+        crossOriginResourcePolicy: { policy: 'cross-origin' },
+      }),
+    );
 
     // Aplicar configuración de CORS
     // Los orígenes permitidos están centralizados en el módulo de seguridad

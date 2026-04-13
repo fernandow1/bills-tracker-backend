@@ -64,6 +64,7 @@ const getDevelopmentCSP = () => ({
 /**
  * Configuración de Content Security Policy para producción
  * Políticas estrictas para máxima seguridad
+ * @deprecated El uso de nginx como proxy inverso hace que esta configuración sea innecesaria
  */
 const getProductionCSP = () => ({
   directives: {
