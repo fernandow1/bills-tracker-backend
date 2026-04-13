@@ -1,13 +1,8 @@
 import express, { Router } from 'express';
 import compression from 'compression';
 import { errorHandler } from '@infrastructure/http/middlewares/errorHandler.middleware';
-import cors from 'cors';
 import helmet from 'helmet';
-import {
-  getHelmetConfig,
-  getCorsConfig,
-  getCurrentEnvironment,
-} from '@infrastructure/security/helmet.config';
+import { getHelmetConfig, getCurrentEnvironment } from '@infrastructure/security/helmet.config';
 import { logger } from '@infrastructure/logging/logger.config';
 import * as promClient from 'prom-client';
 
@@ -43,7 +38,7 @@ export class Server {
 
     // Aplicar configuración de CORS
     // Los orígenes permitidos están centralizados en el módulo de seguridad
-    this.app.use(cors(getCorsConfig(getCurrentEnvironment())));
+    // this.app.use(cors(getCorsConfig(getCurrentEnvironment())));
 
     this.app.use(express.json()); // For parsing application/json
     this.app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
