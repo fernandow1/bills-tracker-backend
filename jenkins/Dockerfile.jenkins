@@ -1,0 +1,8 @@
+FROM jenkins/jenkins:lts
+USER root
+# Instalar el cliente de Docker
+RUN apt-get update && apt-get install -y lvm2 && \
+    curl -sSL https://get.docker.com/ | sh
+# Volver al usuario jenkins si querés, pero como ya configuraste el compose 
+# con user: root, podemos dejarlo así para no renegar con permisos del socket.
+USER root
