@@ -9,4 +9,5 @@ yarn.lock
 *.md
 
 # Nginx 
-nginx/templates/default.conf.template
+nginx/templates/*
+!nginx/templates/*.example*
