@@ -32,6 +32,11 @@ services:
       - .env
     depends_on:
       - db
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
 
   db:
     image: mysql:8.0
@@ -46,6 +51,11 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1.5G
 
   db-test:
     image: mysql:8.0
@@ -60,6 +70,11 @@ services:
       MYSQL_PASSWORD: ${TEST_DB_PASSWORD:-testpass}
     volumes:
       - db_test_data:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1.5G
 
   k6:
     image: grafana/k6:latest
@@ -145,6 +160,29 @@ services:
     ports:
       - '8081:8081'
 
+  jenkins:
+    build:
+      context: ./jenkins
+      dockerfile: Dockerfile.jenkins
+    image: jenkins/jenkins:lts
+    container_name: bills-tracker-jenkins
+    user: root # Ejecutar como root para poder interactuar con /var/run/docker.sock y buildear imagenes
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+      - '50000:50000'
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: bills-tracker-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+
 volumes:
   db_data:
     driver: local
@@ -153,4 +191,6 @@ volumes:
   prometheus_data:
     driver: local
   grafana_data:
+    driver: local
+  jenkins_data:
     driver: local

@@ -1,0 +1,43 @@
+services:
+  app:
+    build:
+      context: .
+      target: development
+    # Eliminamos el uso de container_name para evitar conflictos con el entorno de desarrollo
+    restart: always
+    # Asignamos al contenedor el puerto 3000, pero Docker se encargará de mapearlo a un puerto aleatorio en el host de Jenkins
+    ports:
+      - '3000'
+    environment:
+      - MYSQLHOST=db
+      - MYSQLPORT=3306
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - db-test
+
+  db:
+    image: mysql:8.0
+    # Sin container_name
+    restart: always
+    # Sin el binding de puertos (ej: '3308:3306'). La app puede comunicarse internamente a través de la red de docker con la resolución de DNS.
+    # Por red interna el puerto siempre es 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    # Omitimos persistencia mediante volúmenes fijos en la BD para que las ejecuciones de Jenkins
+    # partan de un estado limpio y no compartan una base de datos contaminada por subidas consecutivas
+
+  db-test:
+    image: mysql:8.0
+    # Sin container_name
+    restart: always
+    # Igual que en `db`, no exponemos los puertos al equipo anfitrión para evitar ocuparlos
+    environment:
+      MYSQL_ROOT_PASSWORD: ${TEST_DB_ROOT_PASSWORD:-testroot}
+      MYSQL_DATABASE: ${TEST_DB_NAME:-bills_tracker_test}
+      MYSQL_USER: ${TEST_DB_USER:-testuser}
+      MYSQL_PASSWORD: ${TEST_DB_PASSWORD:-testpass}
