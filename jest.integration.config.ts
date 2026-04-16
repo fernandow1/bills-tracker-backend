@@ -12,7 +12,7 @@ const INTEGRATION_CONFIG: Config = {
   ],
   // ✅ Sobrescribir testPathIgnorePatterns para permitir archivos .integration.test.ts
   testPathIgnorePatterns: [
-    '\\\\node_modules\\\\', // Solo ignorar node_modules
+    '/node_modules/', // Solo ignorar node_modules
   ],
   moduleNameMapper: {
     '^@application/(.*)$': '<rootDir>/src/application/$1',
