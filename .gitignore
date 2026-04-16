@@ -7,6 +7,7 @@ docs/
 yarn.lock
 
 *.md
+!README.md
 
 # Nginx 
 nginx/templates/*
