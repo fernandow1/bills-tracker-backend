@@ -1,3 +1,4 @@
+/* eslint-disable no-undef, @typescript-eslint/naming-convention, @typescript-eslint/no-require-imports */
 /** @type {import('jest').Config} */
 const baseConfig = require('./jest.config');
 
