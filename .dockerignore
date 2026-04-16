@@ -6,8 +6,8 @@ coverage
 *.md
 .prettierrc
 eslint.config.mjs
-jest.config.ts
-jest.integration.config.ts
+# jest.config.ts
+# jest.integration.config.ts
 .env
 .idea
 .vscode
