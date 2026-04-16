@@ -1,7 +1,7 @@
-import type { Config } from 'jest';
-import baseConfig from './jest.config';
+/** @type {import('jest').Config} */
+const baseConfig = require('./jest.config');
 
-const INTEGRATION_CONFIG: Config = {
+const INTEGRATION_CONFIG = {
   ...baseConfig,
   // Configuración específica para tests de integración
   displayName: 'Integration Tests',
@@ -27,4 +27,4 @@ const INTEGRATION_CONFIG: Config = {
   maxWorkers: 1,
 };
 
-export default INTEGRATION_CONFIG;
+module.exports = INTEGRATION_CONFIG;
