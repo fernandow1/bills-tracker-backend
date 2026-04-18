@@ -168,12 +168,20 @@ services:
     container_name: bills-tracker-jenkins
     user: root # Ejecutar como root para poder interactuar con /var/run/docker.sock y buildear imagenes
     restart: unless-stopped
+    environment:
+      # Limitar el heap size de Java para que Jenkins no asigne memoria excesivamente
+      - JAVA_OPTS=-Xmx512m -Xms512m
     ports:
       - '8080:8080'
       - '50000:50000'
     volumes:
       - jenkins_data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
 
   cloudflared:
     image: cloudflare/cloudflared:latest
