@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'node20'
+    }
+
     environment {
         NODE_ENV = 'test'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub-credentials'
