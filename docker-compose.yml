@@ -170,7 +170,7 @@ services:
     restart: unless-stopped
     environment:
       # Limitar el heap size de Java para que Jenkins no asigne memoria excesivamente
-      - JAVA_OPTS=-Xmx1024m -Xms1024m
+      - JAVA_OPTS=-Xmx3072m -Xms3072m
     ports:
       - '8080:8080'
       - '50000:50000'
@@ -180,8 +180,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 2G
+          cpus: '3.0'
+          memory: 5G
 
   cloudflared:
     image: cloudflare/cloudflared:latest
