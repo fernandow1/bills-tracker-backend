@@ -59,8 +59,10 @@ pipeline {
                         sh 'sleep 15'
                         
                         // Ejecutamos migraciones en test y luego los integration tests
-                        sh 'npm run test:migration:run'
-                        sh 'npm run test:integration'
+                        withEnv(['TEST_DB_HOST=db-test', 'TEST_DB_PORT=3306']) {
+                            sh 'npm run test:migration:run'
+                            sh 'npm run test:integration'
+                        }
                     } finally {
                         // Limpiamos y matamos el contenedor asi halla fallado el script
                         sh 'docker compose --profile testing rm -fsv db-test || true'
