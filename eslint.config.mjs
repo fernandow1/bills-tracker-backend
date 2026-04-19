@@ -1,10 +1,12 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import prettier from 'eslint-config-prettier';
+import pluginSecurity from 'eslint-plugin-security';
 
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.strict, // o .recommended si preferís más permisivo
+  pluginSecurity.configs.recommended,
   {
     ignores: ['dist', 'node_modules', 'migrations', '*.mock.ts', '*.spec.ts', '*.test.ts'],
   },

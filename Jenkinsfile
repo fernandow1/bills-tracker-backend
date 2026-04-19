@@ -24,6 +24,22 @@ pipeline {
             }
         }        
 
+        stage('Security Analysis') {
+            parallel {
+                stage('SCA & Secret Scanning (NPM)') {
+                    steps {
+                        sh '''
+                            echo "Ejecutando escaneo de vulnerabilidades nativo..."
+                            npm audit --audit-level=high || true
+                            
+                            echo "Ejecutando escaneo de secretos expuestos..."
+                            npx -y @secretlint/quick-start --maskSecrets "**/*" || true
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Lint') {
             steps {
                 sh 'npm run lint'
@@ -117,12 +133,12 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: env.DOCKERHUB_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh "echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin"
                         
-                        def img = docker.build("${env.IMAGE_NAME}:${commitSha}", "-f Dockerfile --target production .")
-                        
-                        img.push()
+                        sh "docker build -t ${env.IMAGE_NAME}:${commitSha} -f Dockerfile --target production ."
+                        sh "docker push ${env.IMAGE_NAME}:${commitSha}"
                         
                         if (imageTag != '') {
-                            img.push(imageTag)
+                            sh "docker tag ${env.IMAGE_NAME}:${commitSha} ${env.IMAGE_NAME}:${imageTag}"
+                            sh "docker push ${env.IMAGE_NAME}:${imageTag}"
                         }
                     }
                 }
