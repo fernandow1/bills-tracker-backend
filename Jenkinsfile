@@ -26,16 +26,14 @@ pipeline {
 
         stage('Security Analysis') {
             parallel {
-                stage('SCA & Secret Scanning (Trivy)') {
+                stage('SCA & Secret Scanning (NPM)') {
                     steps {
                         sh '''
-                            echo "Instalando y ejecutando Aqua Trivy..."
-                            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b . v0.50.1 || echo "Error en descarga de Trivy"
-                            if [ -f ./trivy ]; then
-                                ./trivy fs --scanners vuln,secret --severity HIGH,CRITICAL . || true
-                            else
-                                echo "⚠️ Trivy no pudo ser instalado. Saltando escaneo devsecops."
-                            fi
+                            echo "Ejecutando escaneo de vulnerabilidades nativo..."
+                            npm audit --audit-level=high || true
+                            
+                            echo "Ejecutando escaneo de secretos expuestos..."
+                            npx -y @secretlint/quick-start --maskSecrets "**/*" || true
                         '''
                     }
                 }
