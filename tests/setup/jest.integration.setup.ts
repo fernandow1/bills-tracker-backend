@@ -1,4 +1,5 @@
 import { TestDataSource } from '../../src/infrastructure/database/connection-test';
+import { AppDataSource } from '../../src/infrastructure/database/connection';
 
 // Setup global para todos los tests de integración
 beforeAll(async () => {
@@ -8,6 +9,10 @@ beforeAll(async () => {
     // Si ya está inicializado, no hacer nada especial
     if (!TestDataSource.isInitialized) {
       await TestDataSource.initialize();
+    }
+    // Inicializar AppDataSource para que la App interna tenga a dónde pegarle en sus controllers
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
     }
     
     // Evitar bug de TypeORM de 'Table already exists' con dropSchema explícito
@@ -27,8 +32,11 @@ afterAll(async () => {
 
   if (TestDataSource.isInitialized) {
     await TestDataSource.destroy();
-    console.log('✅ Test database disconnected');
   }
+  if (AppDataSource.isInitialized) {
+    await AppDataSource.destroy();
+  }
+  console.log('✅ Test databases disconnected');
 });
 
 // Limpiar datos y plantar base antes de cada test

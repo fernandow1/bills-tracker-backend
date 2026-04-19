@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'node20'
+    }
+
     environment {
         NODE_ENV = 'test'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub-credentials'
@@ -18,6 +22,22 @@ pipeline {
             steps {
                 sh 'npm ci'
             }
+        }        
+
+        stage('Security Analysis') {
+            parallel {
+                stage('SCA & Secret Scanning (NPM)') {
+                    steps {
+                        sh '''
+                            echo "Ejecutando escaneo de vulnerabilidades nativo..."
+                            npm audit --audit-level=high || true
+                            
+                            echo "Ejecutando escaneo de secretos expuestos..."
+                            npx -y @secretlint/quick-start --maskSecrets "**/*" || true
+                        '''
+                    }
+                }
+            }
         }
 
         stage('Lint') {
@@ -26,9 +46,62 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Prettier') {
             steps {
-                sh 'npm run test'
+                sh 'npx prettier --check "src/**/*.{ts,js,json}"'
+            }
+        }
+
+        stage('Test Unit') {
+            steps {
+                sh '''
+                    npm run test:unit -- \
+                        --runInBand \
+                        --watchAll=false \
+                        --forceExit \
+                        --testPathIgnorePatterns="integration"
+                '''
+            }
+        }
+
+        stage('Test Integration') {
+            steps {
+                script {
+                    try {
+                        sh 'docker volume rm bills-tracker_db_test_data || true'
+                        sh 'docker compose -p bills-tracker --profile testing up -d db-test'
+                        
+
+                        withEnv([
+                            'TEST_DB_HOST=bills-tracker-db-test', 
+                            'TEST_DB_PORT=3306',
+                            'MYSQLHOST=bills-tracker-db-test',
+                            'MYSQLPORT=3306',
+                            'MYSQLUSER=testuser',
+                            'MYSQLPASSWORD=testpass',
+                            'MYSQLDATABASE=bills_tracker_test'
+                        ]) {
+                            
+                            sh '''
+                                echo "Esperando a que db-test inicie y acepte conexiones..."
+                                for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+                                    if docker exec bills-tracker-db-test mysqladmin ping -u root -ptestroot --silent; then
+                                        echo "✅ MySQL db-test inicializado y listo!"
+                                        break
+                                    fi
+                                    echo "⏳ Aún no está listo, esperando 5s... ($i/15)"
+                                    sleep 5
+                                done
+                                # Le damos 3 segundos tontos post-ping para que normalice los sockets
+                                sleep 3
+                            '''
+                            sh 'npm run test:migration:run'
+                            sh 'npm run test:integration'
+                        }
+                    } finally {                        
+                        sh 'docker compose -p bills-tracker --profile testing rm -fsv db-test || true'
+                    }
+                }
             }
         }
 
@@ -60,12 +133,12 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: env.DOCKERHUB_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh "echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin"
                         
-                        def img = docker.build("${env.IMAGE_NAME}:${commitSha}", "-f Dockerfile --target production .")
-                        
-                        img.push()
+                        sh "docker build -t ${env.IMAGE_NAME}:${commitSha} -f Dockerfile --target production ."
+                        sh "docker push ${env.IMAGE_NAME}:${commitSha}"
                         
                         if (imageTag != '') {
-                            img.push(imageTag)
+                            sh "docker tag ${env.IMAGE_NAME}:${commitSha} ${env.IMAGE_NAME}:${imageTag}"
+                            sh "docker push ${env.IMAGE_NAME}:${imageTag}"
                         }
                     }
                 }
@@ -80,7 +153,7 @@ pipeline {
             
             script {
                 // Logout de docker 
-                sh 'docker logout' || true
+                sh 'docker logout || true'
             }
         }
         success {
