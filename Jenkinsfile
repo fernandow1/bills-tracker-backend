@@ -30,7 +30,7 @@ pipeline {
                     steps {
                         sh '''
                             echo "Instalando y ejecutando Aqua Trivy..."
-                            curl -sL https://github.com/aquasecurity/trivy/releases/download/v0.50.0/trivy_0.50.0_Linux-64bit.tar.gz | tar xz || echo "Skip: Curl / Tar no disponiles en agente"
+                            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b . v0.50.1 || echo "Error en descarga de Trivy"
                             if [ -f ./trivy ]; then
                                 ./trivy fs --scanners vuln,secret --severity HIGH,CRITICAL . || true
                             else
