@@ -70,8 +70,6 @@ services:
       MYSQL_DATABASE: ${TEST_DB_NAME:-bills_tracker_test}
       MYSQL_USER: ${TEST_DB_USER:-testuser}
       MYSQL_PASSWORD: ${TEST_DB_PASSWORD:-testpass}
-    volumes:
-      - db_test_data:/var/lib/mysql
     deploy:
       resources:
         limits:

@@ -52,10 +52,10 @@ pipeline {
             steps {
                 script {
                     try {
+                        sh 'docker volume rm bills-tracker_db_test_data || true'
                         sh 'docker compose -p bills-tracker --profile testing up -d db-test'
                         
-                        sh 'sleep 15'
-                        
+
                         withEnv([
                             'TEST_DB_HOST=bills-tracker-db-test', 
                             'TEST_DB_PORT=3306',
@@ -65,6 +65,20 @@ pipeline {
                             'MYSQLPASSWORD=testpass',
                             'MYSQLDATABASE=bills_tracker_test'
                         ]) {
+                            // Esperamos a que mysql verdaderamente termine su arranque (evitando fallos si el servidor es lento)
+                            sh '''
+                                echo "Esperando a que db-test inicie y acepte conexiones..."
+                                for i in {1..15}; do
+                                    if docker exec bills-tracker-db-test mysqladmin ping -u root -ptestroot --silent; then
+                                        echo "✅ MySQL db-test inicializado y listo!"
+                                        break
+                                    fi
+                                    echo "⏳ Aún no está listo, esperando 5s... ($i/15)"
+                                    sleep 5
+                                done
+                                # Le damos 3 segundos tontos post-ping para que normalice los sockets
+                                sleep 3
+                            '''
                             sh 'npm run test:migration:run'
                             sh 'npm run test:integration'
                         }
