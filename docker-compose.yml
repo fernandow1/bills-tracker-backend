@@ -46,9 +46,9 @@ services:
       - '3308:3306'
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${MYSQLDATABASE}
+      MYSQL_USER: ${MYSQLUSER}
+      MYSQL_PASSWORD: ${MYSQLPASSWORD}
     volumes:
       - db_data:/var/lib/mysql
     deploy:
@@ -60,6 +60,8 @@ services:
   db-test:
     image: mysql:8.0
     container_name: bills-tracker-db-test
+    profiles:
+      - testing
     restart: always
     ports:
       - '3309:3306'
@@ -68,8 +70,6 @@ services:
       MYSQL_DATABASE: ${TEST_DB_NAME:-bills_tracker_test}
       MYSQL_USER: ${TEST_DB_USER:-testuser}
       MYSQL_PASSWORD: ${TEST_DB_PASSWORD:-testpass}
-    volumes:
-      - db_test_data:/var/lib/mysql
     deploy:
       resources:
         limits:
@@ -168,12 +168,20 @@ services:
     container_name: bills-tracker-jenkins
     user: root # Ejecutar como root para poder interactuar con /var/run/docker.sock y buildear imagenes
     restart: unless-stopped
+    environment:
+      # Limitar el heap size de Java para que Jenkins no asigne memoria excesivamente
+      - JAVA_OPTS=-Xmx3072m -Xms3072m
     ports:
       - '8080:8080'
       - '50000:50000'
     volumes:
       - jenkins_data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      resources:
+        limits:
+          cpus: '3.0'
+          memory: 5G
 
   cloudflared:
     image: cloudflare/cloudflared:latest
