@@ -30,8 +30,12 @@ pipeline {
                     steps {
                         sh '''
                             echo "Instalando y ejecutando Aqua Trivy..."
-                            wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.49.0/trivy_0.49.0_Linux-64bit.tar.gz | tar xz
-                            ./trivy fs --scanners vuln,secret --severity HIGH,CRITICAL . || true
+                            curl -sL https://github.com/aquasecurity/trivy/releases/download/v0.50.0/trivy_0.50.0_Linux-64bit.tar.gz | tar xz || echo "Skip: Curl / Tar no disponiles en agente"
+                            if [ -f ./trivy ]; then
+                                ./trivy fs --scanners vuln,secret --severity HIGH,CRITICAL . || true
+                            else
+                                echo "⚠️ Trivy no pudo ser instalado. Saltando escaneo devsecops."
+                            fi
                         '''
                     }
                 }
