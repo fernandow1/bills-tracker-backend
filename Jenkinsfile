@@ -52,20 +52,23 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Forzamos el nombre del proyecto a bills-tracker para que el pipeline no cree una red aislada nueva con el nombre del JOB
-                        // y así pueda compartir la red bills-tracker_default nativa con tu propio contenedor de Jenkins.
                         sh 'docker compose -p bills-tracker --profile testing up -d db-test'
                         
-                        // Esperamos a que mysql termine su arranque antes de interactuar
                         sh 'sleep 15'
                         
-                        // Nos conectamos de contenedor a contenedor resolviendo por el nombre exacto asignado en tu compose
-                        withEnv(['TEST_DB_HOST=bills-tracker-db-test', 'TEST_DB_PORT=3306']) {
+                        withEnv([
+                            'TEST_DB_HOST=bills-tracker-db-test', 
+                            'TEST_DB_PORT=3306',
+                            'MYSQLHOST=bills-tracker-db-test',
+                            'MYSQLPORT=3306',
+                            'MYSQLUSER=testuser',
+                            'MYSQLPASSWORD=testpass',
+                            'MYSQLDATABASE=bills_tracker_test'
+                        ]) {
                             sh 'npm run test:migration:run'
                             sh 'npm run test:integration'
                         }
-                    } finally {
-                        // Limpiamos la BD de test respetando el mismo flag -p
+                    } finally {                        
                         sh 'docker compose -p bills-tracker --profile testing rm -fsv db-test || true'
                     }
                 }
