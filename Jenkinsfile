@@ -24,6 +24,20 @@ pipeline {
             }
         }        
 
+        stage('Security Analysis') {
+            parallel {
+                stage('SCA & Secret Scanning (Trivy)') {
+                    steps {
+                        sh '''
+                            echo "Instalando y ejecutando Aqua Trivy..."
+                            wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.49.0/trivy_0.49.0_Linux-64bit.tar.gz | tar xz
+                            ./trivy fs --scanners vuln,secret --severity HIGH,CRITICAL . || true
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Lint') {
             steps {
                 sh 'npm run lint'
@@ -117,12 +131,12 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: env.DOCKERHUB_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh "echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin"
                         
-                        def img = docker.build("${env.IMAGE_NAME}:${commitSha}", "-f Dockerfile --target production .")
-                        
-                        img.push()
+                        sh "docker build -t ${env.IMAGE_NAME}:${commitSha} -f Dockerfile --target production ."
+                        sh "docker push ${env.IMAGE_NAME}:${commitSha}"
                         
                         if (imageTag != '') {
-                            img.push(imageTag)
+                            sh "docker tag ${env.IMAGE_NAME}:${commitSha} ${env.IMAGE_NAME}:${imageTag}"
+                            sh "docker push ${env.IMAGE_NAME}:${imageTag}"
                         }
                     }
                 }
