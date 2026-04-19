@@ -60,6 +60,8 @@ services:
   db-test:
     image: mysql:8.0
     container_name: bills-tracker-db-test
+    profiles:
+      - testing
     restart: always
     ports:
       - '3309:3306'

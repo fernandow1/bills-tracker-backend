@@ -22,7 +22,7 @@ pipeline {
             steps {
                 sh 'npm ci'
             }
-        }
+        }        
 
         stage('Lint') {
             steps {
@@ -30,9 +30,42 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Prettier') {
             steps {
-                sh 'npm run test'
+                sh 'npx prettier --check "src/**/*.{ts,js,json}"'
+            }
+        }
+
+        stage('Test Unit') {
+            steps {
+                sh '''
+                    npm run test:unit -- \
+                        --runInBand \
+                        --watchAll=false \
+                        --forceExit \
+                        --testPathIgnorePatterns="integration"
+                '''
+            }
+        }
+
+        stage('Test Integration') {
+            steps {
+                script {
+                    try {
+                        // Levantamos unicamente la base de datos de pruebas bajo el profile testing
+                        sh 'docker compose --profile testing up -d db-test'
+                        
+                        // Esperamos a que mysql termine su arranque antes de interactuar
+                        sh 'sleep 15'
+                        
+                        // Ejecutamos migraciones en test y luego los integration tests
+                        sh 'npm run test:migration:run'
+                        sh 'npm run test:integration'
+                    } finally {
+                        // Limpiamos y matamos el contenedor asi halla fallado el script
+                        sh 'docker compose --profile testing rm -fsv db-test || true'
+                    }
+                }
             }
         }
 
@@ -84,7 +117,7 @@ pipeline {
             
             script {
                 // Logout de docker 
-                sh 'docker logout' || true
+                sh 'docker logout || true'
             }
         }
         success {
