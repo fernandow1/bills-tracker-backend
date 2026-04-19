@@ -65,10 +65,10 @@ pipeline {
                             'MYSQLPASSWORD=testpass',
                             'MYSQLDATABASE=bills_tracker_test'
                         ]) {
-                            // Esperamos a que mysql verdaderamente termine su arranque (evitando fallos si el servidor es lento)
+                            
                             sh '''
                                 echo "Esperando a que db-test inicie y acepte conexiones..."
-                                for i in {1..15}; do
+                                for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
                                     if docker exec bills-tracker-db-test mysqladmin ping -u root -ptestroot --silent; then
                                         echo "✅ MySQL db-test inicializado y listo!"
                                         break
