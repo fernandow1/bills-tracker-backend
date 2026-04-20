@@ -12,7 +12,7 @@ export const TestDataSource = new DataSource({
   username: process.env.TEST_DB_USER || 'root',
   password: process.env.TEST_DB_PASSWORD || 'testroot',
   database: process.env.TEST_DB_NAME || 'bills_tracker_test',
-  synchronize: true,
+  synchronize: false,
   logging: false,
   entities: DATABASE_ENTITIES,
   migrations: [path.join(process.cwd(), 'migrations', '*.js')],

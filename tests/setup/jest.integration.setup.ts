@@ -15,10 +15,6 @@ beforeAll(async () => {
       await AppDataSource.initialize();
     }
     
-    // Evitar bug de TypeORM de 'Table already exists' con dropSchema explícito
-    await TestDataSource.dropDatabase();
-    await TestDataSource.synchronize();
-    
     console.log('✅ Test database connected successfully');
   } catch (error) {
     console.error('❌ Failed to initialize test database:', error);

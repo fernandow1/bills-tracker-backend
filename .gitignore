@@ -1,6 +1,5 @@
 node_modules/
 dist/
-migrations/
 coverage/
 docs/
 .env
