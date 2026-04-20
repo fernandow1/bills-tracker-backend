@@ -83,17 +83,17 @@ pipeline {
                         ]) {
                             
                             sh '''
-                                echo "Esperando a que db-test inicie y acepte conexiones..."
-                                for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
-                                    if docker exec bills-tracker-db-test mysqladmin ping -u root -ptestroot --silent; then
-                                        echo "✅ MySQL db-test inicializado y listo!"
+                                echo "Esperando a que db-test inicie y acepte conexiones TCP..."
+                                for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
+                                    if docker exec bills-tracker-db-test mysqladmin ping -h 127.0.0.1 --protocol=tcp -u root -ptestroot --silent; then
+                                        echo "✅ MySQL db-test inicializado y escuchando TCP en puerto 3306!"
                                         break
                                     fi
-                                    echo "⏳ Aún no está listo, esperando 5s... ($i/15)"
+                                    echo "⏳ Aún no está listo, esperando 5s... ($i/20)"
                                     sleep 5
                                 done
-                                # Le damos 3 segundos tontos post-ping para que normalice los sockets
-                                sleep 3
+                                # Magen extra amplio de seguridad
+                                sleep 5
                             '''
                             sh 'npm run test:migration:run'
                             sh 'npm run test:integration'
@@ -141,6 +141,23 @@ pipeline {
                             sh "docker push ${env.IMAGE_NAME}:${imageTag}"
                         }
                     }
+                }
+            }
+        }
+
+        stage('Deploy to Railway (Production)') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'railway-token', variable: 'RAILWAY_TOKEN')]) {
+                    sh '''
+                        echo "Instalando Railway CLI..."
+                        npm install -g @railway/cli
+                        
+                        echo "Desplegando la aplicación en Railway..."
+                        railway up --service grateful-acceptance --detach
+                    '''
                 }
             }
         }
