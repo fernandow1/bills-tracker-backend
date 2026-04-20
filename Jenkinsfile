@@ -144,6 +144,23 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to Railway (Production)') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'railway-token', variable: 'RAILWAY_TOKEN')]) {
+                    sh '''
+                        echo "Instalando Railway CLI..."
+                        npm install -g @railway/cli
+                        
+                        echo "Desplegando la aplicación en Railway..."
+                        railway up --service grateful-acceptance --detach
+                    '''
+                }
+            }
+        }
     }
 
     post {
