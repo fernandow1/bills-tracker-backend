@@ -66,7 +66,7 @@ export class Server {
     this.app.use(errorHandler);
 
     // Start the server
-    this.listener = this.app.listen(this.port, () => {
+    this.listener = this.app.listen(this.port, '::', () => {
       logger.info(`Server is running on port ${this.port}`);
     });
   }
