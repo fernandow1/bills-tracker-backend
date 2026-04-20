@@ -84,7 +84,7 @@ pipeline {
                             
                             sh '''
                                 echo "Esperando a que db-test inicie y acepte conexiones TCP..."
-                                for i in {1..20}; do
+                                for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
                                     if docker exec bills-tracker-db-test mysqladmin ping -h 127.0.0.1 --protocol=tcp -u root -ptestroot --silent; then
                                         echo "✅ MySQL db-test inicializado y escuchando TCP en puerto 3306!"
                                         break
