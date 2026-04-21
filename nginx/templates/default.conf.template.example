@@ -1,5 +1,3 @@
-resolver 127.0.0.11 ipv6=off valid=30s;
-
 # Usamos $binary_remote_addr para ahorrar espacio.
 # rate=5r/s significa que permitimos 5 peticiones por segundo.
 limit_req_zone $binary_remote_addr zone=api_limit:10m rate=5r/s;
