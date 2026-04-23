@@ -158,9 +158,18 @@ pipeline {
                         string(credentialsId: 'vps-user', variable: 'VPS_USER')
                     ]) {
                         sshagent(['vps-ssh-key']) {
-                            // 1. Asegurar que el directorio exista en el VPS
-                            sh "ssh -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_IP 'mkdir -p ${projectDir}'"
-                            
+                            // 1. Preparar el directorio, asegurar permisos y limpiar archivos viejos
+                            sh """
+                                ssh -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_IP '
+                                    mkdir -p ${projectDir} &&
+                                    # Intentamos asegurar que el usuario sea dueño de todo (por si Docker cambió algo)
+                                    sudo chown -R \$USER:\$USER ${projectDir} || true
+                                    chmod -R u+w ${projectDir} || true
+                                    # Borramos carpeta nginx y archivos de config para un deploy limpio
+                                    cd ${projectDir} && rm -rf nginx docker-compose.prod.yml .env
+                                '
+                            """
+
                             // 2. Copiar archivos de configuración usando SCP
                             sh "scp -o StrictHostKeyChecking=no docker-compose.prod.yml \$VPS_USER@\$VPS_IP:${projectDir}/"
                             sh "scp -o StrictHostKeyChecking=no -r nginx \$VPS_USER@\$VPS_IP:${projectDir}/"
