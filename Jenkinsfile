@@ -145,19 +145,42 @@ pipeline {
             }
         }
 
-        stage('Deploy to Railway (Production)') {
+        stage('Deploy to VPS (Production)') {
             when {
                 branch 'main'
             }
             steps {
-                withCredentials([string(credentialsId: 'railway-token', variable: 'RAILWAY_TOKEN')]) {
-                    sh '''
-                        echo "Instalando Railway CLI..."
-                        npm install -g @railway/cli
-                        
-                        echo "Desplegando la aplicación en Railway..."
-                        railway up --service grateful-acceptance --detach
-                    '''
+                script {
+                    def projectDir = '~/bills-tracker-prod'
+                    
+                    withCredentials([
+                        string(credentialsId: 'vps-ip', variable: 'VPS_IP'),
+                        string(credentialsId: 'vps-user', variable: 'VPS_USER')
+                    ]) {
+                        sshagent(['vps-ssh-key']) {
+                            // 1. Asegurar que el directorio exista en el VPS
+                            sh "ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_IP} 'mkdir -p ${projectDir}'"
+                            
+                            // 2. Copiar archivos de configuración usando SCP
+                            sh "scp -o StrictHostKeyChecking=no docker-compose.prod.yml ${VPS_USER}@${VPS_IP}:${projectDir}/"
+                            sh "scp -o StrictHostKeyChecking=no -r nginx ${VPS_USER}@${VPS_IP}:${projectDir}/"
+                            
+                            // 3. Subir el archivo .env seguro desde Jenkins Secret File
+                            withCredentials([file(credentialsId: 'env', variable: 'SECRET_ENV_FILE')]) {
+                                sh "scp -o StrictHostKeyChecking=no \$SECRET_ENV_FILE ${VPS_USER}@${VPS_IP}:${projectDir}/.env"
+                            }
+                            
+                            // 4. Descargar nueva imagen, levantar producción y limpiar imágenes viejas
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_IP} '
+                                    cd ${projectDir} &&
+                                    docker compose -f docker-compose.prod.yml pull &&
+                                    docker compose -f docker-compose.prod.yml up -d &&
+                                    docker image prune -f
+                                '
+                            """
+                        }
+                    }
                 }
             }
         }
