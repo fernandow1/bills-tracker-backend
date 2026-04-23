@@ -170,12 +170,13 @@ pipeline {
                                 sh "scp -o StrictHostKeyChecking=no \$SECRET_ENV_FILE ${VPS_USER}@${VPS_IP}:${projectDir}/.env"
                             }
                             
-                            // 4. Descargar nueva imagen y levantar producción
+                            // 4. Descargar nueva imagen, levantar producción y limpiar imágenes viejas
                             sh """
                                 ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_IP} '
                                     cd ${projectDir} &&
                                     docker compose -f docker-compose.prod.yml pull &&
-                                    docker compose -f docker-compose.prod.yml up -d
+                                    docker compose -f docker-compose.prod.yml up -d &&
+                                    docker image prune -f
                                 '
                             """
                         }
