@@ -1,0 +1,36 @@
+services:
+  nginx:
+    build:
+      context: ./nginx
+    container_name: bills-tracker-nginx-prod
+    restart: always
+    ports:
+      - '80:80'
+      # Si en el futuro agregas SSL manual con Nginx, descomenta esto:
+      # - '443:443'
+    environment:
+      - PORT=80
+      - UPSTREAM_URL=http://app:3000
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates:ro
+    depends_on:
+      - app
+
+  app:
+    # IMPORTANTE: En producción usamos la imagen ya compilada por Jenkins en DockerHub
+    image: ferdog96/bills-tracker-backend:latest
+    container_name: bills-tracker-api-prod
+    restart: always
+    # No exponemos el puerto 3000 hacia el exterior, obligamos a pasar por Nginx
+    expose:
+      - '3000'
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+
