@@ -170,10 +170,17 @@ pipeline {
                                 sh "scp -o StrictHostKeyChecking=no \$SECRET_ENV_FILE \$VPS_USER@\$VPS_IP:${projectDir}/.env"
                             }
                             
+                            // 3.1 Subir el template de Nginx seguro desde Jenkins Secret File
+                            withCredentials([file(credentialsId: 'nginx-template', variable: 'NGINX_TEMPLATE_FILE')]) {
+                                sh "ssh -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_IP 'mkdir -p ${projectDir}/nginx/templates'"
+                                sh "scp -o StrictHostKeyChecking=no \$NGINX_TEMPLATE_FILE \$VPS_USER@\$VPS_IP:${projectDir}/nginx/templates/default.conf.template"
+                            }
+                            
                             // 4. Descargar nueva imagen, levantar producción y limpiar imágenes viejas
                             sh """
                                 ssh -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_IP '
                                     cd ${projectDir} &&
+                                    rm -f nginx/templates/*.example &&
                                     docker compose -f docker-compose.prod.yml pull &&
                                     docker compose -f docker-compose.prod.yml up -d &&
                                     docker image prune -f
