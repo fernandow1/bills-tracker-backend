@@ -4,10 +4,8 @@ services:
       context: ./nginx
     container_name: bills-tracker-nginx-prod
     restart: always
-    ports:
-      - '80:80'
-      # Si en el futuro agregas SSL manual con Nginx, descomenta esto:
-      # - '443:443'
+    expose:
+      - '80'
     environment:
       - NGINX_PORT=80
       - UPSTREAM_URL=app:3000
@@ -17,11 +15,9 @@ services:
       - app
 
   app:
-    # IMPORTANTE: En producción usamos la imagen ya compilada por Jenkins en DockerHub
     image: ferdog96/bills-tracker-backend:latest
     container_name: bills-tracker-api-prod
     restart: always
-    # No exponemos el puerto 3000 hacia el exterior, obligamos a pasar por Nginx
     expose:
       - '3000'
     environment:
@@ -33,3 +29,13 @@ services:
         limits:
           cpus: '1.0'
           memory: 1G
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: bills-tracker-cloudflared
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - nginx
