@@ -180,8 +180,14 @@ pipeline {
                                 sh "scp -o StrictHostKeyChecking=no \$SECRET_ENV_FILE \$VPS_USER@\$VPS_IP:${projectDir}/.env"
                             }
                             
-                            // 3.1 Inyectar el token de Cloudflare al .env
-                            sh "ssh -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_IP 'echo \"CLOUDFLARE_TUNNEL_TOKEN=\$CF_TUNNEL_TOKEN\" >> ${projectDir}/.env'"
+                            // 3.1 Asegurar permisos del .env e inyectar el token de Cloudflare
+                            sh """
+                                ssh -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_IP '
+                                    sudo chown \$USER:\$USER ${projectDir}/.env &&
+                                    chmod 600 ${projectDir}/.env &&
+                                    echo \"CLOUDFLARE_TUNNEL_TOKEN=\$CF_TUNNEL_TOKEN\" >> ${projectDir}/.env
+                                '
+                            """
                             
                             // 3.2 Subir el template de Nginx seguro desde Jenkins Secret File
                             withCredentials([file(credentialsId: 'nginx-template', variable: 'NGINX_TEMPLATE_FILE')]) {
