@@ -155,7 +155,8 @@ pipeline {
                     
                     withCredentials([
                         string(credentialsId: 'vps-ip', variable: 'VPS_IP'),
-                        string(credentialsId: 'vps-user', variable: 'VPS_USER')
+                        string(credentialsId: 'vps-user', variable: 'VPS_USER'),
+                        string(credentialsId: 'cloudflare-tunnel-token', variable: 'CF_TUNNEL_TOKEN')
                     ]) {
                         sshagent(['vps-ssh-key']) {
                             // 1. Preparar el directorio, asegurar permisos y limpiar archivos viejos
@@ -179,7 +180,10 @@ pipeline {
                                 sh "scp -o StrictHostKeyChecking=no \$SECRET_ENV_FILE \$VPS_USER@\$VPS_IP:${projectDir}/.env"
                             }
                             
-                            // 3.1 Subir el template de Nginx seguro desde Jenkins Secret File
+                            // 3.1 Inyectar el token de Cloudflare al .env
+                            sh "ssh -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_IP 'echo \"CLOUDFLARE_TUNNEL_TOKEN=\$CF_TUNNEL_TOKEN\" >> ${projectDir}/.env'"
+                            
+                            // 3.2 Subir el template de Nginx seguro desde Jenkins Secret File
                             withCredentials([file(credentialsId: 'nginx-template', variable: 'NGINX_TEMPLATE_FILE')]) {
                                 sh "ssh -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_IP 'mkdir -p ${projectDir}/nginx/templates'"
                                 sh "scp -o StrictHostKeyChecking=no \$NGINX_TEMPLATE_FILE \$VPS_USER@\$VPS_IP:${projectDir}/nginx/templates/default.conf.template.prod"
