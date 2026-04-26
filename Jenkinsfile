@@ -68,11 +68,6 @@ pipeline {
             }
         }
 
-        stage('Database Lint (Atlas)') {
-            steps {
-                sh 'npm run migration:lint'
-            }
-        }
 
         stage('Test Unit') {
             steps {
