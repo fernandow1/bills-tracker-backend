@@ -18,6 +18,20 @@ pipeline {
             }
         }
 
+        stage('Install Atlas CLI') {
+            steps {
+                sh '''
+                    if ! command -v atlas &> /dev/null
+                    then
+                        echo "Installing Atlas CLI..."
+                        curl -sSf https://atlasgo.sh | sh
+                    else
+                        echo "Atlas CLI is already installed."
+                    fi
+                '''
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 sh 'npm ci'
@@ -49,6 +63,12 @@ pipeline {
         stage('Prettier') {
             steps {
                 sh 'npx prettier --check "src/**/*.{ts,js,json}"'
+            }
+        }
+
+        stage('Database Lint (Atlas)') {
+            steps {
+                sh 'npm run migration:lint'
             }
         }
 
@@ -108,6 +128,27 @@ pipeline {
         stage('Build Project') {
             steps {
                 sh 'npm run build'
+            }
+        }
+
+        stage('Deploy Database Migrations') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    withCredentials([
+                        string(credentialsId: 'remote-db-host', variable: 'REMOTE_DB_HOST'),
+                        string(credentialsId: 'remote-db-user', variable: 'REMOTE_DB_USER'),
+                        string(credentialsId: 'remote-db-password', variable: 'REMOTE_DB_PASSWORD'),
+                        string(credentialsId: 'remote-db-name', variable: 'REMOTE_DB_NAME')
+                    ]) {
+                        sh '''
+                            export REMOTE_DB_PORT=3306
+                            npm run remotemigration:run
+                        '''
+                    }
+                }
             }
         }
 
