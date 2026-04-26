@@ -8,7 +8,8 @@ pipeline {
     environment {
         NODE_ENV = 'test'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub-credentials'
-        IMAGE_NAME = 'ferdog96/bills-tracker-backend'
+        IMAGE_NAME = 'ferdog96/bills-tracker-backend'        
+        PATH = "$WORKSPACE/bin:$PATH"
     }
 
     stages {
@@ -21,13 +22,14 @@ pipeline {
         stage('Install Atlas CLI') {
             steps {
                 sh '''
-                    if ! command -v atlas &> /dev/null
-                    then
-                        echo "Installing Atlas CLI..."
-                        curl -sSf https://atlasgo.sh | sh
+                    mkdir -p bin
+                    if [ ! -f bin/atlas ]; then
+                        echo "Installing Atlas CLI locally in ./bin..."
+                        curl -sSf https://atlasgo.sh | sh -s -- --install-dir ./bin
                     else
-                        echo "Atlas CLI is already installed."
+                        echo "Atlas CLI is already present in ./bin."
                     fi
+                    atlas version
                 '''
             }
         }
