@@ -8,18 +8,18 @@ export const envs = {
   PORT_TEST: get('PORT_TEST').default('3001').asPortNumber(),
   PORT: isTest ? get('PORT').default('3000').asPortNumber() : get('PORT').required().asPortNumber(),
   DB_HOST: isTest
-    ? get('MYSQLHOST').default('localhost').asString()
-    : get('MYSQLHOST').required().asString(),
-  DB_PORT: get('MYSQLPORT').default('3306').asPortNumber(),
+    ? get('DB_HOST').default(get('MYSQLHOST').default('localhost').asString()).asString()
+    : get('DB_HOST').default(get('MYSQLHOST').required().asString()).asString(),
+  DB_PORT: get('DB_PORT').default(get('MYSQLPORT').default('3306').asString()).asPortNumber(),
   DB_USER: isTest
-    ? get('MYSQLUSER').default('test').asString()
-    : get('MYSQLUSER').required().asString(),
+    ? get('DB_USER').default(get('MYSQLUSER').default('test').asString()).asString()
+    : get('DB_USER').default(get('MYSQLUSER').required().asString()).asString(),
   DB_PASSWORD: isTest
-    ? get('MYSQLPASSWORD').default('test').asString()
-    : get('MYSQLPASSWORD').required().asString(),
+    ? get('DB_PASSWORD').default(get('MYSQLPASSWORD').default('test').asString()).asString()
+    : get('DB_PASSWORD').default(get('MYSQLPASSWORD').required().asString()).asString(),
   DB_NAME: isTest
-    ? get('MYSQLDATABASE').default('test_db').asString()
-    : get('MYSQLDATABASE').required().asString(),
+    ? get('DB_NAME').default(get('MYSQLDATABASE').default('test_db').asString()).asString()
+    : get('DB_NAME').default(get('MYSQLDATABASE').required().asString()).asString(),
   DB_ROOT_PASSWORD: get('DB_ROOT_PASSWORD').asString(),
   /* ONLY FOR LOCAL DEVELOPMENT - NOT REQUIRED IN PRODUCTION */
   REMOTE_DB_HOST: get('REMOTE_MYSQLHOST').default('localhost').asString(),

@@ -1,0 +1,6 @@
+dist
+node_modules
+migrations
+migrations_backup
+package-lock.json
+schema.sql
