@@ -8,13 +8,29 @@ pipeline {
     environment {
         NODE_ENV = 'test'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub-credentials'
-        IMAGE_NAME = 'ferdog96/bills-tracker-backend'
+        IMAGE_NAME = 'ferdog96/bills-tracker-backend'        
+        PATH = "$WORKSPACE/bin:$PATH"
     }
 
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+
+        stage('Install Atlas CLI') {
+            steps {
+                sh '''
+                    mkdir -p bin
+                    if [ ! -f bin/atlas ]; then
+                        echo "Installing Atlas CLI locally in ./bin..."
+                        curl -sSf https://atlasgo.sh | sh -s -- --install-dir ./bin
+                    else
+                        echo "Atlas CLI is already present in ./bin."
+                    fi
+                    atlas version
+                '''
             }
         }
 
@@ -52,6 +68,7 @@ pipeline {
             }
         }
 
+
         stage('Test Unit') {
             steps {
                 sh '''
@@ -73,13 +90,11 @@ pipeline {
                         
 
                         withEnv([
-                            'TEST_DB_HOST=bills-tracker-db-test', 
-                            'TEST_DB_PORT=3306',
-                            'MYSQLHOST=bills-tracker-db-test',
-                            'MYSQLPORT=3306',
-                            'MYSQLUSER=testuser',
-                            'MYSQLPASSWORD=testpass',
-                            'MYSQLDATABASE=bills_tracker_test'
+                            'DB_HOST=bills-tracker-db-test', 
+                            'DB_PORT=3306',
+                            'DB_USER=testuser',
+                            'DB_PASSWORD=testpass',
+                            'DB_NAME=bills_tracker_test'
                         ]) {
                             
                             sh '''
@@ -108,6 +123,27 @@ pipeline {
         stage('Build Project') {
             steps {
                 sh 'npm run build'
+            }
+        }
+
+        stage('Deploy Database Migrations') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    withCredentials([
+                        string(credentialsId: 'remote-db-host', variable: 'DB_HOST'),
+                        string(credentialsId: 'remote-db-user', variable: 'DB_USER'),
+                        string(credentialsId: 'remote-db-password', variable: 'DB_PASSWORD'),
+                        string(credentialsId: 'remote-db-name', variable: 'DB_NAME')
+                    ]) {
+                        sh '''
+                            export DB_PORT=3306
+                            npm run remotemigration:run
+                        '''
+                    }
+                }
             }
         }
 
