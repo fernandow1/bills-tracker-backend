@@ -8,7 +8,16 @@ export default tseslint.config(
   ...tseslint.configs.strict, // o .recommended si preferís más permisivo
   pluginSecurity.configs.recommended,
   {
-    ignores: ['dist', 'node_modules', 'migrations', 'migrations_backup', '*.mock.ts', '*.spec.ts', '*.test.ts'],
+    ignores: [
+      'dist',
+      'node_modules',
+      'migrations',
+      'migrations_backup',
+      'load-schema.js',
+      '*.mock.ts',
+      '*.spec.ts',
+      '*.test.ts',
+    ],
   },
   {
     rules: {
