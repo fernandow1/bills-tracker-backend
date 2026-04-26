@@ -90,8 +90,12 @@ pipeline {
                         
 
                         withEnv([
-                            'TEST_DB_HOST=bills-tracker-db-test', 
-                            'TEST_DB_PORT=3306',
+                            'DB_HOST=bills-tracker-db-test', 
+                            'DB_PORT=3306',
+                            'DB_USER=testuser',
+                            'DB_PASSWORD=testpass',
+                            'DB_NAME=bills_tracker_test',
+                            // Compatibilidad con la App
                             'MYSQLHOST=bills-tracker-db-test',
                             'MYSQLPORT=3306',
                             'MYSQLUSER=testuser',
@@ -135,13 +139,13 @@ pipeline {
             steps {
                 script {
                     withCredentials([
-                        string(credentialsId: 'remote-db-host', variable: 'REMOTE_DB_HOST'),
-                        string(credentialsId: 'remote-db-user', variable: 'REMOTE_DB_USER'),
-                        string(credentialsId: 'remote-db-password', variable: 'REMOTE_DB_PASSWORD'),
-                        string(credentialsId: 'remote-db-name', variable: 'REMOTE_DB_NAME')
+                        string(credentialsId: 'remote-db-host', variable: 'DB_HOST'),
+                        string(credentialsId: 'remote-db-user', variable: 'DB_USER'),
+                        string(credentialsId: 'remote-db-password', variable: 'DB_PASSWORD'),
+                        string(credentialsId: 'remote-db-name', variable: 'DB_NAME')
                     ]) {
                         sh '''
-                            export REMOTE_DB_PORT=3306
+                            export DB_PORT=3306
                             npm run remotemigration:run
                         '''
                     }
