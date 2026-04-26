@@ -94,13 +94,7 @@ pipeline {
                             'DB_PORT=3306',
                             'DB_USER=testuser',
                             'DB_PASSWORD=testpass',
-                            'DB_NAME=bills_tracker_test',
-                            // Compatibilidad con la App
-                            'MYSQLHOST=bills-tracker-db-test',
-                            'MYSQLPORT=3306',
-                            'MYSQLUSER=testuser',
-                            'MYSQLPASSWORD=testpass',
-                            'MYSQLDATABASE=bills_tracker_test'
+                            'DB_NAME=bills_tracker_test'
                         ]) {
                             
                             sh '''
