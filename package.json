@@ -83,6 +83,7 @@
   "overrides": {
     "typeorm": {
       "uuid": "^14.0.0"
-    }
+    },
+    "picomatch": "^4.0.4"
   }
 }
