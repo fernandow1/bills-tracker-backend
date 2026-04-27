@@ -172,9 +172,22 @@ pipeline {
                     def commitSha = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
 
                     withCredentials([usernamePassword(credentialsId: env.DOCKERHUB_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin"
-                        
+                        // 1. Construir la imagen
                         sh "docker build -t ${env.IMAGE_NAME}:${commitSha} -f Dockerfile --target production ."
+                        
+                        // 2. Escanear vulnerabilidades con Trivy
+                        sh """
+                            docker run --rm \\
+                            -v /var/run/docker.sock:/var/run/docker.sock \\
+                            aquasec/trivy image \\
+                            --severity HIGH,CRITICAL \\
+                            --ignore-unfixed \\
+                            --exit-code 1 \\
+                            ${env.IMAGE_NAME}:${commitSha}
+                        """
+
+                        // 3. Login y Push (Solo si Trivy no falla)
+                        sh "echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin"
                         sh "docker push ${env.IMAGE_NAME}:${commitSha}"
                         
                         if (imageTag != '') {
