@@ -110,7 +110,10 @@ pipeline {
                                 # Magen extra amplio de seguridad
                                 sleep 5
                             '''
-                            sh 'npm run test:migration:run'
+                            sh '''                                
+                                export DB_URL=$(node -e "console.log('mysql://' + encodeURIComponent(process.env.DB_USER) + ':' + encodeURIComponent(process.env.DB_PASSWORD) + '@' + process.env.DB_HOST + ':' + process.env.DB_PORT + '/' + process.env.DB_NAME)")
+                                npm run test:migration:run
+                            '''
                             sh 'npm run test:integration'
                         }
                     } finally {                        
@@ -140,6 +143,8 @@ pipeline {
                     ]) {
                         sh '''
                             export DB_PORT=3306
+                            export DB_URL=$(node -e "console.log('mysql://' + encodeURIComponent(process.env.DB_USER) + ':' + encodeURIComponent(process.env.DB_PASSWORD) + '@' + process.env.DB_HOST + ':' + process.env.DB_PORT + '/' + process.env.DB_NAME)")
+                            
                             npm run remotemigration:run
                         '''
                     }
