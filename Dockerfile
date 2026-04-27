@@ -65,6 +65,10 @@ RUN npm ci --omit=dev
 # Copiamos la compilación limpia del builder con los permisos correctos
 COPY --chown=node:node --from=builder /app/dist ./dist
 
+USER root
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+USER node
+
 ENV PORT=3000
 EXPOSE 3000
 
