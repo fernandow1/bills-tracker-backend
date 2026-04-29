@@ -246,6 +246,7 @@ export const CREATEUSERDTOMOCK = {
   name: 'Test',
   surname: 'User',
   password: 'password123',
+  id_role: 3,
 };
 
 export const AUTHUSERDTOMOCK = {

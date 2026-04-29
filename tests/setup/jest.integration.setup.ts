@@ -52,14 +52,22 @@ beforeEach(async () => {
     // Rehabilitar foreign keys
     await TestDataSource.query('SET FOREIGN_KEY_CHECKS = 1');
 
+    // Plantar roles por defecto
+    await TestDataSource.query(
+      `INSERT INTO \`role\` (id, name, description, created_at, updated_at) VALUES 
+      (1, 'admin', 'Administrator role', NOW(), NOW()),
+      (2, 'user', 'Standard user role', NOW(), NOW()),
+      (3, 'guest', 'Guest role', NOW(), NOW())`
+    );
+
     // Plantar usuarios por defecto para las pruebas
     const bcrypt = await import('bcryptjs');
     const hashedPassword = await bcrypt.hash('password123', 10);
     
     await TestDataSource.query(
-      `INSERT INTO \`user\` (id, name, email, username, password, role, created_at, updated_at) VALUES 
-      (1, 'Admin Test', 'admin@example.com', 'admin_test', ?, 'admin', NOW(), NOW()),
-      (2, 'User Test', 'user@example.com', 'user_test', ?, 'guest', NOW(), NOW())`,
+      `INSERT INTO \`user\` (id, name, email, username, password, id_role, created_at, updated_at) VALUES 
+      (1, 'Admin Test', 'admin@example.com', 'admin_test', ?, 1, NOW(), NOW()),
+      (2, 'User Test', 'user@example.com', 'user_test', ?, 3, NOW(), NOW())`,
       [hashedPassword, hashedPassword]
     );
   }
