@@ -38,7 +38,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        set $upstream_endpoint "${UPSTREAM_URL}";
+        set $upstream_endpoint "http://${UPSTREAM_URL}";
         proxy_pass $upstream_endpoint;
 
         # Optimizaciones para el túnel de conexión
@@ -52,7 +52,7 @@ server {
     }
 
     location /health {
-        proxy_pass ${UPSTREAM_URL};
+        proxy_pass http://${UPSTREAM_URL};
     }
 
     location @429 {
