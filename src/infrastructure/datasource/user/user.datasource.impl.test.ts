@@ -70,7 +70,7 @@ describe('UserDataSourceImpl', () => {
   describe('getUserById', () => {
     it('should return user when found', async () => {
       // Arrange
-      (mockUserRepository.findOneBy as jest.Mock).mockResolvedValue(USERMOCK);
+      (mockUserRepository.findOne as jest.Mock).mockResolvedValue(USERMOCK);
 
       // Act
       const result = await userDataSource.getUserById(1);
@@ -78,31 +78,32 @@ describe('UserDataSourceImpl', () => {
       // Assert
       expect(result).toEqual(USERMOCK);
       expect(mockDataSource.getRepository).toHaveBeenCalledWith(User);
-      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: ['role', 'role.permissions'],
+      });
     });
 
     it('should return null when user not found', async () => {
       // Arrange
-      (mockUserRepository.findOneBy as jest.Mock).mockResolvedValue(null);
+      (mockUserRepository.findOne as jest.Mock).mockResolvedValue(null);
 
       // Act
       const result = await userDataSource.getUserById(999);
 
       // Assert
       expect(result).toBeNull();
-      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ id: 999 });
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 999 },
+        relations: ['role', 'role.permissions'],
+      });
     });
   });
 
   describe('getUserByUsername', () => {
     it('should return user when found by username', async () => {
       // Arrange
-      const mockQueryBuilder = {
-        where: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        getOne: jest.fn().mockResolvedValue(USERMOCK),
-      };
-      (mockUserRepository.createQueryBuilder as jest.Mock).mockReturnValue(mockQueryBuilder);
+      (mockUserRepository.findOne as jest.Mock).mockResolvedValue(USERMOCK);
 
       // Act
       const result = await userDataSource.getUserByUsername('testuser');
@@ -110,30 +111,32 @@ describe('UserDataSourceImpl', () => {
       // Assert
       expect(result).toEqual(USERMOCK);
       expect(mockDataSource.getRepository).toHaveBeenCalledWith(User);
-      expect(mockUserRepository.createQueryBuilder).toHaveBeenCalledWith('user');
-      expect(mockQueryBuilder.where).toHaveBeenCalledWith('user.username = :username', {
-        username: 'testuser',
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+        where: { username: 'testuser' },
+        relations: ['role', 'role.permissions'],
+        select: {
+          id: true,
+          username: true,
+          password: true,
+          email: true,
+          name: true,
+          surname: true,
+          role: {
+            id: true,
+            name: true,
+            permissions: {
+              id: true,
+              action: true,
+              subject: true,
+            },
+          },
+        },
       });
-      expect(mockQueryBuilder.select).toHaveBeenCalledWith([
-        'user.id',
-        'user.username',
-        'user.password',
-        'user.email',
-        'user.name',
-        'user.surname',
-        'user.role',
-      ]);
-      expect(mockQueryBuilder.getOne).toHaveBeenCalled();
     });
 
     it('should return null when user not found by username', async () => {
       // Arrange
-      const mockQueryBuilder = {
-        where: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        getOne: jest.fn().mockResolvedValue(null),
-      };
-      (mockUserRepository.createQueryBuilder as jest.Mock).mockReturnValue(mockQueryBuilder);
+      (mockUserRepository.findOne as jest.Mock).mockResolvedValue(null);
 
       // Act
       const result = await userDataSource.getUserByUsername('nonexistent');
