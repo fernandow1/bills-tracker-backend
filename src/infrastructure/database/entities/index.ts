@@ -8,6 +8,8 @@ import { PaymentMethod } from '@infrastructure/database/entities/payment-method.
 import { Product } from '@infrastructure/database/entities/product.entity';
 import { Shop } from '@infrastructure/database/entities/shop.entity';
 import { User } from '@infrastructure/database/entities/user.entity';
+import { Role } from '@infrastructure/database/entities/role.entity';
+import { Permission } from '@infrastructure/database/entities/permission.entity';
 
 import { ProductAliasEntity } from '@infrastructure/database/entities/product-alias.entity';
 
@@ -23,4 +25,6 @@ export const DATABASE_ENTITIES = [
   Product,
   Shop,
   User,
+  Role,
+  Permission,
 ];
