@@ -40,7 +40,9 @@ describe('UpdateUser', () => {
 
       // Assert
       expect(mockUserRepository.findById).toHaveBeenCalledWith(userId);
-      expect(mockUserRepository.update).toHaveBeenCalledWith(userId, { role: { id: ROLESMOCK.Admin.id } });
+      expect(mockUserRepository.update).toHaveBeenCalledWith(userId, {
+        role: { id: ROLESMOCK.Admin.id },
+      });
       expect(result.role.id).toBe(ROLESMOCK.Admin.id);
     });
 
