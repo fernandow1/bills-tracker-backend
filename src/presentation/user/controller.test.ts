@@ -28,6 +28,7 @@ describe('UserController', () => {
         password: 'password123',
         name: 'Test',
         surname: 'User',
+        id_role: 3,
       },
     };
 

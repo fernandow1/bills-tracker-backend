@@ -1,0 +1,3 @@
+# Force LF for SQL migration files to ensure consistent Atlas checksums between Windows and Linux/Pipeline
+migrations/*.sql text eol=lf
+atlas.sum text eol=lf

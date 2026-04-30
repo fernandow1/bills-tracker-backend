@@ -1,5 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
-import { Role } from '@domain/enums/role.enum';
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty({ message: 'Name must not be empty' })
@@ -28,7 +27,7 @@ export class CreateUserDto {
   @MaxLength(255, { message: 'Password must be at most $constraint1 characters long' })
   password: string;
 
-  @IsOptional()
-  @IsEnum(Role, { message: 'Role must be a valid role (admin, user, guest)' })
-  role?: Role;
+  @IsNotEmpty({ message: 'Role ID must not be empty' })
+  @IsNumber({}, { message: 'Role ID must be a number' })
+  id_role: number;
 }

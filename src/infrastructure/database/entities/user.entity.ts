@@ -4,12 +4,14 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
+  ManyToOne,
+  JoinColumn,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Bill } from './bill.entity';
-import { Role } from '@domain/enums/role.enum';
+import { Bill } from '@infrastructure/database/entities/bill.entity';
+import { Role } from '@infrastructure/database/entities/role.entity';
 
 @Index('idx_user_email', ['email'], { unique: true })
 @Index('idx_user_username', ['username'], { unique: true })
@@ -46,13 +48,8 @@ export class User {
   })
   password: string;
 
-  @Column({
-    name: 'role',
-    type: 'enum',
-    enum: Role,
-    default: Role.Guest,
-    nullable: false,
-  })
+  @ManyToOne(() => Role, (role) => role.users, { nullable: false })
+  @JoinColumn({ name: 'id_role' })
   role: Role;
 
   @CreateDateColumn({

@@ -5,7 +5,42 @@ import { UserRepository } from '../../../domain/repository/user.repository';
 import { PasswordHasher } from '../../../domain/ports/password-hasher';
 import { JwtTokenGenerator } from '../../security/jwt-token-generator';
 import { faker } from '@faker-js/faker';
-import { Role } from '../../../domain/enums/role.enum';
+import { Role } from '../../database/entities/role.entity';
+
+export const ROLESMOCK = {
+  Admin: {
+    id: 1,
+    name: 'admin',
+    description: 'Administrator role',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    permissions: [],
+    users: [],
+  } as Role,
+  User: {
+    id: 2,
+    name: 'user',
+    description: 'Standard user role',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    permissions: [],
+    users: [],
+  } as Role,
+  Guest: {
+    id: 3,
+    name: 'guest',
+    description: 'Guest role',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    permissions: [],
+    users: [],
+  } as Role,
+};
+
+const ROLEMOCK = ROLESMOCK.Guest;
 
 export function dataSourceUserMock(
   repository: jest.Mocked<Repository<User>>,
@@ -37,7 +72,7 @@ export function userRepositoryMock(): jest.Mocked<Repository<User>> {
         name: userData.name ? userData.name : faker.datatype.string(),
         surname: userData.surname ? userData.surname : faker.datatype.string(),
         password: userData.password ? userData.password : faker.internet.password(),
-        role: userData.role ? userData.role : Role.Guest,
+        role: userData.role ? userData.role : ROLEMOCK,
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
@@ -60,7 +95,7 @@ export function userRepositoryMock(): jest.Mocked<Repository<User>> {
         name: faker.datatype.string(),
         surname: faker.datatype.string(),
         password: faker.internet.password(),
-        role: Role.Guest,
+        role: ROLEMOCK,
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
@@ -68,6 +103,7 @@ export function userRepositoryMock(): jest.Mocked<Repository<User>> {
         createdBills: [],
       } as User;
     }),
+    findOne: jest.fn(),
     createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
     softDelete: jest.fn().mockImplementation(async (criteria) => {
       if (criteria.id === 999) {
@@ -91,7 +127,7 @@ export const USERMOCK: User = {
   name: 'Test',
   surname: 'User',
   password: 'hashedpassword',
-  role: Role.Guest,
+  role: ROLEMOCK,
   createdAt: new Date('2023-01-01'),
   updatedAt: new Date('2023-01-01'),
   deletedAt: null,
@@ -114,7 +150,7 @@ export const USERCREATEMOCK: Omit<
   name: 'New',
   surname: 'User',
   password: 'newpassword123',
-  role: Role.Guest,
+  role: ROLEMOCK,
 };
 
 export function userDataSourceDomainMock(): jest.Mocked<UserDataSource> {
@@ -210,6 +246,7 @@ export const CREATEUSERDTOMOCK = {
   name: 'Test',
   surname: 'User',
   password: 'password123',
+  id_role: 3,
 };
 
 export const AUTHUSERDTOMOCK = {
