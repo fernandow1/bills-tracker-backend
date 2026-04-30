@@ -51,7 +51,7 @@ async function seed() {
   }
   adminRole.permissions = mergePermissions(
     adminRole.permissions,
-    permissions.filter((p) => p.action === 'manage')
+    permissions.filter((p) => p.action === 'manage'),
   );
   await roleRepo.save(adminRole);
   console.log('Admin role updated/created with default permissions.');
@@ -63,7 +63,7 @@ async function seed() {
   }
   userRole.permissions = mergePermissions(
     userRole.permissions,
-    permissions.filter((p) => p.subject !== 'all' && (p.action === 'read' || p.subject === 'Bill'))
+    permissions.filter((p) => p.subject !== 'all' && (p.action === 'read' || p.subject === 'Bill')),
   );
   await roleRepo.save(userRole);
   console.log('User role updated/created with default permissions.');
@@ -75,7 +75,7 @@ async function seed() {
   }
   guestRole.permissions = mergePermissions(
     guestRole.permissions,
-    permissions.filter((p) => p.action === 'read' && p.subject !== 'Bill')
+    permissions.filter((p) => p.action === 'read' && p.subject !== 'Bill'),
   );
   await roleRepo.save(guestRole);
   console.log('Guest role updated/created with default permissions.');
