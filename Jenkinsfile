@@ -257,6 +257,7 @@ pipeline {
                                     rm -f nginx/templates/*.example &&
                                     docker compose -f docker-compose.prod.yml pull &&
                                     docker compose -f docker-compose.prod.yml up -d &&
+                                    docker compose -f docker-compose.prod.yml restart nginx &&
                                     docker image prune -f
                                 '
                             """
