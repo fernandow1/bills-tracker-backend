@@ -39,34 +39,46 @@ async function seed() {
   // 2. Create Roles and Assign Permissions
   console.log('Creating roles...');
 
+  const mergePermissions = (existing: Permission[] | undefined, newPerms: Permission[]) => {
+    const allPerms = [...(existing || []), ...newPerms];
+    return Array.from(new Map(allPerms.map((p) => [p.id, p])).values());
+  };
+
   // Admin Role
   let adminRole = await roleRepo.findOne({ where: { name: 'admin' }, relations: ['permissions'] });
   if (!adminRole) {
     adminRole = roleRepo.create({ name: 'admin', description: 'Administrador del sistema' });
-    adminRole.permissions = permissions.filter((p) => p.action === 'manage');
-    await roleRepo.save(adminRole);
-    console.log('Admin role created with default permissions.');
   }
+  adminRole.permissions = mergePermissions(
+    adminRole.permissions,
+    permissions.filter((p) => p.action === 'manage'),
+  );
+  await roleRepo.save(adminRole);
+  console.log('Admin role updated/created with default permissions.');
 
   // User Role
   let userRole = await roleRepo.findOne({ where: { name: 'user' }, relations: ['permissions'] });
   if (!userRole) {
     userRole = roleRepo.create({ name: 'user', description: 'Usuario estándar' });
-    userRole.permissions = permissions.filter(
-      (p) => p.subject !== 'all' && (p.action === 'read' || p.subject === 'Bill'),
-    );
-    await roleRepo.save(userRole);
-    console.log('User role created with default permissions.');
   }
+  userRole.permissions = mergePermissions(
+    userRole.permissions,
+    permissions.filter((p) => p.subject !== 'all' && (p.action === 'read' || p.subject === 'Bill')),
+  );
+  await roleRepo.save(userRole);
+  console.log('User role updated/created with default permissions.');
 
   // Guest Role
   let guestRole = await roleRepo.findOne({ where: { name: 'guest' }, relations: ['permissions'] });
   if (!guestRole) {
     guestRole = roleRepo.create({ name: 'guest', description: 'Invitado con acceso de lectura' });
-    guestRole.permissions = permissions.filter((p) => p.action === 'read' && p.subject !== 'Bill');
-    await roleRepo.save(guestRole);
-    console.log('Guest role created with default permissions.');
   }
+  guestRole.permissions = mergePermissions(
+    guestRole.permissions,
+    permissions.filter((p) => p.action === 'read' && p.subject !== 'Bill'),
+  );
+  await roleRepo.save(guestRole);
+  console.log('Guest role updated/created with default permissions.');
 
   console.log('RBAC Seeding completed successfully.');
   await AppDataSource.destroy();
