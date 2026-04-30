@@ -1,5 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
-import { Role } from '@domain/enums/role.enum';
+import { IsEmail, IsNumber, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -30,6 +29,6 @@ export class UpdateUserDto {
   password?: string;
 
   @IsOptional()
-  @IsEnum(Role, { message: 'Role must be a valid role (admin, user, guest)' })
-  role?: Role;
+  @IsNumber({}, { message: 'Role ID must be a number' })
+  id_role?: number;
 }

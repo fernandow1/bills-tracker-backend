@@ -1,6 +1,6 @@
 import { AbilityBuilder, createMongoAbility } from '@casl/ability';
-import { Role } from '@domain/enums/role.enum';
-import type { AppAbility } from '@application/configs/ability.types';
+import type { AppAbility, Action, Subject } from '@application/configs/ability.types';
+import { Role } from '@domain/entities/role.entity';
 
 interface UserWithRole {
   id: number;
@@ -10,28 +10,11 @@ interface UserWithRole {
 export function defineAbilityFor(user: UserWithRole): AppAbility {
   const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
 
-  switch (user.role) {
-    case Role.Admin:
-      // Admin can do everything
-      can('manage', 'all');
-      break;
-
-    case Role.User:
-      // User can read all resources
-      can('read', ['Brand', 'Category', 'Currency', 'PaymentMethod', 'Product', 'Shop']);
-
-      // User can manage their own bills (will need conditions in the future)
-      can(['create', 'read', 'update', 'delete'], 'Bill');
-      break;
-
-    case Role.Guest:
-      // Guest can only read public resources
-      can('read', ['Brand', 'Category', 'Currency', 'PaymentMethod', 'Product', 'Shop']);
-      break;
-
-    default:
-      // No permissions by default
-      break;
+  if (user.role && user.role.permissions) {
+    user.role.permissions.forEach((permission) => {
+      // Mapping database strings to CASL Action and Subject types
+      can(permission.action as Action, permission.subject as Subject);
+    });
   }
 
   return build();

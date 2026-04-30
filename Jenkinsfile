@@ -146,6 +146,7 @@ pipeline {
                             export DB_URL=$(node -e "console.log('mysql://' + encodeURIComponent(process.env.DB_USER) + ':' + encodeURIComponent(process.env.DB_PASSWORD) + '@' + process.env.DB_HOST + ':' + process.env.DB_PORT + '/' + process.env.DB_NAME)")
                             
                             npm run remotemigration:run
+                            node dist/infrastructure/database/scripts/seed-rbac.js
                         '''
                     }
                 }

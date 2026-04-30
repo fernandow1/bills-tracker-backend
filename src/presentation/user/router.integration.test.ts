@@ -18,6 +18,7 @@ describe('User Router Integration Tests', () => {
       password: 'password123',
       name: 'Test',
       surname: 'User',
+      id_role: 3,
     };
 
     it('should attempt to create a new user', async () => {

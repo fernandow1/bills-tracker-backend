@@ -1,4 +1,4 @@
-import { Role } from '@domain/enums/role.enum';
+import { Role } from '@domain/entities/role.entity';
 
 export class User {
   id: number;
@@ -21,7 +21,7 @@ export class User {
     password: string,
     createdAt: Date,
     updatedAt: Date,
-    role: Role = Role.Guest,
+    role: Role,
     deletedAt?: Date | null,
   ) {
     this.id = id;

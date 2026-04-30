@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jwt from 'jsonwebtoken';
 import { JwtTokenValidate } from './jwt-token-validate';
+import { envs } from '../config/env';
 
 jest.mock('jsonwebtoken');
 const mockedJwt = jwt as jest.Mocked<typeof jwt>;
@@ -27,7 +28,7 @@ describe('JwtTokenValidate', () => {
       expect(result).toEqual(mockPayload);
       expect(mockedJwt.verify).toHaveBeenCalledWith(
         'valid-token',
-        'test-secret-key',
+        envs.JWT_SECRET,
         expect.any(Function),
       );
     });

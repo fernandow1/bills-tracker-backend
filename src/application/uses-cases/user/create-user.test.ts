@@ -1,10 +1,10 @@
 import { CreateUser } from './create-user';
 import { UserRepository } from '../../../domain/repository/user.repository';
 import { PasswordHasher } from '../../../domain/ports/password-hasher';
-import { Role } from '../../../domain/enums/role.enum';
 import {
   USERMOCK,
   USERCREATEMOCK,
+  ROLESMOCK,
   userRepositoryDomainMock,
   passwordHasherMock,
 } from '../../../infrastructure/datasource/user/user.mock';
@@ -135,8 +135,8 @@ describe('CreateUser', () => {
 
     it('should create user with specific role when provided', async () => {
       // Arrange
-      const userData = { ...USERCREATEMOCK, password: 'password123', role: Role.Admin };
-      const expectedUser = { ...USERMOCK, password: 'hashed_password123', role: Role.Admin };
+      const userData = { ...USERCREATEMOCK, password: 'password123', role: ROLESMOCK.Admin };
+      const expectedUser = { ...USERMOCK, password: 'hashed_password123', role: ROLESMOCK.Admin };
 
       mockPasswordHasher.hash.mockResolvedValue('hashed_password123');
       mockUserRepository.create.mockResolvedValue(expectedUser);
@@ -151,13 +151,13 @@ describe('CreateUser', () => {
         password: 'hashed_password123',
       });
       expect(result).toEqual(expectedUser);
-      expect(result.role).toBe(Role.Admin);
+      expect(result.role).toBe(ROLESMOCK.Admin);
     });
 
     it('should create user with User role when specified', async () => {
       // Arrange
-      const userData = { ...USERCREATEMOCK, password: 'password123', role: Role.User };
-      const expectedUser = { ...USERMOCK, password: 'hashed_password123', role: Role.User };
+      const userData = { ...USERCREATEMOCK, password: 'password123', role: ROLESMOCK.User };
+      const expectedUser = { ...USERMOCK, password: 'hashed_password123', role: ROLESMOCK.User };
 
       mockPasswordHasher.hash.mockResolvedValue('hashed_password123');
       mockUserRepository.create.mockResolvedValue(expectedUser);
@@ -170,7 +170,7 @@ describe('CreateUser', () => {
         ...userData,
         password: 'hashed_password123',
       });
-      expect(result.role).toBe(Role.User);
+      expect(result.role).toBe(ROLESMOCK.User);
     });
 
     it('should create user with Guest role when not specified', async () => {
@@ -178,7 +178,7 @@ describe('CreateUser', () => {
       const userData = { ...USERCREATEMOCK, password: 'password123' };
       // Remove role from userData to test default behavior
       delete (userData as any).role;
-      const expectedUser = { ...USERMOCK, password: 'hashed_password123', role: Role.Guest };
+      const expectedUser = { ...USERMOCK, password: 'hashed_password123', role: ROLESMOCK.Guest };
 
       mockPasswordHasher.hash.mockResolvedValue('hashed_password123');
       mockUserRepository.create.mockResolvedValue(expectedUser);
@@ -192,7 +192,7 @@ describe('CreateUser', () => {
         password: 'hashed_password123',
       });
       // The default role should be Guest (set by the entity)
-      expect(result.role).toBe(Role.Guest);
+      expect(result.role).toBe(ROLESMOCK.Guest);
     });
   });
 });
