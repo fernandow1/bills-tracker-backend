@@ -1,8 +1,9 @@
 import express, { Router } from 'express';
 import compression from 'compression';
+import cors from 'cors';
 import { errorHandler } from '@infrastructure/http/middlewares/errorHandler.middleware';
 import helmet from 'helmet';
-import { getHelmetConfig, getCurrentEnvironment } from '@infrastructure/security/helmet.config';
+import { getCurrentEnvironment, getCorsConfig } from '@infrastructure/security/helmet.config';
 import { logger } from '@infrastructure/logging/logger.config';
 import * as promClient from 'prom-client';
 
@@ -28,8 +29,9 @@ export class Server {
       promClient.collectDefaultMetrics();
     }
 
-    // Configurar trust proxy para Railway
-    // Railway usa un reverse proxy, necesitamos confiar en él para obtener la IP real del cliente
+    // Configurar trust proxy
+    // Como estamos detrás de un Nginx como proxy inverso, necesitamos confiar
+    // en él para obtener la IP real del cliente a través de X-Forwarded-For
     this.app.set('trust proxy', 1);
 
     // Aplicar configuración de seguridad con Helmet
@@ -45,9 +47,9 @@ export class Server {
       }),
     );
 
-    // Aplicar configuración de CORS
-    // Los orígenes permitidos están centralizados en el módulo de seguridad
-    // this.app.use(cors(getCorsConfig(getCurrentEnvironment())));
+    if (getCurrentEnvironment() === 'development') {
+      this.app.use(cors(getCorsConfig('development')));
+    }
 
     this.app.use(express.json()); // For parsing application/json
     this.app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
