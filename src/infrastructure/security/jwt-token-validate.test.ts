@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import jwt from 'jsonwebtoken';
 import { JwtTokenValidate } from './jwt-token-validate';
+import { envs } from '../config/env';
 
 jest.mock('jsonwebtoken');
 const mockedJwt = jwt as jest.Mocked<typeof jwt>;
@@ -12,11 +13,6 @@ describe('JwtTokenValidate', () => {
   beforeEach(() => {
     jwtValidator = new JwtTokenValidate();
     jest.clearAllMocks();
-    process.env.JWT_SECRET = 'test-secret';
-  });
-
-  afterEach(() => {
-    delete process.env.JWT_SECRET;
   });
 
   describe('validate', () => {
@@ -32,7 +28,7 @@ describe('JwtTokenValidate', () => {
       expect(result).toEqual(mockPayload);
       expect(mockedJwt.verify).toHaveBeenCalledWith(
         'valid-token',
-        'test-secret',
+        envs.JWT_SECRET,
         expect.any(Function),
       );
     });
@@ -65,34 +61,6 @@ describe('JwtTokenValidate', () => {
       });
 
       await expect(jwtValidator.validate('malformed.token')).rejects.toThrow('jwt malformed');
-    });
-
-    it('should use environment JWT_SECRET', async () => {
-      process.env.JWT_SECRET = 'custom-secret';
-
-      mockedJwt.verify.mockImplementation((token, secret, callback: any) => {
-        callback(null, { sub: '123' });
-      });
-
-      await jwtValidator.validate('some-token');
-
-      expect(mockedJwt.verify).toHaveBeenCalledWith(
-        'some-token',
-        'custom-secret',
-        expect.any(Function),
-      );
-    });
-
-    it('should work with undefined JWT_SECRET', async () => {
-      delete process.env.JWT_SECRET;
-
-      mockedJwt.verify.mockImplementation((token, secret, callback: any) => {
-        callback(null, { sub: '123' });
-      });
-
-      await jwtValidator.validate('some-token');
-
-      expect(mockedJwt.verify).toHaveBeenCalledWith('some-token', undefined, expect.any(Function));
     });
 
     it('should return complete payload', async () => {

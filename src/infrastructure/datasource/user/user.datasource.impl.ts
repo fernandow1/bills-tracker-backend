@@ -18,10 +18,14 @@ export class UserDataSourceImpl implements UserDataSource {
         surname: true,
         email: true,
         username: true,
-        role: true,
         createdAt: true,
         updatedAt: true,
+        role: {
+          id: true,
+          name: true,
+        },
       },
+      relations: ['role'],
       skip: (page - 1) * pageSize,
       take: pageSize,
       order: {
@@ -36,7 +40,9 @@ export class UserDataSourceImpl implements UserDataSource {
   }
 
   async getUsers(): Promise<User[]> {
-    return this.dataSource.getRepository(User).find();
+    return this.dataSource.getRepository(User).find({
+      relations: ['role'],
+    });
   }
 
   async createUser(userData: Partial<User>): Promise<User> {
@@ -44,22 +50,34 @@ export class UserDataSourceImpl implements UserDataSource {
   }
 
   async getUserById(id: number): Promise<User | null> {
-    return this.dataSource.getRepository(User).findOneBy({ id });
+    return this.dataSource.getRepository(User).findOne({
+      where: { id },
+      relations: ['role', 'role.permissions'],
+    });
   }
 
   async getUserByUsername(username: string): Promise<User | null> {
-    const query = this.dataSource.getRepository(User).createQueryBuilder('user');
-    query.where('user.username = :username', { username });
-    query.select([
-      'user.id',
-      'user.username',
-      'user.password',
-      'user.email',
-      'user.name',
-      'user.surname',
-      'user.role',
-    ]);
-    return query.getOne();
+    return this.dataSource.getRepository(User).findOne({
+      where: { username },
+      relations: ['role', 'role.permissions'],
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        email: true,
+        name: true,
+        surname: true,
+        role: {
+          id: true,
+          name: true,
+          permissions: {
+            id: true,
+            action: true,
+            subject: true,
+          },
+        },
+      },
+    });
   }
 
   async updateUser(id: number, userData: Partial<User>): Promise<User> {

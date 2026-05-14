@@ -24,8 +24,9 @@ describe('Server', () => {
     });
 
     // Sobrescribimos el app.listen original con nuestro Mock para interceptarlo
-    const mockListen = jest.fn().mockImplementation((port, cb) => {
-      if (cb) cb();
+    const mockListen = jest.fn().mockImplementation((port, hostOrCb, cb) => {
+      const callback = typeof hostOrCb === 'function' ? hostOrCb : cb;
+      if (callback) callback();
       return { close: mockClose }; // Devolvemos nuestro falso listener
     });
 
@@ -34,7 +35,7 @@ describe('Server', () => {
 
     // Procedemos a probar el método start()
     await server.start();
-    expect(mockListen).toHaveBeenCalledWith(mockPort, expect.any(Function));
+    expect(mockListen).toHaveBeenCalledWith(mockPort, '0.0.0.0', expect.any(Function));
 
     // Procedemos a probar el método stop()
     await server.stop();

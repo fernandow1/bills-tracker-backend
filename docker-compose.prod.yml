@@ -1,0 +1,41 @@
+services:
+  nginx:
+    build:
+      context: ./nginx
+    container_name: bills-tracker-nginx-prod
+    restart: always
+    expose:
+      - '80'
+    environment:
+      - NGINX_PORT=80
+      - UPSTREAM_URL=app:3000
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates:ro
+    depends_on:
+      - app
+
+  app:
+    image: ferdog96/bills-tracker-backend:latest
+    container_name: bills-tracker-api-prod
+    restart: always
+    expose:
+      - '3000'
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: bills-tracker-cloudflared
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - nginx

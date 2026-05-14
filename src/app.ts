@@ -4,14 +4,16 @@ import { Server } from '@presentation/server';
 import { envs } from '@infrastructure/config/env';
 import { logger } from '@infrastructure/logging/logger.config';
 
-(async (): Promise<void> => {
-  try {
-    await main();
-  } catch (error) {
-    logger.error('Error starting the server:', error);
-    process.exit(1);
-  }
-})();
+if (envs.NODE_ENV !== 'test') {
+  (async (): Promise<void> => {
+    try {
+      await main();
+    } catch (error) {
+      logger.error('Error starting the server:', error);
+      process.exit(1);
+    }
+  })();
+}
 
 async function main(): Promise<void> {
   try {

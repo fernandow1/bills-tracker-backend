@@ -11,8 +11,6 @@ import { checkAbility } from '@infrastructure/http/middlewares/check-ability.mid
 import { CREATE_UNIT_OF_WORK_FACTORY } from '@infrastructure/unit-of-work/unit-of-work.factory';
 import { ExtractBillDataFromImage } from '@application/uses-cases/bill/extract-bill-data-from-image';
 import { GeminiVisionService } from '@infrastructure/services/gemini-vision.service';
-import { ShopDataSourceImpl } from '@infrastructure/datasource/shop/shop.datasource.impl';
-import { ShopRepositoryImpl } from '@infrastructure/repositories/shop/shop.repository.impl';
 import { ProductDataSourceImpl } from '@infrastructure/datasource/product/product.datasource.impl';
 import { ProductRepositoryImpl } from '@infrastructure/repositories/product/product.repository.impl';
 import { ProductAliasDataSourceImpl } from '@infrastructure/datasource/product-alias/product-alias.datasource.impl';
@@ -23,6 +21,7 @@ import { BrandDataSourceImpl } from '@infrastructure/datasource/brand/brand.data
 import { BrandRepositoryImpl } from '@infrastructure/repositories/brand/brand.repository.impl';
 import { MatchOrCreateProductFromAlias } from '@application/uses-cases/product/match-or-create-product-from-alias';
 import { memoryFileUploadMiddleware } from '@infrastructure/http/middlewares/file-upload.middleware';
+import { withAbortSignal } from '@infrastructure/http/middlewares/abort-signal.middleware';
 
 export const BillRouter = {
   routes(dataSource: DataSource): Router {
@@ -34,8 +33,6 @@ export const BillRouter = {
     const pmRepository = new PaymentMethodRepositoryImpl(pmDataSource);
 
     // New Repositories for Extraction
-    const shopDataSource = new ShopDataSourceImpl(dataSource);
-    const shopRepository = new ShopRepositoryImpl(shopDataSource);
     const productDataSource = new ProductDataSourceImpl(dataSource);
     const productRepository = new ProductRepositoryImpl(productDataSource);
     const productAliasDataSource = new ProductAliasDataSourceImpl(dataSource);
@@ -105,7 +102,12 @@ export const BillRouter = {
 
     router.post(
       '/extract-image',
-      [validateJwt, checkAbility('create', 'Bill'), memoryFileUploadMiddleware.single('image')],
+      [
+        validateJwt,
+        checkAbility('create', 'Bill'),
+        memoryFileUploadMiddleware.single('image'),
+        withAbortSignal,
+      ],
       (req: Request, res: Response, next: NextFunction) => {
         billController.extractFromImage(req, res, next);
       },

@@ -25,9 +25,15 @@ export class UpdateUser implements UpdateUserUseCase {
     }
 
     // If password is being updated, hash it
-    const updateData: Partial<User> = { ...userData };
+    const { id_role, ...otherData } = userData;
+    const updateData: Partial<User> = { ...otherData };
+
     if (userData.password) {
       updateData.password = await this.passwordHasher.hash(userData.password);
+    }
+
+    if (id_role) {
+      updateData.role = { id: id_role } as any;
     }
 
     // If email is being updated, check it's not already in use by another user

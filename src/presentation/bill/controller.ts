@@ -188,6 +188,7 @@ export class BillController {
         mimetype,
         metadata.idShop,
         metadata.aiInstructions,
+        (req as any).abortSignal,
       );
       if (!aiData) {
         return next(

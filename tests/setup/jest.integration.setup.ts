@@ -1,4 +1,5 @@
 import { TestDataSource } from '../../src/infrastructure/database/connection-test';
+import { AppDataSource } from '../../src/infrastructure/database/connection';
 
 // Setup global para todos los tests de integración
 beforeAll(async () => {
@@ -9,10 +10,10 @@ beforeAll(async () => {
     if (!TestDataSource.isInitialized) {
       await TestDataSource.initialize();
     }
-    
-    // Evitar bug de TypeORM de 'Table already exists' con dropSchema explícito
-    await TestDataSource.dropDatabase();
-    await TestDataSource.synchronize();
+    // Inicializar AppDataSource para que la App interna tenga a dónde pegarle en sus controllers
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
+    }
     
     console.log('✅ Test database connected successfully');
   } catch (error) {
@@ -27,8 +28,11 @@ afterAll(async () => {
 
   if (TestDataSource.isInitialized) {
     await TestDataSource.destroy();
-    console.log('✅ Test database disconnected');
   }
+  if (AppDataSource.isInitialized) {
+    await AppDataSource.destroy();
+  }
+  console.log('✅ Test databases disconnected');
 });
 
 // Limpiar datos y plantar base antes de cada test
@@ -48,14 +52,38 @@ beforeEach(async () => {
     // Rehabilitar foreign keys
     await TestDataSource.query('SET FOREIGN_KEY_CHECKS = 1');
 
+    // Plantar roles por defecto
+    await TestDataSource.query(
+      `INSERT INTO \`role\` (id, name, description, created_at, updated_at) VALUES 
+      (1, 'admin', 'Administrator role', NOW(), NOW()),
+      (2, 'user', 'Standard user role', NOW(), NOW()),
+      (3, 'guest', 'Guest role', NOW(), NOW())`
+    );
+
+    // Plantar permisos por defecto
+    await TestDataSource.query(
+      `INSERT INTO \`permission\` (id, action, subject, description, created_at, updated_at) VALUES 
+      (1, 'manage', 'all', 'Super admin permission', NOW(), NOW()),
+      (2, 'read', 'all', 'Read everything', NOW(), NOW()),
+      (3, 'create', 'all', 'Create everything', NOW(), NOW())`
+    );
+
+    // Asociar permisos a roles
+    await TestDataSource.query(
+      `INSERT INTO \`role_permission\` (id_role, id_permission) VALUES 
+      (1, 1), -- Admin: manage all
+      (2, 2), (2, 3), -- User: read + create all
+      (3, 2) -- Guest: read all`
+    );
+
     // Plantar usuarios por defecto para las pruebas
     const bcrypt = await import('bcryptjs');
     const hashedPassword = await bcrypt.hash('password123', 10);
     
     await TestDataSource.query(
-      `INSERT INTO \`user\` (id, name, email, username, password, role, created_at, updated_at) VALUES 
-      (1, 'Admin Test', 'admin@example.com', 'admin_test', ?, 'admin', NOW(), NOW()),
-      (2, 'User Test', 'user@example.com', 'user_test', ?, 'guest', NOW(), NOW())`,
+      `INSERT INTO \`user\` (id, name, email, username, password, id_role, created_at, updated_at) VALUES 
+      (1, 'Admin Test', 'admin@example.com', 'admin_test', ?, 1, NOW(), NOW()),
+      (2, 'User Test', 'user@example.com', 'user_test', ?, 2, NOW(), NOW())`,
       [hashedPassword, hashedPassword]
     );
   }

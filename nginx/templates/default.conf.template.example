@@ -1,5 +1,3 @@
-resolver 127.0.0.11 ipv6=off valid=30s;
-
 # Usamos $binary_remote_addr para ahorrar espacio.
 # rate=5r/s significa que permitimos 5 peticiones por segundo.
 limit_req_zone $binary_remote_addr zone=api_limit:10m rate=5r/s;
@@ -40,7 +38,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        set $upstream_endpoint "${UPSTREAM_URL}";
+        set $upstream_endpoint "http://${UPSTREAM_URL}";
         proxy_pass $upstream_endpoint;
 
         # Optimizaciones para el túnel de conexión
@@ -54,7 +52,7 @@ server {
     }
 
     location /health {
-        proxy_pass ${UPSTREAM_URL};
+        proxy_pass http://${UPSTREAM_URL};
     }
 
     location @429 {

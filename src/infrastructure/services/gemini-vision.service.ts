@@ -18,6 +18,7 @@ export class GeminiVisionService implements IAIVisionPort {
     categories: ItemReferenceDTO[],
     brands: ItemReferenceDTO[],
     aiInstructions?: string,
+    signal?: AbortSignal,
   ): Promise<ExtractedBillDataDTO> {
     logger.info('Iniciando el procesamiento de imagen con Gemini AI...');
 
@@ -95,6 +96,9 @@ export class GeminiVisionService implements IAIVisionPort {
     const aiResponseText = response.text;
 
     logger.info('Respuesta de Gemini AI:', { result: aiResponseText });
+
+    // Abort early if the signal was canceled while waiting for the AI response
+    signal?.throwIfAborted();
 
     if (!aiResponseText) {
       throw new Error('Gemini API did not return any text.');

@@ -2,6 +2,19 @@ import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import TransportStream from 'winston-transport';
 import { envs } from '@infrastructure/config/env';
+import * as util from 'util';
+
+// Configuración de circularJSON para evitar caídas en stringify
+const getCircularReplacer = () => {
+  const seen = new WeakSet();
+  return (key: string, value: any) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) return '[Circular]';
+      seen.add(value);
+    }
+    return value;
+  };
+};
 
 const isDevelopment = envs.NODE_ENV !== 'production';
 
@@ -12,7 +25,7 @@ const developmentFormat = winston.format.combine(
   winston.format.printf(({ timestamp, level, message, ...metadata }) => {
     let msg = `${timestamp} [${level}]: ${message}`;
     if (Object.keys(metadata).length > 0) {
-      msg += `\n${JSON.stringify(metadata, null, 2)}`;
+      msg += `\n${util.inspect(metadata, { depth: 4, colors: true })}`;
     }
     return msg;
   }),
@@ -62,7 +75,7 @@ class BetterStackTransport extends TransportStream {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${this.sourceToken}`,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload, getCircularReplacer()),
     }).catch((error) => {
       // Log error but don't fail the application
       console.error('Failed to send log to BetterStack:', error.message);

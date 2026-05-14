@@ -1,12 +1,12 @@
 node_modules/
 dist/
-migrations/
 coverage/
 docs/
 .env
 yarn.lock
 
 *.md
+!README.md
 
 # Nginx 
 nginx/templates/*
