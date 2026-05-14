@@ -8,5 +8,6 @@ export interface IAIVisionPort {
     categories: ItemReferenceDTO[],
     brands: ItemReferenceDTO[],
     aiInstructions?: string,
+    signal?: AbortSignal,
   ): Promise<ExtractedBillDataDTO>;
 }
