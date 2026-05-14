@@ -92,6 +92,7 @@ describe('ExtractBillDataFromImage Use Case', () => {
       mockCategories,
       mockBrands,
       undefined,
+      undefined,
     );
     expect(mockMatchOrCreateProductFromAlias.execute).toHaveBeenCalledWith(
       10,

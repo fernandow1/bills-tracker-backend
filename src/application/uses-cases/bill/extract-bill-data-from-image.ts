@@ -17,6 +17,7 @@ export class ExtractBillDataFromImage {
     mimeType: string,
     idShop: number,
     aiInstructions?: string,
+    signal?: AbortSignal,
   ): Promise<ExtractedBillDataDTO> {
     if (!imageBuffer || !mimeType) {
       throw new Error('Image buffer and mimeType are required');
@@ -34,12 +35,12 @@ export class ExtractBillDataFromImage {
       formattedCategories,
       formattedBrands,
       aiInstructions,
+      signal,
     );
 
-    // 1. (Omitido) El ID del comercio ya viene directamente desde el controlador
-
-    // 2. Por cada item del ticket, matcheamos su alias usando el idShop
     for (const item of aiData.items) {
+      signal?.throwIfAborted();
+
       if (item.id_category === null) {
         const newCategoryName = item.suggested_category?.trim() || 'Sin Categoría';
         const existingCategory = categories.find(
