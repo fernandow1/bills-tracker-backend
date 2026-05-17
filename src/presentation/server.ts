@@ -71,6 +71,10 @@ export class Server {
     this.listener = this.app.listen(this.port, '0.0.0.0', () => {
       logger.info(`Server is running on port ${this.port}`);
     });
+
+    this.listener.headersTimeout = 300000;
+    this.listener.keepAliveTimeout = 305000;
+    this.listener.timeout = 300000;
   }
 
   async stop(): Promise<void> {
